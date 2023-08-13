@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "../.././Styles/Navbar/Navbar.module.css";
+import useUser from "../../customhooks/useUser";
+
 export function Navbar() {
+  const { isAuthenticated, userId, email, userRole } = useUser();
+
+  useEffect(() => {}, [isAuthenticated]);
   return (
     <nav>
       <div className={styles.navbarLeftSide}>
@@ -14,9 +19,15 @@ export function Navbar() {
       </div>
       <div className={styles.navbarRightSide}>
         <div className={styles.navbarComponentsRight}>
-          <Link className={styles.signIn} to="/signin">
-            Sign in
-          </Link>
+          {isAuthenticated ? (
+            <Link className={styles.signIn} to="/signin">
+              Sign out
+            </Link>
+          ) : (
+            <Link className={styles.signIn} to="/signin">
+              Sign in
+            </Link>
+          )}
           <span className={styles.divider}></span>
           <Link to="/employers">Employers/Post Job</Link>
         </div>
