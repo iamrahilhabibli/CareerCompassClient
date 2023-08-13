@@ -76,3 +76,21 @@ nav {
 .iconContainer {
   margin-right: 20px;
 }
+
+@keyframes ringingBell {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+.redBell {
+  animation: ringingBell 1s linear infinite;
+  color: #2557a7 !important;
+}

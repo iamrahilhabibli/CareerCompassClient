@@ -7,7 +7,6 @@ export const useNotifications = (userId, token) => {
     () => notificationService(userId, token),
     {
       onError: (error) => {
-        // Log the error here
         console.error("Error fetching notifications:", error);
       },
     }

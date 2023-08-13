@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import styles from "../.././Styles/Navbar/Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 import cclogolarge from "../../images/cclogolarge.png";
 import axios from "axios";
 import { HStack, Image } from "@chakra-ui/react";
 import { BellIcon, ChatIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useNotifications } from "../../customhooks/useNotifications";
+import { useDisclosure } from "@chakra-ui/react";
+import { NotificationsDrawer } from "../NotificationsDrawer/NotificationsDrawer";
 export function Navbar() {
   const { isAuthenticated, userId } = useUser();
   const token = localStorage.getItem("token");
@@ -28,7 +31,22 @@ export function Navbar() {
         console.error("An error occurred during logout:", error);
       });
   };
-
+  const hasUnreadNotifications =
+    notifications && notifications.some((notification) => !notification.read);
+  const unreadNotifications =
+    notifications && notifications.filter((notification) => !notification.read);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+  // useEffect(() => {
+  //   unreadNotifications?.forEach((notification) => {
+  //     toast({
+  //       title: "New notification",
+  //       position: "top-right",
+  //       isClosable: true,
+  //       colorScheme: "orange",
+  //     });
+  //   });
+  // }, [unreadNotifications, toast]);
   return (
     <nav>
       <div className={styles.navbarLeftSide}>
@@ -54,6 +72,8 @@ export function Navbar() {
                 boxSize={5}
                 transition="color 0.3s ease"
                 _hover={{ color: "#2557a7" }}
+                onClick={onOpen}
+                className={hasUnreadNotifications ? styles.redBell : ""}
               />
               <HamburgerIcon
                 boxSize={5}
@@ -70,6 +90,11 @@ export function Navbar() {
           <Link to="/employers">Employers/Post Job</Link>
         </div>
       </div>
+      <NotificationsDrawer
+        isOpen={isOpen}
+        onClose={onClose}
+        notifications={notifications}
+      />
     </nav>
   );
 }
