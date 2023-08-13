@@ -1,5 +1,9 @@
 import React from "react";
-
+import { Searchbar } from "./HomeSearchBar/Searchbar";
 export function Home() {
-  return <div>I am Home page</div>;
+  return (
+    <div>
+      <Searchbar />
+    </div>
+  );
 }

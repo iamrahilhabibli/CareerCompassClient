@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import styles from "../.././Styles/Navbar/Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
+import cclogolarge from "../../images/cclogolarge.png";
 import axios from "axios";
+import { Image } from "@chakra-ui/react";
+
 export function Navbar() {
   const { isAuthenticated, userId, email, userRole } = useUser();
   const navigate = useNavigate();
@@ -27,7 +30,9 @@ export function Navbar() {
   return (
     <nav>
       <div className={styles.navbarLeftSide}>
-        <div></div>
+        <Link to="/">
+          <Image className={styles.navbarLogo} src={cclogolarge} alt="Logo" />
+        </Link>
         <div className={styles.navbarComponentsLeft}>
           <Link to="/">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
