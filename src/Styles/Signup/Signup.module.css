@@ -1,0 +1,8 @@
+.signInLink {
+  color: rgb(76, 76, 140);
+  margin-left: 5px;
+  font-weight: bold;
+}
+.signInLink:hover {
+  text-decoration: underline;
+}

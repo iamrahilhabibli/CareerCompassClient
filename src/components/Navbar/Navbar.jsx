@@ -14,8 +14,8 @@ export function Navbar() {
       </div>
       <div className={styles.navbarRightSide}>
         <div className={styles.navbarComponentsRight}>
-          <Link className={styles.signIn} to="/signin">
-            Sign in
+          <Link className={styles.signIn} to="/signup">
+            Sign up
           </Link>
           <span className={styles.divider}></span>
           <Link to="/employers">Employers/Post Job</Link>

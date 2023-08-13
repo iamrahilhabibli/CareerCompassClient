@@ -7,20 +7,20 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  HStack,
   InputRightElement,
   Stack,
   Button,
   Heading,
   Text,
   useColorModeValue,
-  Link,
   Select,
 } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+import styles from "../../Styles/Signup/Signup.module.css";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useMutation } from "react-query";
-import { ErrorMessage, useFormik } from "formik";
+import { useFormik } from "formik";
 import axios from "axios";
 export function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -75,27 +75,45 @@ export function Signup() {
             boxShadow={"lg"}
             p={8}
           >
+            <Box textAlign={"left"}>
+              <Heading size={"md"}>Ready to take the next step?</Heading>
+              <Text fontSize={"md"} fontWeight={"500"}>
+                Create an account or
+                <Link
+                  className={styles.signInLink}
+                  to="/signin"
+                  color={"blue.400"}
+                  marginLeft={"5px"}
+                  marginRight={"5px"}
+                >
+                  sign in.
+                </Link>
+              </Text>
+            </Box>
+
+            <br />
             <Stack spacing={4}>
-              <HStack>
-                <Box>
-                  <FormControl id="firstName">
-                    <FormLabel>First Name</FormLabel>
-                    <Input type="text" {...formik.getFieldProps("firstName")} />
-                    <Text fontSize={"15px"} color={"red"} mb="8px">
-                      {formik.touched.firstName && formik.touched.firstName}
-                    </Text>
-                  </FormControl>
-                </Box>
-                <Box>
-                  <FormControl id="lastName">
-                    <FormLabel>Last Name</FormLabel>
-                    <Input type="text" {...formik.getFieldProps("lastName")} />
-                    <Text fontSize={"15px"} color={"red"} mb="8px">
-                      {formik.touched.lastName && formik.touched.lastName}
-                    </Text>
-                  </FormControl>
-                </Box>
-              </HStack>
+              <Box>
+                <FormControl id="firstName">
+                  <Input
+                    type="text"
+                    {...formik.getFieldProps("firstName")}
+                    placeholder="Enter your first name"
+                  />
+                  <Text fontSize={"15px"} color={"red"} mb="8px">
+                    {formik.touched.firstName && formik.errors.firstName}
+                  </Text>
+                </FormControl>
+              </Box>
+              <Box>
+                <FormControl id="lastName">
+                  <FormLabel>Last Name</FormLabel>
+                  <Input type="text" {...formik.getFieldProps("lastName")} />
+                  <Text fontSize={"15px"} color={"red"} mb="8px">
+                    {formik.touched.lastName && formik.errors.lastName}
+                  </Text>
+                </FormControl>
+              </Box>
               <FormControl id="email">
                 <FormLabel>Email address</FormLabel>
                 <Text fontSize={"15px"} color={"red"} mb="8px">
@@ -103,7 +121,7 @@ export function Signup() {
                 </Text>
                 <Input type="email" {...formik.getFieldProps("email")} />
               </FormControl>
-              <FormControl id="password" isRequired>
+              <FormControl id="password">
                 <FormLabel>Password</FormLabel>
                 <Text fontSize={"15px"} color={"red"} mb="8px">
                   {formik.touched.password && formik.errors.password}
@@ -125,7 +143,7 @@ export function Signup() {
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
-              <FormControl id="role" isRequired>
+              <FormControl id="role">
                 <FormLabel>Role</FormLabel>
                 <Select
                   placeholder="Select role"
