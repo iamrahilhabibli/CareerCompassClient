@@ -73,3 +73,6 @@ nav {
   width: 150px;
   object-fit: contain;
 }
+.iconContainer {
+  margin-right: 20px;
+}

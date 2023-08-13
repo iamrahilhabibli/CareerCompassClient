@@ -3,19 +3,22 @@ import jwt_decode from "jwt-decode";
 
 const useUser = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  let userId = null;
-  let email = null;
-  let userRole = null;
+  const [userId, setUserId] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   const checkAuthentication = () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwt_decode(token);
-      userId = decodedToken.sub;
-      email = decodedToken.email;
-      userRole = decodedToken.role;
+      setUserId(decodedToken.sub);
+      setEmail(decodedToken.email);
+      setUserRole(decodedToken.role);
       setIsAuthenticated(true);
     } else {
+      setUserId(null);
+      setEmail(null);
+      setUserRole(null);
       setIsAuthenticated(false);
     }
   };

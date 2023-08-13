@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 50px;
+  padding-top: 75px;
 }
 
 .searchField {
@@ -16,7 +16,7 @@
   font-size: 14px;
   line-height: 14px;
   color: #2d2d2d;
-  left: 10px; /* Adjust as needed */
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
 }

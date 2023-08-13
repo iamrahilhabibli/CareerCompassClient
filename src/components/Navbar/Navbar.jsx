@@ -5,10 +5,13 @@ import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
 import cclogolarge from "../../images/cclogolarge.png";
 import axios from "axios";
-import { Image } from "@chakra-ui/react";
-
+import { HStack, Image } from "@chakra-ui/react";
+import { BellIcon, ChatIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { useNotifications } from "../../customhooks/useNotifications";
 export function Navbar() {
-  const { isAuthenticated, userId, email, userRole } = useUser();
+  const { isAuthenticated, userId } = useUser();
+  const token = localStorage.getItem("token");
+  const { data: notifications, isLoading } = useNotifications(userId, token);
   const navigate = useNavigate();
   const handleLogout = () => {
     const token = localStorage.getItem("token");
@@ -26,7 +29,6 @@ export function Navbar() {
       });
   };
 
-  useEffect(() => {}, [isAuthenticated]);
   return (
     <nav>
       <div className={styles.navbarLeftSide}>
@@ -42,9 +44,23 @@ export function Navbar() {
       <div className={styles.navbarRightSide}>
         <div className={styles.navbarComponentsRight}>
           {isAuthenticated ? (
-            <Link className={styles.signIn} onClick={handleLogout}>
-              Sign out
-            </Link>
+            <HStack spacing={5} className={styles.iconContainer}>
+              <ChatIcon
+                boxSize={5}
+                transition="color 0.3s ease"
+                _hover={{ color: "#2557a7" }}
+              />
+              <BellIcon
+                boxSize={5}
+                transition="color 0.3s ease"
+                _hover={{ color: "#2557a7" }}
+              />
+              <HamburgerIcon
+                boxSize={5}
+                transition="color 0.3s ease"
+                _hover={{ color: "#2557a7" }}
+              />
+            </HStack>
           ) : (
             <Link className={styles.signIn} to="/signin">
               Sign in
