@@ -1,4 +1,5 @@
 "use client";
+import cclogo from "../../images/cclogo.png";
 import { registrationValidationSchema } from "../../schemas/registrationValidationSchema";
 import {
   Flex,
@@ -14,6 +15,8 @@ import {
   Text,
   useColorModeValue,
   Select,
+  HStack,
+  Image,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import styles from "../../Styles/Signup/Signup.module.css";
@@ -74,6 +77,11 @@ export function Signup() {
             bg={useColorModeValue("white", "gray.700")}
             boxShadow={"lg"}
             p={8}
+            bgImage={cclogo}
+            bgSize="contain"
+            bgRepeat="no-repeat"
+            bgPosition="top"
+            height="max-content"
           >
             <Box textAlign={"left"}>
               <Heading size={"md"}>Ready to take the next step?</Heading>
@@ -86,7 +94,7 @@ export function Signup() {
                   marginLeft={"5px"}
                   marginRight={"5px"}
                 >
-                  sign in.
+                  Sign in.
                 </Link>
               </Text>
             </Box>
@@ -94,34 +102,31 @@ export function Signup() {
             <br />
             <Stack spacing={4}>
               <Box>
-                <FormControl id="firstName">
-                  <Input
-                    type="text"
-                    {...formik.getFieldProps("firstName")}
-                    placeholder="Enter your first name"
-                  />
-                  <Text fontSize={"15px"} color={"red"} mb="8px">
-                    {formik.touched.firstName && formik.errors.firstName}
-                  </Text>
-                </FormControl>
+                <HStack>
+                  <FormControl id="firstName" isRequired>
+                    <FormLabel>First Name</FormLabel>
+                    <Text fontSize={"15px"} color={"red"} mb="8px">
+                      {formik.touched.firstName && formik.errors.firstName}
+                    </Text>
+                    <Input type="text" {...formik.getFieldProps("firstName")} />
+                  </FormControl>
+                  <FormControl id="lastName" isRequired>
+                    <FormLabel>Last Name</FormLabel>
+                    <Text fontSize={"15px"} color={"red"} mb="8px">
+                      {formik.touched.lastName && formik.errors.lastName}
+                    </Text>
+                    <Input type="text" {...formik.getFieldProps("lastName")} />
+                  </FormControl>
+                </HStack>
               </Box>
-              <Box>
-                <FormControl id="lastName">
-                  <FormLabel>Last Name</FormLabel>
-                  <Input type="text" {...formik.getFieldProps("lastName")} />
-                  <Text fontSize={"15px"} color={"red"} mb="8px">
-                    {formik.touched.lastName && formik.errors.lastName}
-                  </Text>
-                </FormControl>
-              </Box>
-              <FormControl id="email">
+              <FormControl id="email" isRequired>
                 <FormLabel>Email address</FormLabel>
                 <Text fontSize={"15px"} color={"red"} mb="8px">
                   {formik.touched.email && formik.errors.email}
                 </Text>
                 <Input type="email" {...formik.getFieldProps("email")} />
               </FormControl>
-              <FormControl id="password">
+              <FormControl id="password" isRequired>
                 <FormLabel>Password</FormLabel>
                 <Text fontSize={"15px"} color={"red"} mb="8px">
                   {formik.touched.password && formik.errors.password}
@@ -143,8 +148,8 @@ export function Signup() {
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
-              <FormControl id="role">
-                <FormLabel>Role</FormLabel>
+              <FormControl id="role" isRequired>
+                <FormLabel>Register as</FormLabel>
                 <Select
                   placeholder="Select role"
                   {...formik.getFieldProps("role")}
