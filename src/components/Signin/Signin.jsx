@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../Styles/Signin/Signin.module.css";
 import {
@@ -18,6 +19,7 @@ import {
   useColorModeValue,
   Spinner,
 } from "@chakra-ui/react";
+import { loginValidationScheme } from "../../schemas/loginValidationScheme";
 
 const login = (userSignInDto) => {
   return axios
@@ -26,6 +28,7 @@ const login = (userSignInDto) => {
 };
 
 export function Signin() {
+  const [invalidCredentials, setInvalidCredentials] = useState(false);
   const navigate = useNavigate();
 
   const mutation = useMutation(login, {
@@ -34,6 +37,9 @@ export function Signin() {
       window.dispatchEvent(new Event("tokenChanged"));
       navigate("/home");
     },
+    onError: () => {
+      setInvalidCredentials(true);
+    },
   });
 
   const formik = useFormik({
@@ -41,6 +47,7 @@ export function Signin() {
       email: "",
       password: "",
     },
+    validationSchema: loginValidationScheme,
     onSubmit: (values) => {
       mutation.mutate({ email: values.email, password: values.password });
     },
@@ -62,10 +69,16 @@ export function Signin() {
             <Heading fontSize={"4xl"}>Sign in to your account</Heading>
           </Stack>
           <form onSubmit={formik.handleSubmit}>
+            {invalidCredentials && (
+              <Text color={"red.400"}>Invalid credentials</Text>
+            )}
             <Box rounded={"lg"} bg={bgColor} boxShadow={"lg"} p={8}>
               <Stack spacing={4}>
                 <FormControl id="email">
                   <FormLabel>Email address</FormLabel>
+                  <Text fontSize={"15px"} color={"red"} mb="8px">
+                    {formik.touched.email && formik.errors.email}
+                  </Text>
                   <Input
                     type="email"
                     name="email"
@@ -75,6 +88,9 @@ export function Signin() {
                 </FormControl>
                 <FormControl id="password">
                   <FormLabel>Password</FormLabel>
+                  <Text fontSize={"15px"} color={"red"} mb="8px">
+                    {formik.touched.password && formik.errors.password}
+                  </Text>
                   <Input
                     type="password"
                     name="password"
