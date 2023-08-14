@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import { useMutation } from "react-query";
@@ -30,6 +30,7 @@ const login = (userSignInDto) => {
 export function Signin() {
   const [invalidCredentials, setInvalidCredentials] = useState(false);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   const mutation = useMutation(login, {
     onSuccess: (data) => {
@@ -41,6 +42,12 @@ export function Signin() {
       setInvalidCredentials(true);
     },
   });
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/home");
+    }
+    setIsLoading(false);
+  }, [navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -52,7 +59,11 @@ export function Signin() {
       mutation.mutate({ email: values.email, password: values.password });
     },
   });
+
   const bgColor = useColorModeValue("gray.50", "gray.800");
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <Flex minH={"100vh"} align={"center"} justify={"center"} bg={bgColor}>
       {mutation.isLoading ? (

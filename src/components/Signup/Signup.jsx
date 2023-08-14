@@ -16,7 +16,6 @@ import {
   useColorModeValue,
   Select,
   HStack,
-  Image,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../Styles/Signup/Signup.module.css";

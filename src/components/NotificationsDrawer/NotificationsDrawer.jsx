@@ -5,18 +5,22 @@ import {
   DrawerOverlay,
   Drawer,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import styles from "../../Styles/NotificationDrawer/NotificationDrawer.module.css";
 import axios from "axios";
 import { BellIcon } from "@chakra-ui/icons";
 
 export function NotificationsDrawer({ isOpen, onClose, notifications }) {
+  const [localNotifications, setLocalNotifications] = useState(notifications);
   const placement = "right";
   const token = localStorage.getItem("token");
   const unreadNotifications = notifications?.filter(
     (notification) => notification.readStatus === 1
   );
+  useEffect(() => {
+    setLocalNotifications(notifications);
+  }, [notifications]);
 
   const offset = new Date().getTimezoneOffset() * 60000;
   const markAsRead = (notificationId) => {
@@ -28,7 +32,16 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
           headers: { Authorization: `Bearer ${token}` },
         }
       )
-      .then(() => {})
+      .then(() => {
+        setLocalNotifications(
+          localNotifications.map((notification) => {
+            if (notification.id === notificationId) {
+              return { ...notification, readStatus: 0 };
+            }
+            return notification;
+          })
+        );
+      })
       .catch((error) => {
         console.error("An error occurred:", error);
       });

@@ -12,8 +12,16 @@ const useUser = () => {
     if (token) {
       const decodedToken = jwt_decode(token);
       setUserId(decodedToken.sub);
-      setEmail(decodedToken.email);
-      setUserRole(decodedToken.role);
+      setEmail(
+        decodedToken[
+          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+        ]
+      );
+      setUserRole(
+        decodedToken[
+          "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+        ]
+      );
       setIsAuthenticated(true);
     } else {
       setUserId(null);

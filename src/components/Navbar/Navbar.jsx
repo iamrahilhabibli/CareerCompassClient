@@ -1,62 +1,77 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import styles from "../.././Styles/Navbar/Navbar.module.css";
+import styles from "../../Styles/Navbar/Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-  useToast,
-} from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import cclogolarge from "../../images/cclogolarge.png";
-import axios from "axios";
 import { HStack, Image } from "@chakra-ui/react";
-import { BellIcon, ChatIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { BellIcon, ChatIcon } from "@chakra-ui/icons";
 import { useNotifications } from "../../customhooks/useNotifications";
 import { useDisclosure } from "@chakra-ui/react";
 import { NotificationsDrawer } from "../NotificationsDrawer/NotificationsDrawer";
+import { Menu } from "../Menu/Menu";
+import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 
 export function Navbar() {
-  const { isAuthenticated, userId } = useUser();
+  const { isAuthenticated, userId, userRole } = useUser();
   const token = localStorage.getItem("token");
-  const { data: notifications, isLoading } = useNotifications(userId, token);
+  const { data: notificationsFromAPI, isLoading } = useNotifications(
+    userId,
+    token
+  );
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
-  const handleLogout = () => {
-    const token = localStorage.getItem("token");
-    axios
-      .post("https://localhost:7013/api/Accounts/Logout", null, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(() => {
-        localStorage.removeItem("token");
-        window.dispatchEvent(new Event("storage"));
-        navigate("/");
-      })
-      .catch((error) => {
-        console.error("An error occurred during logout:", error);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const handlePostJobClick = () => {
+    if (userRole === "Recruiter" && userId && token) {
+      fetchRecruiterDetails(userId, token).then((recruiter) => {
+        console.log("Recruiter Details:", recruiter);
+        if (recruiter && recruiter.companyId === null) {
+          toast({
+            title: "Company Details Required",
+            description:
+              "Please register your company details before posting a job.",
+            status: "error",
+            position: "top-right",
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          navigate("/path/to/post-job");
+        }
       });
+    }
   };
+
+  useEffect(() => {
+    if (
+      !initialLoad &&
+      notificationsFromAPI &&
+      notificationsFromAPI.length > (notifications ? notifications.length : 0)
+    ) {
+      toast({
+        title: "New Notification!",
+        description: "You have received a new notification.",
+        status: "info",
+        position: "top-right",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+    if (notificationsFromAPI) {
+      setNotifications(notificationsFromAPI);
+      if (initialLoad) setInitialLoad(false);
+    }
+  }, [notificationsFromAPI, notifications, toast, initialLoad]);
+
   const hasUnreadNotifications =
     notifications &&
     notifications.some((notification) => notification.readStatus === 1);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
-  // useEffect(() => {
-  //   unreadNotifications?.forEach((notification) => {
-  //     toast({
-  //       title: "New notification",
-  //       position: "top-right",
-  //       isClosable: true,
-  //       colorScheme: "orange",
-  //     });
-  //   });
-  // }, [unreadNotifications, toast]);
   return (
     <nav>
       <div className={styles.navbarLeftSide}>
@@ -87,26 +102,7 @@ export function Navbar() {
                 onClick={onOpen}
                 className={hasUnreadNotifications ? styles.redBell : ""}
               />
-              <Menu>
-                <MenuButton bg={"transparent"} as={Button}>
-                  <HamburgerIcon boxSize={6} cursor={"pointer"} />
-                </MenuButton>
-                <MenuList>
-                  <MenuGroup title="Profile">
-                    <MenuItem>My Account</MenuItem>
-                    <MenuItem>Payments </MenuItem>
-                  </MenuGroup>
-                  <MenuDivider />
-                  <MenuGroup title="Help">
-                    <MenuItem>Docs</MenuItem>
-                    <MenuItem>FAQ</MenuItem>
-                  </MenuGroup>
-                  <MenuDivider />
-                  <MenuItem color="#2557a7" onClick={handleLogout}>
-                    Sign out
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+              <Menu />
             </HStack>
           ) : (
             <Link className={styles.signIn} to="/signin">
@@ -114,7 +110,9 @@ export function Navbar() {
             </Link>
           )}
           <span className={styles.divider}></span>
-          <Link to="/employers">Employers/Post Job</Link>
+          <Link to="#" onClick={handlePostJobClick}>
+            Employers/Post Job
+          </Link>
         </div>
       </div>
       <NotificationsDrawer
