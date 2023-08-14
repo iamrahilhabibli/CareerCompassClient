@@ -3,7 +3,16 @@ import { Link } from "react-router-dom";
 import styles from "../.././Styles/Navbar/Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@chakra-ui/react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  useToast,
+} from "@chakra-ui/react";
 import cclogolarge from "../../images/cclogolarge.png";
 import axios from "axios";
 import { HStack, Image } from "@chakra-ui/react";
@@ -78,12 +87,26 @@ export function Navbar() {
                 onClick={onOpen}
                 className={hasUnreadNotifications ? styles.redBell : ""}
               />
-              <HamburgerIcon
-                boxSize={6}
-                cursor={"pointer"}
-                transition="color 0.3s ease"
-                _hover={{ color: "#2557a7" }}
-              />
+              <Menu>
+                <MenuButton bg={"transparent"} as={Button}>
+                  <HamburgerIcon boxSize={6} cursor={"pointer"} />
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup title="Profile">
+                    <MenuItem>My Account</MenuItem>
+                    <MenuItem>Payments </MenuItem>
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuGroup title="Help">
+                    <MenuItem>Docs</MenuItem>
+                    <MenuItem>FAQ</MenuItem>
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuItem color="#2557a7" onClick={handleLogout}>
+                    Sign out
+                  </MenuItem>
+                </MenuList>
+              </Menu>
             </HStack>
           ) : (
             <Link className={styles.signIn} to="/signin">
