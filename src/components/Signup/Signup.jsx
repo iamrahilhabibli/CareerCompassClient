@@ -18,7 +18,7 @@ import {
   HStack,
   Image,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../../Styles/Signup/Signup.module.css";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -27,7 +27,7 @@ import { useFormik } from "formik";
 import axios from "axios";
 export function Signup() {
   const [showPassword, setShowPassword] = useState(false);
-
+  const navigate = useNavigate();
   const mutation = useMutation(
     (userRegisterDto) =>
       axios.post(
@@ -40,6 +40,7 @@ export function Signup() {
     {
       onSuccess: () => {
         alert("Registration successful!");
+        navigate("/signin");
       },
       onError: (error) => {
         alert(`An error occurred: ${error.message}`);

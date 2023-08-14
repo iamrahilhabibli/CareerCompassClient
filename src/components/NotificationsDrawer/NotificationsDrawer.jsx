@@ -8,9 +8,32 @@ import {
 import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import styles from "../../Styles/NotificationDrawer/NotificationDrawer.module.css";
+import axios from "axios";
+import { BellIcon } from "@chakra-ui/icons";
+
 export function NotificationsDrawer({ isOpen, onClose, notifications }) {
   const placement = "right";
-  console.log(notifications);
+  const token = localStorage.getItem("token");
+  const unreadNotifications = notifications?.filter(
+    (notification) => notification.readStatus === 1
+  );
+
+  const offset = new Date().getTimezoneOffset() * 60000;
+  const markAsRead = (notificationId) => {
+    axios
+      .post(
+        `https://localhost:7013/api/Notifications/MarkNotificationAsRead/${notificationId}`,
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then(() => {})
+      .catch((error) => {
+        console.error("An error occurred:", error);
+      });
+  };
+
   return (
     <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
       <DrawerOverlay />
@@ -19,27 +42,53 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
           Notifications
         </DrawerHeader>
         <DrawerBody>
-          <div className={styles.notificationContainer}>
-            {notifications?.map((notification) => (
-              <div key={notification.id} className={styles.notification}>
-                <div>
-                  <h5>{notification.title}</h5>
-                </div>
-                <div>
-                  <p>{notification.message}</p>
-                </div>
-                <div>
-                  <span>
-                    {notification.dateCreated
-                      ? formatDistanceToNow(
-                          new Date(notification.dateCreated)
-                        ) + " ago"
-                      : "Invalid date"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {unreadNotifications?.length > 0 ? (
+            <div className={styles.notificationContainer}>
+              {unreadNotifications.map((notification) => {
+                // Use unreadNotifications here
+                const localDate = new Date(
+                  new Date(notification.dateCreated).getTime() - offset
+                );
+
+                return (
+                  <div
+                    key={notification.id}
+                    className={`${styles.notification} ${
+                      notification.readStatus === 1 ? styles.unread : ""
+                    }`}
+                    onClick={() => markAsRead(notification.id)}
+                    title="Click to mark as read"
+                  >
+                    <div className={styles.notificationTitle}>
+                      <h5>{notification.title}</h5>
+                    </div>
+                    <div className={styles.notificationMessage}>
+                      <p>{notification.message}</p>
+                    </div>
+                    <div>
+                      <span className={styles.notificationTimeStamp}>
+                        {notification.dateCreated
+                          ? formatDistanceToNow(localDate) + " ago"
+                          : "Invalid date"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={styles.noUnreadNotifications}>
+              <BellIcon
+                boxSize={10}
+                transition="color 0.3s ease"
+                _hover={{ color: "#2557a7" }}
+              />
+              <span className={styles.noNewMessage}>
+                You are all caught up!
+              </span>
+              <br />
+            </div>
+          )}
         </DrawerBody>
       </DrawerContent>
     </Drawer>

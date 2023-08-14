@@ -10,9 +10,12 @@
   margin: 10px 0;
   background-color: #f9f9f9;
 }
+.notification:hover {
+  cursor: pointer;
+}
 
 .notification h5 {
-  text-align: right;
+  text-align: left;
   margin: 0;
 }
 
@@ -25,4 +28,33 @@
   text-align: right;
   font-size: 0.8rem;
   color: #777;
+}
+.unread {
+  border: 1px solid blue;
+}
+.notificationTitle {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.notificationMessage {
+  font-size: 12px;
+  margin: 0;
+}
+.notificationTimeStamp {
+  font-size: 12px !important;
+}
+.noUnreadNotifications {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.noNewMessage {
+  font-size: 20px;
+}
+.caughtUpMessage {
+  font-size: 16px;
 }

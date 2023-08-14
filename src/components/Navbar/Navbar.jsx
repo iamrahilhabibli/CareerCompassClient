@@ -11,6 +11,7 @@ import { BellIcon, ChatIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useNotifications } from "../../customhooks/useNotifications";
 import { useDisclosure } from "@chakra-ui/react";
 import { NotificationsDrawer } from "../NotificationsDrawer/NotificationsDrawer";
+
 export function Navbar() {
   const { isAuthenticated, userId } = useUser();
   const token = localStorage.getItem("token");
@@ -32,9 +33,9 @@ export function Navbar() {
       });
   };
   const hasUnreadNotifications =
-    notifications && notifications.some((notification) => !notification.read);
-  const unreadNotifications =
-    notifications && notifications.filter((notification) => !notification.read);
+    notifications &&
+    notifications.some((notification) => notification.readStatus === 1);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   // useEffect(() => {
@@ -62,21 +63,24 @@ export function Navbar() {
       <div className={styles.navbarRightSide}>
         <div className={styles.navbarComponentsRight}>
           {isAuthenticated ? (
-            <HStack spacing={5} className={styles.iconContainer}>
+            <HStack spacing={6} className={styles.iconContainer}>
               <ChatIcon
-                boxSize={5}
+                boxSize={6}
                 transition="color 0.3s ease"
                 _hover={{ color: "#2557a7" }}
+                cursor={"pointer"}
               />
               <BellIcon
-                boxSize={5}
+                boxSize={6}
                 transition="color 0.3s ease"
                 _hover={{ color: "#2557a7" }}
+                cursor={"pointer"}
                 onClick={onOpen}
                 className={hasUnreadNotifications ? styles.redBell : ""}
               />
               <HamburgerIcon
-                boxSize={5}
+                boxSize={6}
+                cursor={"pointer"}
                 transition="color 0.3s ease"
                 _hover={{ color: "#2557a7" }}
               />
