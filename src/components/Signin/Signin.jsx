@@ -35,6 +35,7 @@ export function Signin() {
   const mutation = useMutation(login, {
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("refreshToken", data.refreshToken);
       window.dispatchEvent(new Event("tokenChanged"));
       navigate("/home");
     },

@@ -13,7 +13,7 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import React from "react";
 
 export function Menu() {
-  const navigate = useNavigate(); // Use the useNavigate hook
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     const token = localStorage.getItem("token");

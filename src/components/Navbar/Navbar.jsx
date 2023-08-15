@@ -29,7 +29,6 @@ export function Navbar() {
   const handlePostJobClick = () => {
     if (userRole === "Recruiter" && userId && token) {
       fetchRecruiterDetails(userId, token).then((recruiter) => {
-        console.log("Recruiter Details:", recruiter);
         if (recruiter && recruiter.companyId === null) {
           toast({
             title: "Company Details Required",
@@ -37,7 +36,7 @@ export function Navbar() {
               "Please register your company details before posting a job.",
             status: "error",
             position: "top-right",
-            duration: 3000,
+            duration: 1000,
             isClosable: true,
           });
         } else {
@@ -58,7 +57,7 @@ export function Navbar() {
         description: "You have received a new notification.",
         status: "info",
         position: "top-right",
-        duration: 2000,
+        duration: 1000,
         isClosable: true,
       });
     }
