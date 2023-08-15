@@ -11,14 +11,14 @@ import {
 export const CompanyDetailsForm = ({ formik }) => {
   const COMPANY_SIZES = [
     { value: "1", label: "1-50 employees" },
-    { value: "51", label: "51-100 employees" },
-    { value: "101", label: "101-250 employees" },
-    { value: "251", label: "251-500 employees" },
-    { value: "501", label: "501-1000 employees" },
-    { value: "1001", label: "1001-2500 employees" },
-    { value: "2501", label: "2501-5000 employees" },
-    { value: "5001", label: "5001-10000 employees" },
-    { value: "10001", label: "10000+ employees" },
+    { value: "2", label: "51-100 employees" },
+    { value: "3", label: "101-250 employees" },
+    { value: "4", label: "251-500 employees" },
+    { value: "5", label: "501-1000 employees" },
+    { value: "6", label: "1001-2500 employees" },
+    { value: "7", label: "2501-5000 employees" },
+    { value: "8", label: "5001-10000 employees" },
+    { value: "9", label: "10000+ employees" },
   ];
 
   return (
@@ -27,7 +27,7 @@ export const CompanyDetailsForm = ({ formik }) => {
         Company Details
       </Heading>
 
-      <FormControl as={GridItem} colSpan={[6, 3]} isRequired>
+      {/* <FormControl as={GridItem} colSpan={[6, 3]} isRequired>
         <FormLabel
           htmlFor="country"
           fontSize="sm"
@@ -53,38 +53,7 @@ export const CompanyDetailsForm = ({ formik }) => {
         >
           <option>Azerbaijan, Baku</option>
         </Select>
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={6} isRequired>
-        <FormLabel
-          htmlFor="street_address"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          Street address
-        </FormLabel>
-        <Text fontSize={"15px"} color={"red"} mb="8px">
-          {formik.touched.name && formik.errors.name}
-        </Text>
-        <Input
-          type="text"
-          name="street_address"
-          id="street_address"
-          autoComplete="street-address"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.street_address}
-        />
-      </FormControl>
-
+      </FormControl> */}
       <FormControl as={GridItem} colSpan={[6, 6, null, 2]} isRequired>
         <FormLabel
           htmlFor="ceoName"
@@ -126,8 +95,11 @@ export const CompanyDetailsForm = ({ formik }) => {
         >
           Date Founded
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.dateFounded && formik.errors.dateFounded}
+        </Text>
         <Input
-          type="text"
+          type="number"
           name="dateFounded"
           id="dateFounded"
           autoComplete="date"
@@ -139,6 +111,33 @@ export const CompanyDetailsForm = ({ formik }) => {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.dateFounded}
+        />
+      </FormControl>
+
+      <FormControl as={GridItem} colSpan={6} isRequired>
+        <FormLabel
+          htmlFor="street_address"
+          fontSize="sm"
+          fontWeight="md"
+          color="gray.700"
+          _dark={{ color: "gray.50" }}
+          mt="2%"
+        >
+          Street address
+        </FormLabel>
+        <Input
+          type="text"
+          name="address"
+          id="address"
+          autoComplete="address"
+          focusBorderColor="brand.400"
+          shadow="sm"
+          size="sm"
+          w="full"
+          rounded="md"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.address}
         />
       </FormControl>
 
@@ -173,7 +172,6 @@ export const CompanyDetailsForm = ({ formik }) => {
           ))}
         </Select>
       </FormControl>
-
       <FormControl as={GridItem} colSpan={[6, 3, null, 2]} isRequired>
         <FormLabel
           htmlFor="industryId"

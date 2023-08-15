@@ -18,7 +18,6 @@ import { useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { registerCompany } from "../../services/registerCompany";
 import { useMutation } from "react-query";
-import { companyValidationScheme } from "../../schemas/companyValidationScheme";
 import { CompanyDetailsForm } from "./CompanyDetailsForm";
 import { CompanyDetailsAbout } from "./CompanyDetailsAbout";
 
@@ -60,7 +59,7 @@ export default function Multistep() {
         title: "Account created.",
         description: "We've created your account for you.",
         status: "success",
-        duration: 3000,
+        duration: 1000,
         isClosable: true,
       });
     },
@@ -69,7 +68,7 @@ export default function Multistep() {
         title: "Error",
         description: error.message,
         status: "error",
-        duration: 3000,
+        duration: 1000,
         isClosable: true,
       });
     },
@@ -85,6 +84,7 @@ export default function Multistep() {
     Yup.object().shape({
       dateFounded: Yup.number()
         .required("Date founded is required")
+        .min(1900, "Please enter a valid year")
         .max(
           new Date().getFullYear(),
           "Date founded cannot be after the current year"
@@ -103,6 +103,7 @@ export default function Multistep() {
       name: "",
       ceoName: "",
       dateFounded: 0,
+      address: "",
       companySize: 1,
       industryId: "",
       websiteLink: "",
@@ -120,7 +121,9 @@ export default function Multistep() {
       await currentSchema.validate(formik.values);
       setStep(step + 1);
       setProgress(progress + 33.33);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const renderStepContent = (currentStep) => {

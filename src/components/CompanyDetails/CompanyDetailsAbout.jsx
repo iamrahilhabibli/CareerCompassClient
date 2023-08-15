@@ -10,7 +10,7 @@ export const CompanyDetailsAbout = ({ formik }) => {
   return (
     <>
       <Heading w="100%" textAlign={"center"} fontWeight="normal">
-        Social Handles
+        Company Details
       </Heading>
 
       <FormControl mt={4} isRequired>

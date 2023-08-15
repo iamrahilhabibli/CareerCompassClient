@@ -1,17 +1,22 @@
-import { useMutation } from "react-query";
+import axios from "axios";
 
 export const registerCompany = async (data) => {
-  const response = await fetch("https://localhost:7013/api/Companies/Create", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const response = await axios.post(
+      "https://localhost:7013/api/Companies/Create",
+      data
+    );
 
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+    return response.data || null;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(
+        error.response.data.message || "Network response was not ok"
+      );
+    } else if (error.request) {
+      throw new Error("No response received from server.");
+    } else {
+      throw new Error("Error setting up request.");
+    }
   }
-
-  return response.json();
 };
