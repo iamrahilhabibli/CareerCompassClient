@@ -6,6 +6,7 @@ import "./index.css";
 import { Signup } from "./components/Signup/Signup";
 import { Signin } from "./components/Signin/Signin";
 import { NotificationsDrawer } from "./components/NotificationsDrawer/NotificationsDrawer";
+import CompanyDetails from "./components/CompanyDetails/CompanyDetails";
 export function App() {
   return (
     <>
@@ -15,6 +16,7 @@ export function App() {
         <Route path="/companies" element={<Companies />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
+        <Route path="/companydetails" element={<CompanyDetails />} />
       </Routes>
     </>
   );

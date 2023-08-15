@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import axios from "axios"; // Import axios if it's not already imported
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Button,
   Menu as ChakraMenu,
@@ -39,6 +39,9 @@ export function Menu() {
       <MenuList>
         <MenuGroup title="Profile">
           <MenuItem>My Account</MenuItem>
+          <MenuItem onClick={() => navigate("/companydetails")}>
+            Company Details
+          </MenuItem>
           <MenuItem>Payments </MenuItem>
         </MenuGroup>
         <MenuDivider />
