@@ -20,6 +20,8 @@ import { registerCompany } from "../../services/registerCompany";
 import { useMutation } from "react-query";
 import { CompanyDetailsForm } from "./CompanyDetailsForm";
 import { CompanyDetailsAbout } from "./CompanyDetailsAbout";
+import useUser from "../../customhooks/useUser";
+import { useNavigate } from "react-router-dom";
 
 export const CompanyDetails = ({ formik }) => {
   return (
@@ -49,11 +51,15 @@ export const CompanyDetails = ({ formik }) => {
   );
 };
 export default function Multistep() {
+  const { isAuthenticated } = useUser();
+  const token = localStorage.getItem("token");
+
   const toast = useToast();
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(33.33);
+  const navigate = useNavigate();
 
-  const mutation = useMutation(registerCompany, {
+  const mutation = useMutation((values) => registerCompany(values, token), {
     onSuccess: () => {
       toast({
         title: "Account created.",
@@ -62,6 +68,7 @@ export default function Multistep() {
         duration: 1000,
         isClosable: true,
       });
+      navigate("/");
     },
     onError: (error) => {
       toast({
@@ -111,6 +118,7 @@ export default function Multistep() {
     },
     onSubmit: (values) => {
       mutation.mutate(values);
+      values.companySize = parseInt(values.companySize, 10);
     },
     validationSchema: validationSchema,
   });
@@ -138,7 +146,11 @@ export default function Multistep() {
         return <div>Invalid step</div>;
     }
   };
-
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     navigate("/signin");
+  //   }
+  // }, [isAuthenticated, navigate]);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box

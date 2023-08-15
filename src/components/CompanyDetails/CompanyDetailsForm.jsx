@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 
 export const CompanyDetailsForm = ({ formik }) => {
   const [locations, setLocations] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const COMPANY_SIZES = [
     { value: "1", label: "1-50 employees" },
     { value: "2", label: "51-100 employees" },
@@ -22,20 +23,21 @@ export const CompanyDetailsForm = ({ formik }) => {
     { value: "8", label: "5001-10000 employees" },
     { value: "9", label: "10000+ employees" },
   ];
+
   useEffect(() => {
-    const fetchLocations = async () => {
+    const fetchData = async (url, setDataFunction) => {
       try {
-        const response = await fetch(
-          "https://localhost:7013/api/Locations/GetAll"
-        );
+        const response = await fetch(url);
         const data = await response.json();
-        setLocations(data);
+        console.log(data);
+        setDataFunction(data);
       } catch (error) {
-        console.error("Error fetching locations:", error);
+        console.error(`Error fetching data from ${url}:`, error);
       }
     };
 
-    fetchLocations();
+    fetchData("https://localhost:7013/api/Locations/GetAll", setLocations);
+    fetchData("https://localhost:7013/api/Industries/GetAll", setIndustries);
   }, []);
 
   return (
@@ -205,11 +207,11 @@ export const CompanyDetailsForm = ({ formik }) => {
         >
           Choose your Industry
         </FormLabel>
-        <Input
-          type="text"
-          name="industryId"
+        <Select
           id="industryId"
-          autoComplete="industry"
+          name="industryId"
+          autoComplete="industryId"
+          placeholder="Select option"
           focusBorderColor="brand.400"
           shadow="sm"
           size="sm"
@@ -218,7 +220,13 @@ export const CompanyDetailsForm = ({ formik }) => {
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           value={formik.values.industryId}
-        />
+        >
+          {industries.map((ind) => (
+            <option key={ind.id} value={ind.id}>
+              {ind.name}
+            </option>
+          ))}
+        </Select>
       </FormControl>
     </>
   );
