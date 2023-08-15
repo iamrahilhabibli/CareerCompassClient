@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Progress,
   Box,
@@ -9,21 +9,18 @@ import {
   Heading,
   Flex,
   FormControl,
-  GridItem,
   FormLabel,
   Input,
-  Select,
-  SimpleGrid,
-  InputLeftAddon,
-  InputGroup,
-  Textarea,
-  FormHelperText,
+  Text,
 } from "@chakra-ui/react";
-
+import * as Yup from "yup";
 import { useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { registerCompany } from "../../services/registerCompany";
 import { useMutation } from "react-query";
+import { companyValidationScheme } from "../../schemas/companyValidationScheme";
+import { CompanyDetailsForm } from "./CompanyDetailsForm";
+import { CompanyDetailsAbout } from "./CompanyDetailsAbout";
 
 export const CompanyDetails = ({ formik }) => {
   return (
@@ -32,10 +29,13 @@ export const CompanyDetails = ({ formik }) => {
         Company Registration
       </Heading>
       <Flex>
-        <FormControl mr="5%">
+        <FormControl mr="5%" isRequired>
           <FormLabel htmlFor="name" fontWeight={"normal"}>
             Company Name
           </FormLabel>
+          <Text fontSize={"15px"} color={"red"} mb="8px">
+            {formik.touched.name && formik.errors.name}
+          </Text>
           <Input
             id="name"
             placeholder="Company name"
@@ -49,238 +49,6 @@ export const CompanyDetails = ({ formik }) => {
     </>
   );
 };
-
-const Form2 = ({ formik }) => {
-  const COMPANY_SIZES = [
-    { value: "1", label: "1-50 employees" },
-    { value: "51", label: "51-100 employees" },
-    { value: "101", label: "101-250 employees" },
-    { value: "251", label: "251-500 employees" },
-    { value: "501", label: "501-1000 employees" },
-    { value: "1001", label: "1001-2500 employees" },
-    { value: "2501", label: "2501-5000 employees" },
-    { value: "5001", label: "5001-10000 employees" },
-    { value: "10001", label: "10000+ employees" },
-  ];
-
-  return (
-    <>
-      <Heading w="100%" textAlign={"center"} fontWeight="normal" mb="2%">
-        Company Details
-      </Heading>
-
-      <FormControl as={GridItem} colSpan={[6, 3]}>
-        <FormLabel
-          htmlFor="country"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-        >
-          Country / Region
-        </FormLabel>
-        <Select
-          id="country"
-          name="country"
-          autoComplete="country"
-          placeholder="Select option"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.country}
-        >
-          <option>Azerbaijan, Baku</option>
-        </Select>
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={6}>
-        <FormLabel
-          htmlFor="street_address"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          Street address
-        </FormLabel>
-        <Input
-          type="text"
-          name="street_address"
-          id="street_address"
-          autoComplete="street-address"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.street_address}
-        />
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={[6, 6, null, 2]}>
-        <FormLabel
-          htmlFor="ceoName"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          CEO Name
-        </FormLabel>
-        <Input
-          type="text"
-          name="ceoName"
-          id="ceoName"
-          autoComplete="name"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.ceoName}
-        />
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={[6, 3, null, 2]}>
-        <FormLabel
-          htmlFor="dateFounded"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          Date Founded
-        </FormLabel>
-        <Input
-          type="text"
-          name="dateFounded"
-          id="dateFounded"
-          autoComplete="date"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.dateFounded}
-        />
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={[6, 3, null, 2]}>
-        <FormLabel
-          htmlFor="companySize"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          Company Size
-        </FormLabel>
-        <Select
-          name="companySize"
-          id="companySize"
-          autoComplete="number"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.companySize}
-        >
-          {COMPANY_SIZES.map((size) => (
-            <option key={size.value} value={size.value}>
-              {size.label}
-            </option>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl as={GridItem} colSpan={[6, 3, null, 2]}>
-        <FormLabel
-          htmlFor="industryId"
-          fontSize="sm"
-          fontWeight="md"
-          color="gray.700"
-          _dark={{ color: "gray.50" }}
-          mt="2%"
-        >
-          Choose your Industry
-        </FormLabel>
-        <Input
-          type="text"
-          name="industryId"
-          id="industryId"
-          autoComplete="industry"
-          focusBorderColor="brand.400"
-          shadow="sm"
-          size="sm"
-          w="full"
-          rounded="md"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.industryId}
-        />
-      </FormControl>
-    </>
-  );
-};
-
-const Form3 = ({ formik }) => {
-  return (
-    <>
-      <Heading w="100%" textAlign={"center"} fontWeight="normal">
-        Social Handles
-      </Heading>
-
-      <FormControl mt={4}>
-        <FormLabel htmlFor="websiteLink">Website Link</FormLabel>
-        <Input
-          type="url" // changed from tel to url
-          placeholder="www.yourcompany.com"
-          focusBorderColor="brand.400"
-          rounded="md"
-          name="websiteLink"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.websiteLink}
-        />
-      </FormControl>
-
-      <FormControl mt={4}>
-        <FormLabel htmlFor="description">Company Description</FormLabel>
-        <Textarea
-          placeholder="Enter a brief overview of your company..."
-          rows={3}
-          shadow="sm"
-          focusBorderColor="brand.400"
-          fontSize={{
-            sm: "sm",
-          }}
-          name="description"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.description}
-        />
-      </FormControl>
-    </>
-  );
-};
-
 export default function Multistep() {
   const toast = useToast();
   const [step, setStep] = useState(1);
@@ -307,6 +75,29 @@ export default function Multistep() {
     },
   });
 
+  const stepSchemas = [
+    Yup.object().shape({
+      name: Yup.string().required("Company name is required"),
+    }),
+    Yup.object().shape({
+      ceoName: Yup.string().required("CEO name is required"),
+    }),
+    Yup.object().shape({
+      dateFounded: Yup.number()
+        .required("Date founded is required")
+        .max(
+          new Date().getFullYear(),
+          "Date founded cannot be after the current year"
+        ),
+    }),
+  ];
+
+  const [validationSchema, setValidationSchema] = useState(stepSchemas[0]);
+
+  useEffect(() => {
+    setValidationSchema(stepSchemas[step - 1]);
+  }, [step]);
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -320,7 +111,31 @@ export default function Multistep() {
     onSubmit: (values) => {
       mutation.mutate(values);
     },
+    validationSchema: validationSchema,
   });
+
+  const handleNext = async () => {
+    const currentSchema = stepSchemas[step - 1];
+    try {
+      await currentSchema.validate(formik.values);
+      setStep(step + 1);
+      setProgress(progress + 33.33);
+    } catch (err) {}
+  };
+
+  const renderStepContent = (currentStep) => {
+    switch (currentStep) {
+      case 1:
+        return <CompanyDetails formik={formik} />;
+      case 2:
+        return <CompanyDetailsForm formik={formik} />;
+      case 3:
+        return <CompanyDetailsAbout formik={formik} />;
+      default:
+        return <div>Invalid step</div>;
+    }
+  };
+
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box
@@ -332,22 +147,13 @@ export default function Multistep() {
         m="10px auto"
       >
         <Progress hasStripe value={progress} mb="5%" mx="5%" isAnimated />
-        {step === 1 ? (
-          <CompanyDetails formik={formik} />
-        ) : step === 2 ? (
-          <Form2 formik={formik} />
-        ) : (
-          <Form3 formik={formik} />
-        )}
+        {renderStepContent(step)}
         <ButtonGroup mt="5%" w="100%">
           <Flex w="100%" justifyContent="space-between">
             {step !== 3 && (
               <Button
                 w="7rem"
-                onClick={() => {
-                  setStep(step + 1);
-                  setProgress(progress + 33.33);
-                }}
+                onClick={handleNext}
                 colorScheme="teal"
                 variant="outline"
               >
@@ -357,7 +163,7 @@ export default function Multistep() {
             <Button
               type="submit"
               w="7rem"
-              display={step === 3 ? "block" : "none"} // Only display on the 3rd step
+              display={step === 3 ? "block" : "none"}
               colorScheme="blue"
               variant="solid"
             >

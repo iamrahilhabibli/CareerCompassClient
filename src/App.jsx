@@ -7,6 +7,8 @@ import { Signup } from "./components/Signup/Signup";
 import { Signin } from "./components/Signin/Signin";
 import { NotificationsDrawer } from "./components/NotificationsDrawer/NotificationsDrawer";
 import CompanyDetails from "./components/CompanyDetails/CompanyDetails";
+import { CompanyDetailsForm } from "./components/CompanyDetails/CompanyDetailsForm";
+import { CompanyDetailsAbout } from "./components/CompanyDetails/CompanyDetailsAbout";
 export function App() {
   return (
     <>
@@ -17,6 +19,8 @@ export function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/companydetails" element={<CompanyDetails />} />
+        <Route path="/companydetailsgeneral" element={<CompanyDetailsForm />} />
+        <Route path="/companydetailsabout" element={<CompanyDetailsAbout />} />
       </Routes>
     </>
   );
