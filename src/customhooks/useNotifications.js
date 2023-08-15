@@ -9,6 +9,7 @@ export const useNotifications = (userId, token) => {
       onError: (error) => {
         console.error("Error fetching notifications:", error);
       },
+      enabled: !!userId && !!token,
     }
   );
 };

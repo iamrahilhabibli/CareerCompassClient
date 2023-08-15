@@ -27,6 +27,10 @@ export function Navbar() {
   const [initialLoad, setInitialLoad] = useState(true);
 
   const handlePostJobClick = () => {
+    if (!token) {
+      navigate("/signin");
+      return;
+    }
     if (userRole === "Recruiter" && userId && token) {
       fetchRecruiterDetails(userId, token).then((recruiter) => {
         if (recruiter && recruiter.companyId === null) {
