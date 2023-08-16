@@ -6,14 +6,11 @@ import "./index.css";
 import { Signup } from "./components/Signup/Signup";
 import { Signin } from "./components/Signin/Signin";
 import { Details } from "./components/CompanyDet/Details";
-import { CompanyDetailsForm } from "./components/CompanyDet/CompanyDetailsForm";
-import { CompanyDetailsAbout } from "./components/CompanyDet/CompanyDetailsAbout";
 import { Profile } from "./components/Profile/Profile";
-import Multistep, {
-  CompanyDetailsName,
-} from "./components/CompanyDet/CompanyDetailsName";
+import Multistep from "./components/CompanyDet/CompanyDetailsName";
 import { Footer } from "./components/Footer/Footer";
 import { NotFound } from "./components/NotFound/NotFound";
+import { ForgotPass } from "./components/ForgotPassword/ForgotPass";
 export function App() {
   return (
     <>
@@ -26,6 +23,7 @@ export function App() {
         <Route path="/companydetailform" element={<Multistep />} />
         <Route path="/companydetails" element={<Details />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/passwordreset" element={<ForgotPass />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
