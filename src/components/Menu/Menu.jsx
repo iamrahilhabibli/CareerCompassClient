@@ -10,10 +10,27 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import useUser from "../../customhooks/useUser";
+import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 
 export function Menu() {
   const navigate = useNavigate();
+  const { isAuthenticated, userId, userRole } = useUser();
+  const [companyId, setCompanyId] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated && userId && userRole === "Recruiter") {
+      const token = localStorage.getItem("token");
+      fetchRecruiterDetails(userId, token)
+        .then((data) => {
+          setCompanyId(data.companyId);
+        })
+        .catch((error) => {
+          console.error("Error fetching recruiter details:", error);
+        });
+    }
+  }, [isAuthenticated, userId, userRole]);
 
   const handleLogout = () => {
     const token = localStorage.getItem("token");
@@ -30,7 +47,6 @@ export function Menu() {
         console.error("An error occurred during logout:", error);
       });
   };
-
   return (
     <ChakraMenu>
       <MenuButton bg={"transparent"} as={Button}>
@@ -39,9 +55,20 @@ export function Menu() {
       <MenuList>
         <MenuGroup title="Profile">
           <MenuItem onClick={() => navigate("/profile")}>My Account</MenuItem>
-          <MenuItem onClick={() => navigate("/companydetailform")}>
-            Company Details
-          </MenuItem>
+
+          {userRole === "Recruiter" && (
+            <MenuItem
+              onClick={() => {
+                if (companyId) {
+                  navigate("/companydetails");
+                } else {
+                  navigate("/companydetailform");
+                }
+              }}
+            >
+              Company Details
+            </MenuItem>
+          )}
 
           <MenuItem>Payments </MenuItem>
         </MenuGroup>
