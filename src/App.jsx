@@ -12,6 +12,8 @@ import { Profile } from "./components/Profile/Profile";
 import Multistep, {
   CompanyDetailsName,
 } from "./components/CompanyDet/CompanyDetailsName";
+import { Footer } from "./components/Footer/Footer";
+import { NotFound } from "./components/NotFound/NotFound";
 export function App() {
   return (
     <>
@@ -24,7 +26,9 @@ export function App() {
         <Route path="/companydetailform" element={<Multistep />} />
         <Route path="/companydetails" element={<Details />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
+      <Footer />
     </>
   );
 }
