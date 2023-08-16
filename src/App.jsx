@@ -5,10 +5,13 @@ import { Companies } from "./components/Companies";
 import "./index.css";
 import { Signup } from "./components/Signup/Signup";
 import { Signin } from "./components/Signin/Signin";
-import { NotificationsDrawer } from "./components/NotificationsDrawer/NotificationsDrawer";
-import CompanyDetails from "./components/CompanyDetails/CompanyDetails";
-import { CompanyDetailsForm } from "./components/CompanyDetails/CompanyDetailsForm";
-import { CompanyDetailsAbout } from "./components/CompanyDetails/CompanyDetailsAbout";
+import { Details } from "./components/CompanyDet/Details";
+import { CompanyDetailsForm } from "./components/CompanyDet/CompanyDetailsForm";
+import { CompanyDetailsAbout } from "./components/CompanyDet/CompanyDetailsAbout";
+import { Profile } from "./components/Profile/Profile";
+import Multistep, {
+  CompanyDetailsName,
+} from "./components/CompanyDet/CompanyDetailsName";
 export function App() {
   return (
     <>
@@ -18,9 +21,9 @@ export function App() {
         <Route path="/companies" element={<Companies />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/companydetails" element={<CompanyDetails />} />
-        <Route path="/companydetailsgeneral" element={<CompanyDetailsForm />} />
-        <Route path="/companydetailsabout" element={<CompanyDetailsAbout />} />
+        <Route path="/companydetailform" element={<Multistep />} />
+        <Route path="/companydetails" element={<Details />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );

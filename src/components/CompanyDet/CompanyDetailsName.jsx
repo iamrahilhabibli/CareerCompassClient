@@ -12,6 +12,7 @@ import {
   FormLabel,
   Input,
   Text,
+  Spinner,
 } from "@chakra-ui/react";
 import * as Yup from "yup";
 import { useToast } from "@chakra-ui/react";
@@ -23,7 +24,7 @@ import { CompanyDetailsAbout } from "./CompanyDetailsAbout";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
 
-export const CompanyDetails = ({ formik }) => {
+export const CompanyDetailsName = ({ formik }) => {
   return (
     <>
       <Heading w="100%" textAlign={"center"} fontWeight="normal" mb="2%">
@@ -51,7 +52,7 @@ export const CompanyDetails = ({ formik }) => {
   );
 };
 export default function Multistep() {
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, loading, userId } = useUser();
   const token = localStorage.getItem("token");
 
   const toast = useToast();
@@ -59,27 +60,30 @@ export default function Multistep() {
   const [progress, setProgress] = useState(33.33);
   const navigate = useNavigate();
 
-  const mutation = useMutation((values) => registerCompany(values, token), {
-    onSuccess: () => {
-      toast({
-        title: "Account created.",
-        description: "We've created your account for you.",
-        status: "success",
-        duration: 1000,
-        isClosable: true,
-      });
-      navigate("/");
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        status: "error",
-        duration: 1000,
-        isClosable: true,
-      });
-    },
-  });
+  const mutation = useMutation(
+    (values) => registerCompany(values, token, userId),
+    {
+      onSuccess: () => {
+        toast({
+          title: "Account created.",
+          description: "We've created your account for you.",
+          status: "success",
+          duration: 1000,
+          isClosable: true,
+        });
+        navigate("/profile");
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message,
+          status: "error",
+          duration: 1000,
+          isClosable: true,
+        });
+      },
+    }
+  );
 
   const stepSchemas = [
     Yup.object().shape({
@@ -117,12 +121,12 @@ export default function Multistep() {
       description: "",
     },
     onSubmit: (values) => {
-      mutation.mutate(values);
       values.companySize = parseInt(values.companySize, 10);
+      mutation.mutate(values);
+      console.log(values);
     },
     validationSchema: validationSchema,
   });
-
   const handleNext = async () => {
     const currentSchema = stepSchemas[step - 1];
     try {
@@ -135,9 +139,10 @@ export default function Multistep() {
   };
 
   const renderStepContent = (currentStep) => {
+    console.log("Rendering step:", currentStep);
     switch (currentStep) {
       case 1:
-        return <CompanyDetails formik={formik} />;
+        return <CompanyDetailsName formik={formik} />;
       case 2:
         return <CompanyDetailsForm formik={formik} />;
       case 3:
@@ -146,11 +151,21 @@ export default function Multistep() {
         return <div>Invalid step</div>;
     }
   };
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate("/signin");
-  //   }
-  // }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/signin");
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  if (loading) {
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+  console.log("Step", step);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box

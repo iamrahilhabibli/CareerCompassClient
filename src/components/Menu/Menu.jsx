@@ -38,10 +38,11 @@ export function Menu() {
       </MenuButton>
       <MenuList>
         <MenuGroup title="Profile">
-          <MenuItem>My Account</MenuItem>
-          <MenuItem onClick={() => navigate("/companydetails")}>
+          <MenuItem onClick={() => navigate("/profile")}>My Account</MenuItem>
+          <MenuItem onClick={() => navigate("/companydetailform")}>
             Company Details
           </MenuItem>
+
           <MenuItem>Payments </MenuItem>
         </MenuGroup>
         <MenuDivider />

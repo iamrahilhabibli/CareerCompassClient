@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import styles from "../../Styles/Navbar/Navbar.module.css";
+import styles from "./Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@chakra-ui/react";
@@ -26,8 +26,10 @@ export function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [initialLoad, setInitialLoad] = useState(true);
 
-  const handlePostJobClick = () => {
-    if (!token) {
+  const handlePostJobClick = (event) => {
+    if (!isAuthenticated) {
+      console.log("navigating");
+      event.preventDefault();
       navigate("/signin");
       return;
     }

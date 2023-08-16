@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import { useMutation } from "react-query";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "../../Styles/Signin/Signin.module.css";
+import styles from "./Signin.module.css";
 import {
   Flex,
   Box,
@@ -37,7 +37,7 @@ export function Signin() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("refreshToken", data.refreshToken);
       window.dispatchEvent(new Event("tokenChanged"));
-      navigate("/home");
+      navigate("/");
     },
     onError: () => {
       setInvalidCredentials(true);

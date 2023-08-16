@@ -1,15 +1,14 @@
 import axios from "axios";
 
-export const registerCompany = async (data, token) => {
+export const registerCompany = async (data, token, userId) => {
   try {
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-
     const response = await axios.post(
-      "https://localhost:7013/api/Companies/Create",
+      `https://localhost:7013/api/Companies/Create?userId=${userId}`,
       data,
       config
     );

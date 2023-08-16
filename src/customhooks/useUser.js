@@ -9,7 +9,7 @@ const useUser = () => {
   const [email, setEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isTokenExpired, setIsTokenExpired] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const {
     data: tokenResponse,
     error,
@@ -50,11 +50,13 @@ const useUser = () => {
         setIsAuthenticated(true);
         setIsTokenExpired(false);
       }
+      setLoading(false);
     } else {
       setUserId(null);
       setEmail(null);
       setUserRole(null);
       setIsAuthenticated(false);
+      setLoading(false);
     }
   };
 
@@ -83,6 +85,7 @@ const useUser = () => {
       localStorage.setItem("token", tokenResponse.token);
       localStorage.setItem("refreshToken", tokenResponse.refreshToken);
       checkAuthentication();
+      setLoading(false);
     }
     if (error) {
       localStorage.removeItem("token");
@@ -91,10 +94,11 @@ const useUser = () => {
       setEmail(null);
       setUserRole(null);
       setIsAuthenticated(false);
+      setLoading(false);
     }
   }, [tokenResponse, error]);
 
-  return { isAuthenticated, userId, email, userRole };
+  return { isAuthenticated, userId, email, userRole, loading };
 };
 
 export default useUser;

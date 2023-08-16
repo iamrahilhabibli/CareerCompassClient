@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../../Styles/HomeSearchBar/Searchbar.module.css";
+import styles from "./Searchbar.module.css";
 export function Searchbar() {
   return (
     <div className={styles.searchContainer}>

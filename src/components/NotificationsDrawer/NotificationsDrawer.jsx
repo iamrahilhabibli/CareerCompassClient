@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import styles from "../../Styles/NotificationDrawer/NotificationDrawer.module.css";
+import styles from "./NotificationDrawer.module.css";
 import axios from "axios";
 import { BellIcon } from "@chakra-ui/icons";
 
