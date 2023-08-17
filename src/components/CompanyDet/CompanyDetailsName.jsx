@@ -71,7 +71,7 @@ export default function Multistep() {
           duration: 1000,
           isClosable: true,
         });
-        navigate("/profile");
+        navigate("/home");
       },
       onError: (error) => {
         toast({

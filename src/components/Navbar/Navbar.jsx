@@ -46,7 +46,7 @@ export function Navbar() {
             isClosable: true,
           });
         } else {
-          navigate("/path/to/post-job");
+          navigate("/employerscareercompass");
         }
       });
     }

@@ -12,6 +12,7 @@ import { Footer } from "./components/Footer/Footer";
 import { NotFound } from "./components/NotFound/NotFound";
 import { ForgotPass } from "./components/ForgotPassword/ForgotPass";
 import { PasswordReset } from "./components/PasswordReset/PasswordReset";
+import { JobPost } from "./components/JobPost/JobPost";
 export function App() {
   return (
     <>
@@ -26,6 +27,7 @@ export function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/forgotpassword" element={<ForgotPass />} />
         <Route path="/passwordreset" element={<PasswordReset />} />
+        <Route path="/employerscareercompass" element={<JobPost />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
