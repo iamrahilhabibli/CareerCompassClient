@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
@@ -60,9 +60,9 @@ const useUser = () => {
     }
   };
 
-  const refreshJWT = () => {
+  const refreshJWT = useCallback(() => {
     refetch();
-  };
+  }, [refetch]);
 
   useEffect(() => {
     checkAuthentication();
@@ -78,7 +78,7 @@ const useUser = () => {
       window.removeEventListener("tokenChanged", checkAuthentication);
       window.removeEventListener("storage", checkAuthentication);
     };
-  }, [isTokenExpired, tokenResponse]);
+  }, [isTokenExpired, tokenResponse, refreshJWT]);
 
   useEffect(() => {
     if (tokenResponse) {

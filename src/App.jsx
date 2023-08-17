@@ -13,12 +13,22 @@ import { NotFound } from "./components/NotFound/NotFound";
 import { ForgotPass } from "./components/ForgotPassword/ForgotPass";
 import { PasswordReset } from "./components/PasswordReset/PasswordReset";
 import { JobPost } from "./components/JobPost/JobPost";
+import { useLocation } from "react-router-dom";
+import { SidebarWithHeader } from "./components/JobPost/Sidebar";
+import { Employers } from "./components/Employers/Employers";
 export function App() {
+  const location = useLocation();
+  const pathsForSpecialLayout = ["/employerscareercompass", "/postjob"];
+  const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
+
   return (
     <>
-      <Navbar />
+      {!useSpecialLayout && <Navbar />}
+
+      {useSpecialLayout && <SidebarWithHeader />}
+
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/companies" element={<Companies />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
@@ -27,10 +37,11 @@ export function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/forgotpassword" element={<ForgotPass />} />
         <Route path="/passwordreset" element={<PasswordReset />} />
-        <Route path="/employerscareercompass" element={<JobPost />} />
+        <Route path="/postjob" element={<JobPost />} />
+        <Route path="/employerscareercompass" element={<Employers />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Footer />
+      {!useSpecialLayout && <Footer />}
     </>
   );
 }
