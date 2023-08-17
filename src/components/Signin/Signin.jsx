@@ -117,7 +117,13 @@ export function Signin() {
                     justify={"space-between"}
                   >
                     <Checkbox>Remember me</Checkbox>
-                    <Text color={"blue.400"}>Forgot password?</Text>
+                    <Text
+                      cursor={"pointer"}
+                      onClick={() => navigate("/passwordreset")}
+                      color={"blue.400"}
+                    >
+                      Forgot password?
+                    </Text>
                   </Stack>
                   <Button
                     type="submit"
