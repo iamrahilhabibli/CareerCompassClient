@@ -119,7 +119,7 @@ export function Signin() {
                     <Checkbox>Remember me</Checkbox>
                     <Text
                       cursor={"pointer"}
-                      onClick={() => navigate("/passwordreset")}
+                      onClick={() => navigate("/forgotpassword")}
                       color={"blue.400"}
                     >
                       Forgot password?

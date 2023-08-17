@@ -11,6 +11,7 @@ import Multistep from "./components/CompanyDet/CompanyDetailsName";
 import { Footer } from "./components/Footer/Footer";
 import { NotFound } from "./components/NotFound/NotFound";
 import { ForgotPass } from "./components/ForgotPassword/ForgotPass";
+import { PasswordReset } from "./components/PasswordReset/PasswordReset";
 export function App() {
   return (
     <>
@@ -23,7 +24,8 @@ export function App() {
         <Route path="/companydetailform" element={<Multistep />} />
         <Route path="/companydetails" element={<Details />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/passwordreset" element={<ForgotPass />} />
+        <Route path="/forgotpassword" element={<ForgotPass />} />
+        <Route path="/passwordreset" element={<PasswordReset />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
