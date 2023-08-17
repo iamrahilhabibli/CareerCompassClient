@@ -139,7 +139,6 @@ export default function Multistep() {
   };
 
   const renderStepContent = (currentStep) => {
-    console.log("Rendering step:", currentStep);
     switch (currentStep) {
       case 1:
         return <CompanyDetailsName formik={formik} />;
@@ -165,7 +164,6 @@ export default function Multistep() {
       </Flex>
     );
   }
-  console.log("Step", step);
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box
