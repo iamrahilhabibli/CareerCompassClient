@@ -21,50 +21,17 @@ import {
   FiMenu,
   FiBriefcase,
   FiMessageSquare,
+  FiMap,
 } from "react-icons/fi";
 
 const LinkItems = [
   { name: "Home", icon: FiHome, path: "/home" },
+  { name: "Main", icon: FiMap, path: "/employerscareercompass" },
   { name: "Post a Job", icon: FiBriefcase, path: "/postjob" },
   { name: "Messages", icon: FiMessageSquare },
   { name: "Applicants", icon: FiStar },
   { name: "Settings", icon: FiSettings },
 ];
-
-const Header = ({ onOpen }) => (
-  <Flex
-    as="nav"
-    align="center"
-    justify="space-between"
-    wrap="wrap"
-    padding="1rem"
-    bg={useColorModeValue("blue.500", "blue.800")}
-    color={useColorModeValue("white", "gray.200")}
-  >
-    <Flex align="center" mr={5}>
-      <Text fontSize="lg" fontWeight="bold">
-        Company Name
-      </Text>
-    </Flex>
-    <HStack spacing={8} alignItems="center">
-      <HStack as="nav" spacing={4} display={{ base: "none", md: "flex" }}>
-        {LinkItems.map((link) => (
-          <Text key={link.name} fontSize="md">
-            {link.name}
-          </Text>
-        ))}
-      </HStack>
-    </HStack>
-    <Box display={{ base: "flex", md: "none" }}>
-      <IconButton
-        icon={<FiMenu />}
-        onClick={onOpen}
-        variant="outline"
-        aria-label="Open menu"
-      />
-    </Box>
-  </Flex>
-);
 
 const SidebarContent = ({ onClose, ...rest }) => (
   <Box
@@ -121,34 +88,19 @@ const NavItem = ({ icon, children, path, ...rest }) => (
   </Link>
 );
 
-const MobileNav = ({ onOpen, ...rest }) => {};
-
-export const SidebarWithHeader = () => {
+export const SidebarWithHeader = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
+    <Flex minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
       <SidebarContent
         onClose={() => onClose}
         display={{ base: "none", md: "block" }}
       />
-      <Drawer
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full"
-      >
-        <DrawerContent>
-          <SidebarContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
-      {/* mobilenav */}
-      <MobileNav onOpen={onOpen} />
-      <Box ml={{ base: 0, md: 60 }} p="4">
-        {/* Content */}
+
+      <Box flex="1" ml={{ base: 0, md: 60 }} p="4">
+        {children}
       </Box>
-    </Box>
+    </Flex>
   );
 };

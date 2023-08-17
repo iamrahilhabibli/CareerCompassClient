@@ -76,10 +76,17 @@ export function JobMultistep() {
         rounded="lg"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
         maxWidth={800}
-        p={6}
         m="10px auto"
+        bg={"white"}
       >
-        <Progress hasStripe value={progress} mb="5%" mx="5%" isAnimated />
+        <Progress
+          bg={"white"}
+          hasStripe
+          value={progress}
+          mb="5%"
+          mx="5%"
+          isAnimated
+        />
         {renderStepContent(step)}
         <ButtonGroup mt="5%" w="100%">
           <Flex w="100%" justifyContent="space-between">

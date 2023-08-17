@@ -24,21 +24,27 @@ export function App() {
   return (
     <>
       {!useSpecialLayout && <Navbar />}
-      {useSpecialLayout && <SidebarWithHeader />}
-      <Routes>
-        <Route path="/home" element={<Home />} />
-        <Route path="/companies" element={<Companies />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/companydetailform" element={<Multistep />} />
-        <Route path="/companydetails" element={<Details />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/forgotpassword" element={<ForgotPass />} />
-        <Route path="/passwordreset" element={<PasswordReset />} />
-        <Route path="/employerscareercompass" element={<Employers />} />
-        <Route path="/postjob" element={<JobMultistep />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      {useSpecialLayout ? (
+        <SidebarWithHeader>
+          <Routes>
+            <Route path="/employerscareercompass" element={<Employers />} />
+            <Route path="/postjob" element={<JobMultistep />} />
+          </Routes>
+        </SidebarWithHeader>
+      ) : (
+        <Routes>
+          <Route path="/home" element={<Home />} />
+          <Route path="/companies" element={<Companies />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/companydetailform" element={<Multistep />} />
+          <Route path="/companydetails" element={<Details />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/forgotpassword" element={<ForgotPass />} />
+          <Route path="/passwordreset" element={<PasswordReset />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      )}
       {!useSpecialLayout && <Footer />}
     </>
   );
