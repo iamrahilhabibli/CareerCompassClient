@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Text,
-} from "@chakra-ui/react";
-import { FiPlus } from "react-icons/fi";
-import { FiMinus } from "react-icons/fi";
+import { Box, Button, Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { FiPlus, FiCheck } from "react-icons/fi";
+
 export const JobTypeForm = ({ formik }) => {
   const [jobTypes, setJobTypes] = useState([]);
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
@@ -28,7 +21,10 @@ export const JobTypeForm = ({ formik }) => {
   }, []);
 
   const handleAddJobType = (jobType) => {
-    if (selectedJobTypes.find((jt) => jt.id === jobType.id)) return;
+    if (selectedJobTypes.find((jt) => jt.id === jobType.id)) {
+      handleRemoveJobType(jobType.id);
+      return;
+    }
     const newSelectedJobTypes = [...selectedJobTypes, jobType];
     setSelectedJobTypes(newSelectedJobTypes);
     formik.setFieldValue(
@@ -62,11 +58,19 @@ export const JobTypeForm = ({ formik }) => {
           {jobTypes.map((jobType) => (
             <Button
               key={jobType.id}
-              color="blue.500"
               borderColor="blue.500"
               borderWidth="1px"
               borderRadius="12px"
-              bg="white"
+              bg={
+                selectedJobTypes.find((jt) => jt.id === jobType.id)
+                  ? "blue.500"
+                  : "white"
+              }
+              color={
+                selectedJobTypes.find((jt) => jt.id === jobType.id)
+                  ? "white"
+                  : "blue.500"
+              }
               m={2}
               _hover={{
                 color: "white",
@@ -74,34 +78,15 @@ export const JobTypeForm = ({ formik }) => {
               }}
               onClick={() => handleAddJobType(jobType)}
             >
-              {jobType.typeName} <FiPlus />
+              {selectedJobTypes.find((jt) => jt.id === jobType.id) ? (
+                <FiCheck />
+              ) : (
+                <FiPlus />
+              )}{" "}
+              {jobType.typeName}
             </Button>
           ))}
         </Flex>
-        <Box borderWidth="1px" rounded="lg" p={3} mt={3}>
-          <Text fontWeight="bold">Selected Job Types:</Text>
-          <Flex wrap="wrap">
-            {selectedJobTypes.map((jobType) => (
-              <Flex key={jobType.id} align="center" m={2} width="200px">
-                <Button
-                  borderColor="blue.500"
-                  borderWidth="1px"
-                  borderRadius="12px"
-                  bg="white"
-                  color="blue.500"
-                  _hover={{
-                    color: "white",
-                    bg: "red.500",
-                    borderColor: "red.500",
-                  }}
-                  onClick={() => handleRemoveJobType(jobType.id)}
-                >
-                  {jobType.typeName}
-                </Button>
-              </Flex>
-            ))}
-          </Flex>
-        </Box>
       </FormControl>
     </>
   );
