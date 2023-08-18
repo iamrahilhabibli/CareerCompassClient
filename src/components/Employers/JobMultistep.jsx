@@ -74,7 +74,7 @@ export function JobMultistep() {
       case 4:
         return <JobDescriptionForm formik={formik} />;
       case 5:
-        return <VacancyFinal formik={formik.values} />;
+        return <VacancyFinal formik={formik} />;
       default:
         return <div>Invalid step</div>;
     }
