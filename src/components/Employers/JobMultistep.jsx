@@ -7,6 +7,8 @@ import { PayBenefitsForm } from "./PayBenefitsForm";
 import { JobDescriptionForm } from "./JobDescriptionForm";
 import jobsearch from "../../images/jobsearch-removebg-preview.png";
 import jobdetails from "../../images/jobdetails.png";
+import jobpay from "../../images/jobpay.png";
+import jobdescription from "../../images/jobdescription.png";
 import {
   Box,
   Button,
@@ -141,7 +143,7 @@ export function JobMultistep() {
           m="10px auto"
           height={"200px"}
           borderRadius={"12px"}
-          bgImage={jobdetails}
+          bgImage={jobpay}
           bgRepeat="no-repeat"
           bgSize="auto 100%"
           bgPosition="right"
@@ -169,7 +171,7 @@ export function JobMultistep() {
           m="10px auto"
           height={"200px"}
           borderRadius={"12px"}
-          bgImage={jobdetails}
+          bgImage={jobdescription}
           bgRepeat="no-repeat"
           bgSize="auto 100%"
           bgPosition="right"

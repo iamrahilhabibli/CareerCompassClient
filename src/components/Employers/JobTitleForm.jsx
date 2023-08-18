@@ -26,15 +26,6 @@ export const JobTitleForm = ({ formik }) => {
   }, []);
   return (
     <>
-      <Heading
-        color={"blue.400"}
-        w="100%"
-        textAlign={"center"}
-        fontWeight="normal"
-        mb="2%"
-      >
-        Job Vacancy
-      </Heading>
       <FormControl isRequired>
         <FormLabel
           htmlFor="jobTitle"
@@ -45,6 +36,7 @@ export const JobTitleForm = ({ formik }) => {
           Job Title
         </FormLabel>
         <Input
+          mb={"20px"}
           id="jobTitle"
           name="jobTitle"
           onChange={formik.handleChange}
