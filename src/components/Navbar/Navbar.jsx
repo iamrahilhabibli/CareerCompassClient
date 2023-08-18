@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@chakra-ui/react";
+import { Flex, Spinner, useToast } from "@chakra-ui/react";
 import cclogolarge from "../../images/cclogolarge.png";
 import { HStack, Image } from "@chakra-ui/react";
 import { BellIcon, ChatIcon } from "@chakra-ui/icons";
@@ -28,7 +28,6 @@ export function Navbar() {
 
   const handlePostJobClick = (event) => {
     if (!isAuthenticated) {
-      console.log("navigating");
       event.preventDefault();
       navigate("/signin");
       return;
@@ -84,7 +83,7 @@ export function Navbar() {
           <Image className={styles.navbarLogo} src={cclogolarge} alt="Logo" />
         </Link>
         <div className={styles.navbarComponentsLeft}>
-          <Link to="/">Find jobs</Link>
+          <Link to="/home">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
           <Link to="/findsalaries">Find Salaries</Link>
         </div>

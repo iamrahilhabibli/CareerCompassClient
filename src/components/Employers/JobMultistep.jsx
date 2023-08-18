@@ -76,7 +76,7 @@ export function JobMultistep() {
         rounded="lg"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
         maxWidth={800}
-        m="10px auto"
+        m="100px auto"
         bg={"white"}
       >
         <Progress

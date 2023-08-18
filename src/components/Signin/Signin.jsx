@@ -62,8 +62,13 @@ export function Signin() {
   });
 
   const bgColor = useColorModeValue("gray.50", "gray.800");
+
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
   return (
     <Flex minH={"100vh"} align={"center"} justify={"center"} bg={bgColor}>

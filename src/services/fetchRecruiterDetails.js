@@ -7,5 +7,12 @@ export const fetchRecruiterDetails = (userId, token) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((response) => response.data);
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(
+        "An error occurred while fetching recruiter details:",
+        error
+      );
+      return null;
+    });
 };

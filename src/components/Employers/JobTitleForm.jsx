@@ -7,7 +7,7 @@ export const JobTitleForm = ({ formik }) => {
       <Heading w="100%" textAlign={"center"} fontWeight="normal" mb="2%">
         Job Vacancy
       </Heading>
-      <Flex>
+      <Flex p={4}>
         <FormControl isRequired>
           <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
           <Input

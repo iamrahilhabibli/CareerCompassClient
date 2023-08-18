@@ -16,6 +16,7 @@ import { useLocation } from "react-router-dom";
 import { SidebarWithHeader } from "./components/JobPost/Sidebar";
 import { Employers } from "./components/Employers/Employers";
 import { JobMultistep } from "./components/Employers/JobMultistep";
+import { WelcomePage } from "./components/WelcomePage/WelcomePage";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = ["/employerscareercompass", "/postjob"];
@@ -33,6 +34,7 @@ export function App() {
         </SidebarWithHeader>
       ) : (
         <Routes>
+          <Route path="/" element={<WelcomePage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/companies" element={<Companies />} />
           <Route path="/signup" element={<Signup />} />
