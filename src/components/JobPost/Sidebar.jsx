@@ -36,7 +36,7 @@ const LinkItems = [
 const SidebarContent = ({ onClose, ...rest }) => (
   <Box
     transition="3s ease"
-    bg={useColorModeValue("white", "gray.900")}
+    bg={"blue.100"}
     borderRight="1px"
     borderRightColor={useColorModeValue("gray.200", "gray.700")}
     w={{ base: "full", md: 60 }}
@@ -45,7 +45,12 @@ const SidebarContent = ({ onClose, ...rest }) => (
     {...rest}
   >
     <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-      <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
+      <Text
+        color={"white"}
+        fontSize="2xl"
+        fontFamily="monospace"
+        fontWeight="bold"
+      >
         Logo
       </Text>
       <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />

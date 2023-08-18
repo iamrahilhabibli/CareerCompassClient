@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, Text } from "@chakra-ui/react";
 import { FiPlus, FiCheck } from "react-icons/fi";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 export const JobTypeForm = ({ formik }) => {
@@ -9,6 +9,7 @@ export const JobTypeForm = ({ formik }) => {
   const [selectedSchedules, setSelectedSchedules] = useState([]);
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
   const [displayMore, setDisplayMore] = useState(false);
+  const remainingSchedules = schedules.length - displayLimit;
   useEffect(() => {
     const fetchData = async (url, setDataFunction) => {
       try {
@@ -160,10 +161,28 @@ export const JobTypeForm = ({ formik }) => {
                 {schedule.shiftName}
               </Button>
             ))}
-          {schedules.length > displayLimit && (
-            <Button onClick={handleToggleDisplayMore} m={2}>
-              {displayMore ? <FiChevronUp /> : <FiChevronDown />}
-            </Button>
+          {remainingSchedules > 0 && (
+            <Flex
+              color={"blue.700"}
+              fontWeight={700}
+              onClick={handleToggleDisplayMore}
+              m={2}
+              alignItems="center"
+            >
+              <Text as="span" mr={1}>
+                {" "}
+                {displayMore ? "Show less" : "Show more"}
+              </Text>
+              <Text as="span" mr={2}>
+                {" "}
+                ({remainingSchedules})
+              </Text>
+              {displayMore ? (
+                <FiChevronUp size={24} />
+              ) : (
+                <FiChevronDown size={24} />
+              )}{" "}
+            </Flex>
           )}
         </Flex>
       </FormControl>
