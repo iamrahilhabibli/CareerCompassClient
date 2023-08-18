@@ -78,27 +78,50 @@ export function JobMultistep() {
   };
   return (
     <>
-      <Box
-        borderWidth={"1px"}
-        rounded={"lg"}
-        shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        maxWidth={800}
-        bg={"white"}
-        m="10px auto"
-        height={"100px"}
-      >
-        <Flex
-          alignItems={"center"}
-          justifyContent={"center"}
-          width={"100%"}
-          height={"100%"}
+      {step === 1 && (
+        <Box
+          borderWidth={"1px"}
+          rounded={"lg"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={800}
+          bg={"white"}
+          m="10px auto"
+          height={"100px"}
         >
-          <Heading as="h3" size="lg">
-            Create a job post
-          </Heading>
-        </Flex>
-      </Box>
-
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            width={"100%"}
+            height={"100%"}
+          >
+            <Heading as="h3" size="lg">
+              Create a job post
+            </Heading>
+          </Flex>
+        </Box>
+      )}
+      {step === 2 && (
+        <Box
+          borderWidth={"1px"}
+          rounded={"lg"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={800}
+          bg={"white"}
+          m="10px auto"
+          height={"100px"}
+        >
+          <Flex
+            alignItems={"center"}
+            justifyContent={"center"}
+            width={"100%"}
+            height={"100%"}
+          >
+            <Heading as="h3" size="lg">
+              Add job details
+            </Heading>
+          </Flex>
+        </Box>
+      )}
       <br />
       <br />
       <form onSubmit={formik.handleSubmit}>
