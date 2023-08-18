@@ -6,9 +6,29 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  Select,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 export function PayBenefitsForm({ formik }) {
+  const [experienceLevels, setExperienceLevels] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async (url, setDataFunction) => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setDataFunction(data);
+      } catch (error) {
+        console.error(`Error fetching data from ${url}:`, error);
+      }
+    };
+
+    fetchData(
+      "https://localhost:7013/api/ExperienceLevels/GetAll",
+      setExperienceLevels
+    );
+  }, []);
   return (
     <>
       <FormControl isRequired>
@@ -34,6 +54,31 @@ export function PayBenefitsForm({ formik }) {
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
+      </FormControl>
+      <FormControl isRequired>
+        <FormLabel
+          htmlFor="experienceLevel"
+          fontWeight="md"
+          color="gray.700"
+          _dark={{ color: "gray.50" }}
+        >
+          Experience Level
+        </FormLabel>
+        <Select
+          id="experienceLevel"
+          placeholder="Select Experience Level"
+          onChange={(e) =>
+            formik.setFieldValue("experienceLevel", e.target.value)
+          }
+          onBlur={formik.handleBlur}
+          value={formik.values.experienceLevel}
+        >
+          {experienceLevels.map((level) => (
+            <option key={level.id} value={level.id}>
+              {level.levelName}
+            </option>
+          ))}
+        </Select>
       </FormControl>
     </>
   );

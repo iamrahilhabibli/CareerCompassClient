@@ -9,6 +9,7 @@ import jobsearch from "../../images/jobsearch-removebg-preview.png";
 import jobdetails from "../../images/jobdetails.png";
 import jobpay from "../../images/jobpay.png";
 import jobdescription from "../../images/jobdescription.png";
+import finalcheck from "../../images/FinalCheck.png";
 import {
   Box,
   Button,
@@ -17,9 +18,10 @@ import {
   Heading,
   Progress,
 } from "@chakra-ui/react";
+import { VacancyFinal } from "./VacancyFinal";
 export function JobMultistep() {
   const [step, setStep] = useState(1);
-  const [progress, setProgress] = useState(25);
+  const [progress, setProgress] = useState(20);
   const stepSchemas = [
     Yup.object().shape({
       jobTitle: Yup.string().required("Job title is required"),
@@ -71,6 +73,8 @@ export function JobMultistep() {
         return <PayBenefitsForm formik={formik} />;
       case 4:
         return <JobDescriptionForm formik={formik} />;
+      case 5:
+        return <VacancyFinal formik={formik.values} />;
       default:
         return <div>Invalid step</div>;
     }
@@ -151,12 +155,12 @@ export function JobMultistep() {
         >
           <Flex
             alignItems={"center"}
-            ml={"50px"}
+            ml={"35px"}
             width={"100%"}
             height={"100%"}
           >
             <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
-              Add pay and benefits
+              Add pay and Experience level
             </Heading>
           </Flex>
         </Box>
@@ -185,6 +189,34 @@ export function JobMultistep() {
           >
             <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
               Describe the job
+            </Heading>
+          </Flex>
+        </Box>
+      )}
+      {step === 5 && (
+        <Box
+          borderWidth={"1px"}
+          rounded={"lg"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={800}
+          bg={"white"}
+          m="10px auto"
+          height={"200px"}
+          borderRadius={"12px"}
+          bgImage={finalcheck}
+          bgRepeat="no-repeat"
+          bgSize="auto 100%"
+          bgPosition="right"
+          position="relative"
+        >
+          <Flex
+            alignItems={"center"}
+            ml={"50px"}
+            width={"100%"}
+            height={"100%"}
+          >
+            <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
+              Confirm your post
             </Heading>
           </Flex>
         </Box>
