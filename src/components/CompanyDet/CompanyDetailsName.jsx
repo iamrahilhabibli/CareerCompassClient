@@ -174,7 +174,14 @@ export default function Multistep() {
         p={6}
         m="10px auto"
       >
-        <Progress hasStripe value={progress} mb="5%" mx="5%" isAnimated />
+        <Progress
+          hasStripe
+          value={progress}
+          mb="5%"
+          mx="5%"
+          borderRadius={"8px"}
+          isAnimated
+        />
         {renderStepContent(step)}
         <ButtonGroup mt="5%" w="100%">
           <Flex w="100%" justifyContent="space-between">
