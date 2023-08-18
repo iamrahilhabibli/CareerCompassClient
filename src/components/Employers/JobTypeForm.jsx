@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Flex, FormControl, FormLabel } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel } from "@chakra-ui/react";
 import { FiPlus, FiCheck } from "react-icons/fi";
-
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 export const JobTypeForm = ({ formik }) => {
   const [jobTypes, setJobTypes] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [displayLimit, setDisplayLimit] = useState(4);
   const [selectedSchedules, setSelectedSchedules] = useState([]);
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
-
+  const [displayMore, setDisplayMore] = useState(false);
   useEffect(() => {
     const fetchData = async (url, setDataFunction) => {
       try {
@@ -36,6 +37,9 @@ export const JobTypeForm = ({ formik }) => {
     );
   };
 
+  const handleToggleDisplayMore = () => {
+    setDisplayMore(!displayMore);
+  };
   const handleRemoveSchedule = (scheduleId) => {
     const newSelectedSchedules = selectedSchedules.filter(
       (s) => s.id !== scheduleId
@@ -123,37 +127,44 @@ export const JobTypeForm = ({ formik }) => {
           Schedule
         </FormLabel>
         <Flex wrap="wrap">
-          {schedules.map((schedule) => (
-            <Button
-              key={schedule.id}
-              borderColor="blue.500"
-              borderWidth="1px"
-              borderRadius="12px"
-              bg={
-                selectedSchedules.find((s) => s.id === schedule.id)
-                  ? "blue.500"
-                  : "white"
-              }
-              color={
-                selectedSchedules.find((s) => s.id === schedule.id)
-                  ? "white"
-                  : "blue.500"
-              }
-              m={2}
-              _hover={{
-                color: "white",
-                bg: "blue.500",
-              }}
-              onClick={() => handleAddSchedule(schedule)}
-            >
-              {selectedSchedules.find((s) => s.id === schedule.id) ? (
-                <FiCheck />
-              ) : (
-                <FiPlus />
-              )}{" "}
-              {schedule.shiftName}{" "}
+          {schedules
+            .slice(0, displayMore ? schedules.length : displayLimit)
+            .map((schedule) => (
+              <Button
+                key={schedule.id}
+                borderColor="blue.500"
+                borderWidth="1px"
+                borderRadius="12px"
+                bg={
+                  selectedSchedules.find((s) => s.id === schedule.id)
+                    ? "blue.500"
+                    : "white"
+                }
+                color={
+                  selectedSchedules.find((s) => s.id === schedule.id)
+                    ? "white"
+                    : "blue.500"
+                }
+                m={2}
+                _hover={{
+                  color: "white",
+                  bg: "blue.500",
+                }}
+                onClick={() => handleAddSchedule(schedule)}
+              >
+                {selectedSchedules.find((s) => s.id === schedule.id) ? (
+                  <FiCheck />
+                ) : (
+                  <FiPlus />
+                )}{" "}
+                {schedule.shiftName}
+              </Button>
+            ))}
+          {schedules.length > displayLimit && (
+            <Button onClick={handleToggleDisplayMore} m={2}>
+              {displayMore ? <FiChevronUp /> : <FiChevronDown />}
             </Button>
-          ))}
+          )}
         </Flex>
       </FormControl>
     </>
