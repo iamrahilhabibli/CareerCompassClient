@@ -73,6 +73,12 @@ export function VacancyFinal({ formik }) {
         <Text fontWeight="bold">Shifts:</Text>
         <Text>{shiftNames}</Text>
       </Box>
+      <Box>
+        <Text fontWeight="bold">Job Description:</Text>
+        <div
+          dangerouslySetInnerHTML={{ __html: formik.values.jobDescription }}
+        />
+      </Box>
     </VStack>
   );
 }
