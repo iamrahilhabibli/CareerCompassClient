@@ -53,9 +53,9 @@ export const JobTitleForm = ({ formik }) => {
           Choose your Job location
         </FormLabel>
         <Select
-          id="country"
-          name="country"
-          autoComplete="country"
+          id="locationId"
+          name="locationId"
+          autoComplete="locationId"
           placeholder="Select option"
           focusBorderColor="brand.400"
           shadow="sm"
@@ -64,7 +64,7 @@ export const JobTitleForm = ({ formik }) => {
           rounded="md"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          value={formik.values.country}
+          value={formik.values.locationId}
         >
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>

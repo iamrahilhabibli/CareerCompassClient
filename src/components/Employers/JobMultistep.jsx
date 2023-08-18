@@ -44,10 +44,10 @@ export function JobMultistep() {
       jobTitle: "",
       experienceLevelId: "",
       salary: 0,
-      jobTypeId: "",
-      jobLocationId: "",
+      jobTypeIds: [],
+      locationId: "",
       description: "",
-      shifts: [],
+      shiftIds: [],
     },
     validationSchema: stepSchemas[step - 1],
     onSubmit: (values) => {

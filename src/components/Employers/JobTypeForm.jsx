@@ -40,25 +40,25 @@ export const JobTypeForm = ({ formik }) => {
     const newSelectedSchedules = [...selectedSchedules, schedule];
     setSelectedSchedules(newSelectedSchedules);
     formik.setFieldValue(
-      "scheduleId",
-      newSelectedSchedules.map((s) => s.id).join(",")
+      "shiftIds",
+      newSelectedSchedules.map((s) => s.id)
     );
   };
 
-  const handleToggleDisplayMore = () => {
-    setDisplayMore(!displayMore);
-  };
   const handleRemoveSchedule = (scheduleId) => {
     const newSelectedSchedules = selectedSchedules.filter(
       (s) => s.id !== scheduleId
     );
     setSelectedSchedules(newSelectedSchedules);
     formik.setFieldValue(
-      "scheduleId",
-      newSelectedSchedules.map((s) => s.id).join(",")
+      "shiftIds",
+      newSelectedSchedules.map((s) => s.id)
     );
   };
 
+  const handleToggleDisplayMore = () => {
+    setDisplayMore(!displayMore);
+  };
   const handleAddJobType = (jobType) => {
     if (selectedJobTypes.find((jt) => jt.id === jobType.id)) {
       handleRemoveJobType(jobType.id);
@@ -67,8 +67,8 @@ export const JobTypeForm = ({ formik }) => {
     const newSelectedJobTypes = [...selectedJobTypes, jobType];
     setSelectedJobTypes(newSelectedJobTypes);
     formik.setFieldValue(
-      "jobTypeId",
-      newSelectedJobTypes.map((jt) => jt.id).join(",")
+      "jobTypeIds",
+      newSelectedJobTypes.map((jt) => jt.id)
     );
   };
 
@@ -78,10 +78,11 @@ export const JobTypeForm = ({ formik }) => {
     );
     setSelectedJobTypes(newSelectedJobTypes);
     formik.setFieldValue(
-      "jobTypeId",
-      newSelectedJobTypes.map((jt) => jt.id).join(",")
+      "jobTypeIds",
+      newSelectedJobTypes.map((jt) => jt.id)
     );
   };
+
   return (
     <>
       <FormControl isRequired>

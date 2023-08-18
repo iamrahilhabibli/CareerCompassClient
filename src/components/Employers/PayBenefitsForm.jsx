@@ -57,7 +57,7 @@ export function PayBenefitsForm({ formik }) {
       </FormControl>
       <FormControl isRequired>
         <FormLabel
-          htmlFor="experienceLevel"
+          htmlFor="experienceLevelId"
           fontWeight="md"
           color="gray.700"
           _dark={{ color: "gray.50" }}
@@ -65,13 +65,13 @@ export function PayBenefitsForm({ formik }) {
           Experience Level
         </FormLabel>
         <Select
-          id="experienceLevel"
+          id="experienceLevelId"
           placeholder="Select Experience Level"
           onChange={(e) =>
-            formik.setFieldValue("experienceLevel", e.target.value)
+            formik.setFieldValue("experienceLevelId", e.target.value)
           }
           onBlur={formik.handleBlur}
-          value={formik.values.experienceLevel}
+          value={formik.values.experienceLevelId}
         >
           {experienceLevels.map((level) => (
             <option key={level.id} value={level.id}>

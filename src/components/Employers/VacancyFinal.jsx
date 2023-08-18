@@ -26,17 +26,18 @@ export function VacancyFinal({ formik }) {
     fetchData("https://localhost:7013/api/JobTypes", setJobTypes);
     fetchData("https://localhost:7013/api/Schedules/GetAll", setSchedules);
   }, []);
-
   const experienceLevelName =
     experienceLevels.find((el) => el.id === formik.values.experienceLevelId)
-      ?.name || "N/A";
+      ?.levelName || "N/A";
+
   const jobLocationName =
-    locations.find((loc) => loc.id === formik.values.jobLocationId)?.name ||
+    locations.find((loc) => loc.id === formik.values.locationId)?.location ||
     "N/A";
+
   const jobTypeNames = (
     formik.values.jobTypeIds?.length
       ? formik.values.jobTypeIds.map(
-          (id) => jobTypes.find((jt) => jt.id === id)?.name || "N/A"
+          (id) => jobTypes.find((jt) => jt.id === id)?.typeName || "N/A"
         )
       : []
   ).join(", ");
@@ -44,7 +45,7 @@ export function VacancyFinal({ formik }) {
   const shiftNames = (
     formik.values.shiftIds?.length
       ? formik.values.shiftIds.map(
-          (id) => schedules.find((s) => s.id === id)?.name || "N/A"
+          (id) => schedules.find((s) => s.id === id)?.shiftName || "N/A"
         )
       : []
   ).join(", ");
