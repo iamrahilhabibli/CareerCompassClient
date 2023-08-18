@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, Flex, FormControl, FormLabel, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Text,
+  Box,
+} from "@chakra-ui/react";
 import { FiPlus, FiCheck } from "react-icons/fi";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 export const JobTypeForm = ({ formik }) => {
@@ -127,6 +134,7 @@ export const JobTypeForm = ({ formik }) => {
         >
           Schedule
         </FormLabel>
+
         <Flex wrap="wrap">
           {schedules
             .slice(0, displayMore ? schedules.length : displayLimit)

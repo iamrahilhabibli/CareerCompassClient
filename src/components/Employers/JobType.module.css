@@ -1,0 +1,10 @@
+.collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out;
+}
+
+.expand {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in-out;
+}

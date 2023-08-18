@@ -36,7 +36,7 @@ const LinkItems = [
 const SidebarContent = ({ onClose, ...rest }) => (
   <Box
     transition="3s ease"
-    bg={"blue.100"}
+    bg={"blue.900"}
     borderRight="1px"
     borderRightColor={useColorModeValue("gray.200", "gray.700")}
     w={{ base: "full", md: 60 }}
@@ -72,6 +72,7 @@ const NavItem = ({ icon, children, path, ...rest }) => (
       borderRadius="lg"
       role="group"
       cursor="pointer"
+      color={"white"}
       _hover={{
         bg: "cyan.400",
         color: "white",

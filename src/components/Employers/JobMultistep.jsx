@@ -48,17 +48,12 @@ export function JobMultistep() {
       console.log(values);
     },
   });
-  const handleNext = async () => {
-    try {
-      await formik.validateForm();
-      if (step < 3) {
-        setStep(step + 1);
-        setProgress(progress + 25);
-      } else {
-        formik.handleSubmit();
-      }
-    } catch (err) {
-      console.log(err);
+  const handleNext = () => {
+    if (step === 5) {
+      formik.handleSubmit();
+    } else {
+      setStep(step + 1);
+      setProgress((step / 5) * 100);
     }
   };
 
@@ -146,7 +141,7 @@ export function JobMultistep() {
           {renderStepContent(step)}
           <ButtonGroup mt="5%" w="100%">
             <Flex w="100%" justifyContent="space-between">
-              {step !== 3 && (
+              {step < 5 ? (
                 <Button
                   w="7rem"
                   onClick={handleNext}
@@ -155,16 +150,16 @@ export function JobMultistep() {
                 >
                   Next
                 </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  w="7rem"
+                  colorScheme="blue"
+                  variant="solid"
+                >
+                  Submit
+                </Button>
               )}
-              <Button
-                type="submit"
-                w="7rem"
-                display={step === 3 ? "block" : "none"}
-                colorScheme="blue"
-                variant="solid"
-              >
-                Submit
-              </Button>
             </Flex>
           </ButtonGroup>
         </Box>
