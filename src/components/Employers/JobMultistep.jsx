@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { JobTypeForm } from "./JobTypeForm";
 import { PayBenefitsForm } from "./PayBenefitsForm";
 import { JobDescriptionForm } from "./JobDescriptionForm";
+import jobsearch from "../../images/jobsearch-removebg-preview.png";
+import jobdetails from "../../images/jobdetails.png";
 import {
   Box,
   Button,
@@ -81,15 +83,21 @@ export function JobMultistep() {
           maxWidth={800}
           bg={"white"}
           m="10px auto"
-          height={"100px"}
+          height={"200px"}
+          borderRadius={"12px"}
+          bgImage={jobsearch}
+          bgRepeat="no-repeat"
+          bgSize="auto 100%"
+          bgPosition="right"
+          position="relative"
         >
           <Flex
             alignItems={"center"}
-            justifyContent={"center"}
+            ml={"50px"}
             width={"100%"}
             height={"100%"}
           >
-            <Heading as="h3" size="lg">
+            <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
               Create a job post
             </Heading>
           </Flex>
@@ -103,16 +111,78 @@ export function JobMultistep() {
           maxWidth={800}
           bg={"white"}
           m="10px auto"
-          height={"100px"}
+          height={"200px"}
+          borderRadius={"12px"}
+          bgImage={jobdetails}
+          bgRepeat="no-repeat"
+          bgSize="auto 100%"
+          bgPosition="right"
+          position="relative"
         >
           <Flex
             alignItems={"center"}
-            justifyContent={"center"}
+            ml={"50px"}
             width={"100%"}
             height={"100%"}
           >
-            <Heading as="h3" size="lg">
+            <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
               Add job details
+            </Heading>
+          </Flex>
+        </Box>
+      )}
+      {step === 3 && (
+        <Box
+          borderWidth={"1px"}
+          rounded={"lg"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={800}
+          bg={"white"}
+          m="10px auto"
+          height={"200px"}
+          borderRadius={"12px"}
+          bgImage={jobdetails}
+          bgRepeat="no-repeat"
+          bgSize="auto 100%"
+          bgPosition="right"
+          position="relative"
+        >
+          <Flex
+            alignItems={"center"}
+            ml={"50px"}
+            width={"100%"}
+            height={"100%"}
+          >
+            <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
+              Add pay and benefits
+            </Heading>
+          </Flex>
+        </Box>
+      )}
+      {step === 4 && (
+        <Box
+          borderWidth={"1px"}
+          rounded={"lg"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={800}
+          bg={"white"}
+          m="10px auto"
+          height={"200px"}
+          borderRadius={"12px"}
+          bgImage={jobdetails}
+          bgRepeat="no-repeat"
+          bgSize="auto 100%"
+          bgPosition="right"
+          position="relative"
+        >
+          <Flex
+            alignItems={"center"}
+            ml={"50px"}
+            width={"100%"}
+            height={"100%"}
+          >
+            <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
+              Describe the job
             </Heading>
           </Flex>
         </Box>

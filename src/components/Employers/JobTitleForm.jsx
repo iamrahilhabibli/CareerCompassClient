@@ -26,7 +26,13 @@ export const JobTitleForm = ({ formik }) => {
   }, []);
   return (
     <>
-      <Heading w="100%" textAlign={"center"} fontWeight="normal" mb="2%">
+      <Heading
+        color={"blue.400"}
+        w="100%"
+        textAlign={"center"}
+        fontWeight="normal"
+        mb="2%"
+      >
         Job Vacancy
       </Heading>
       <FormControl isRequired>

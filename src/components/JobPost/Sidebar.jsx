@@ -22,12 +22,14 @@ import {
   FiBriefcase,
   FiMessageSquare,
   FiMap,
+  FiPlus,
 } from "react-icons/fi";
 
 const LinkItems = [
   { name: "Home", icon: FiHome, path: "/home" },
+  { name: "Post a Job", icon: FiPlus, path: "/postjob" },
   { name: "Main", icon: FiMap, path: "/employerscareercompass" },
-  { name: "Post a Job", icon: FiBriefcase, path: "/postjob" },
+  { name: "Jobs", icon: FiBriefcase, path: "" },
   { name: "Messages", icon: FiMessageSquare },
   { name: "Applicants", icon: FiStar },
   { name: "Settings", icon: FiSettings },
