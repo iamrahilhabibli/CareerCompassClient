@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Heading, VStack, Text } from "@chakra-ui/react";
+import { Box, Heading, VStack, Text, Button } from "@chakra-ui/react";
+import { EditIcon } from "@chakra-ui/icons";
 
 export function VacancyFinal({ formik }) {
   const [experienceLevels, setExperienceLevels] = useState([]);
   const [locations, setLocations] = useState([]);
   const [jobTypes, setJobTypes] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [editing, setEditing] = useState({});
 
   useEffect(() => {
     const fetchData = async (url, setDataFunction) => {
@@ -50,35 +52,74 @@ export function VacancyFinal({ formik }) {
       : []
   ).join(", ");
 
+  const saveChanges = () => {};
   return (
     <VStack spacing={5} align="stretch">
       <Heading>Review Your Vacancy Details</Heading>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Title:</Text>
-        <Text>{formik.values.jobTitle}</Text>
+        {editing.jobTitle ? (
+          <input
+            type="text"
+            value={formik.values.jobTitle}
+            onChange={(e) => formik.setFieldValue("jobTitle", e.target.value)}
+            onBlur={() => setEditing({ ...editing, jobTitle: false })}
+          />
+        ) : (
+          <>
+            <Text>{formik.values.jobTitle}</Text>
+            <EditIcon
+              onClick={() => setEditing({ ...editing, jobTitle: true })}
+              cursor="pointer"
+            />
+          </>
+        )}
       </Box>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Experience Level:</Text>
         <Text>{experienceLevelName}</Text>
+        <EditIcon
+          onClick={() => setEditing({ ...editing, experienceLevel: true })}
+          cursor="pointer"
+        />
       </Box>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Location:</Text>
         <Text>{jobLocationName}</Text>
+        <EditIcon
+          onClick={() => setEditing({ ...editing, location: true })}
+          cursor="pointer"
+        />
       </Box>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Types:</Text>
         <Text>{jobTypeNames}</Text>
+        <EditIcon
+          onClick={() => setEditing({ ...editing, jobTypes: true })}
+          cursor="pointer"
+        />
       </Box>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Shifts:</Text>
         <Text>{shiftNames}</Text>
+        <EditIcon
+          onClick={() => setEditing({ ...editing, shifts: true })}
+          cursor="pointer"
+        />
       </Box>
-      <Box>
+      <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Description:</Text>
         <div
           dangerouslySetInnerHTML={{ __html: formik.values.jobDescription }}
         />
+        <EditIcon
+          onClick={() => setEditing({ ...editing, jobDescription: true })}
+          cursor="pointer"
+        />
       </Box>
+      <Button colorScheme="blue" onClick={saveChanges}>
+        Save Changes
+      </Button>
     </VStack>
   );
 }

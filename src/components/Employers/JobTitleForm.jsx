@@ -6,6 +6,7 @@ import {
   Heading,
   Input,
   Select,
+  Text,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
@@ -35,6 +36,9 @@ export const JobTitleForm = ({ formik }) => {
         >
           Job Title
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.jobTitle && formik.errors.jobTitle}
+        </Text>
         <Input
           mb={"20px"}
           id="jobTitle"
@@ -52,6 +56,9 @@ export const JobTitleForm = ({ formik }) => {
         >
           Choose your Job location
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.locationId && formik.errors.locationId}
+        </Text>
         <Select
           id="locationId"
           name="locationId"

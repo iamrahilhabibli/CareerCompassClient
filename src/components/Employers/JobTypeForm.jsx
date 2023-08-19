@@ -93,6 +93,9 @@ export const JobTypeForm = ({ formik }) => {
         >
           Job Types
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.jobTypeIds && formik.errors.jobTypeIds}
+        </Text>
         <Flex wrap="wrap">
           {jobTypes.map((jobType) => (
             <Button
@@ -135,7 +138,9 @@ export const JobTypeForm = ({ formik }) => {
         >
           Schedule
         </FormLabel>
-
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.shiftIds && formik.errors.shiftIds}
+        </Text>
         <Flex wrap="wrap">
           {schedules
             .slice(0, displayMore ? schedules.length : displayLimit)

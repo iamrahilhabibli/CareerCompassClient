@@ -23,22 +23,53 @@ export function JobMultistep() {
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(20);
   const stepSchemas = [
+    // Step 1: Job Title and Location
     Yup.object().shape({
-      jobTitle: Yup.string().required("Job title is required"),
-      location: Yup.string().required("Job location is required"),
+      jobTitle: Yup.string()
+        .required("Job title is required")
+        .matches(
+          /^[a-zA-Z\s]+$/,
+          "Job title can only contain letters and spaces"
+        )
+        .max(
+          30,
+          "Job title can have a maximum of 30 characters, including spaces"
+        ),
+      locationId: Yup.string().required("Job location ID is required"),
     }),
+
+    // Step 2: Job Type IDs and Shift IDs
     Yup.object().shape({
-      jobType: Yup.string().required("Job type is required"),
-      schedule: Yup.string().required("Schedule is required"),
+      jobTypeIds: Yup.array()
+        .required("Job type IDs are required")
+        .min(1, "At least one job type ID is required"),
+      shiftIds: Yup.array()
+        .required("Shift IDs are required")
+        .min(1, "At least one shift ID is required"),
     }),
+
+    // Step 3: Experience Level ID and Salary
+    // Step 3: Experience Level ID and Salary
     Yup.object().shape({
-      pay: Yup.string().required("Pay is required"),
-      benefits: Yup.string().required("Benefits are required"),
+      experienceLevelId: Yup.string().required(
+        "Experience level ID is required"
+      ),
+      salary: Yup.number()
+        .required("Salary is required")
+        .positive("Salary must be positive")
+        .typeError("Salary must be a number"),
     }),
+
+    // Step 4: Description
     Yup.object().shape({
-      jobDescription: Yup.string().required("Job description is required"),
+      description: Yup.string()
+        .required("Description is required")
+        .min(30, "Description should contain a minimum of 30 characters"),
     }),
+
+    // Add schemas for additional steps if needed...
   ];
+
   const formik = useFormik({
     initialValues: {
       jobTitle: "",
@@ -54,12 +85,20 @@ export function JobMultistep() {
       console.log(values);
     },
   });
-  const handleNext = () => {
-    if (step === 5) {
-      formik.handleSubmit();
-    } else {
+  const handleNext = async () => {
+    const currentSchema = stepSchemas[step - 1];
+
+    console.log("Current schema:", currentSchema); // Debugging
+    console.log("Current values:", formik.values); // Debugging
+    console.log(`Step: ${step}`, currentSchema);
+
+    try {
+      await currentSchema.validate(formik.values);
       setStep(step + 1);
-      setProgress((step / 5) * 100);
+      setProgress(progress + 33.33);
+    } catch (err) {
+      console.log(err);
+      // Consider setting the error to the UI, if needed
     }
   };
 
