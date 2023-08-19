@@ -6,6 +6,7 @@ import {
   List,
   ListIcon,
   ListItem,
+  Divider,
 } from "@chakra-ui/react";
 import { useCombobox } from "downshift";
 import { useState } from "react";
@@ -81,24 +82,31 @@ export function Searchbar() {
             border: "1px solid #ccc",
             w: "400px",
             h: "45px",
-            borderRadius: "10px",
+            borderTopRightRadius: "10px",
+            borderTopLeftRadius: "10px",
+            borderBottomRightRadius: isOpen ? "0" : "10px",
+            borderBottomLeftRadius: isOpen ? "0" : "10px",
             borderColor: "#767676",
             fontSize: "14px",
             fontWeight: "400",
             color: "#2d2d2d",
             _hover: { borderColor: "#2557a7", outline: "none" },
             _focus: { borderColor: "#2557a7", outline: "none" },
-            placeholder: "City",
+            placeholder: "City,Country",
           })}
         />
         <List
           {...getMenuProps()}
           position="absolute"
-          w="100%"
+          fontSize={"13px"}
+          w="400px"
+          _hover={"blue.200"}
           maxH="200px"
           overflowY="auto"
           border="1px solid #ccc"
-          borderRadius="10px"
+          borderTop={isOpen ? "0" : "1px solid #ccc"}
+          borderBottomLeftRadius="10px"
+          borderBottomRightRadius="10px"
           bgColor="white"
           zIndex={2}
           listStyleType="none"
@@ -110,8 +118,8 @@ export function Searchbar() {
               <ListItem
                 key={item.id}
                 {...getItemProps({ item, index })}
-                padding="10px"
-                bgColor={highlightedIndex === index ? "lightgray" : "white"}
+                padding="8px"
+                bgColor={highlightedIndex === index ? "blue.100" : "white"}
               >
                 {item.location}
               </ListItem>
