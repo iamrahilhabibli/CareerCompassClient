@@ -17,13 +17,52 @@ import {
   Flex,
   Heading,
   Progress,
+  useToast,
 } from "@chakra-ui/react";
 import { VacancyFinal } from "./VacancyFinal";
+import useUser from "../../customhooks/useUser";
+import { useMutation, useQuery } from "react-query";
+import { postVacancy } from "../../services/registerVacancy";
+import { useNavigate } from "react-router-dom";
+import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 export function JobMultistep() {
   const [step, setStep] = useState(1);
+  const { isAuthenticated, userId } = useUser();
   const [progress, setProgress] = useState(20);
+  const token = localStorage.getItem("token");
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { data: recruiterDetails } = useQuery(
+    ["recruiterDetails", userId],
+    () => fetchRecruiterDetails(userId)
+  );
+  const companyId = recruiterDetails?.companyId;
+  const postVacancyMutation = useMutation(
+    (vacancyData) => postVacancy(vacancyData, token, userId, companyId),
+    {
+      onSuccess: () => {
+        toast({
+          title: "Vacancy Posted.",
+          description: "We've posted the vacancy for you.",
+          status: "success",
+          duration: 1000,
+          isClosable: true,
+        });
+        navigate("/home");
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message,
+          status: "error",
+          duration: 1000,
+          isClosable: true,
+        });
+      },
+    }
+  );
+
   const stepSchemas = [
-    // Step 1: Job Title and Location
     Yup.object().shape({
       jobTitle: Yup.string()
         .required("Job title is required")
@@ -37,8 +76,6 @@ export function JobMultistep() {
         ),
       locationId: Yup.string().required("Job location ID is required"),
     }),
-
-    // Step 2: Job Type IDs and Shift IDs
     Yup.object().shape({
       jobTypeIds: Yup.array()
         .required("Job type IDs are required")
@@ -47,9 +84,6 @@ export function JobMultistep() {
         .required("Shift IDs are required")
         .min(1, "At least one shift ID is required"),
     }),
-
-    // Step 3: Experience Level ID and Salary
-    // Step 3: Experience Level ID and Salary
     Yup.object().shape({
       experienceLevelId: Yup.string().required(
         "Experience level ID is required"
@@ -59,15 +93,11 @@ export function JobMultistep() {
         .positive("Salary must be positive")
         .typeError("Salary must be a number"),
     }),
-
-    // Step 4: Description
     Yup.object().shape({
       description: Yup.string()
         .required("Description is required")
         .min(30, "Description should contain a minimum of 30 characters"),
     }),
-
-    // Add schemas for additional steps if needed...
   ];
 
   const formik = useFormik({
@@ -82,15 +112,12 @@ export function JobMultistep() {
     },
     validationSchema: stepSchemas[step - 1],
     onSubmit: (values) => {
-      console.log(values);
+      values.salary = parseFloat(values.salary);
+      postVacancyMutation.mutate(values);
     },
   });
   const handleNext = async () => {
     const currentSchema = stepSchemas[step - 1];
-
-    console.log("Current schema:", currentSchema); // Debugging
-    console.log("Current values:", formik.values); // Debugging
-    console.log(`Step: ${step}`, currentSchema);
 
     try {
       await currentSchema.validate(formik.values);
@@ -98,7 +125,6 @@ export function JobMultistep() {
       setProgress(progress + 33.33);
     } catch (err) {
       console.log(err);
-      // Consider setting the error to the UI, if needed
     }
   };
 

@@ -109,11 +109,9 @@ export function VacancyFinal({ formik }) {
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Description:</Text>
-        <div
-          dangerouslySetInnerHTML={{ __html: formik.values.jobDescription }}
-        />
+        <div dangerouslySetInnerHTML={{ __html: formik.values.description }} />
         <EditIcon
-          onClick={() => setEditing({ ...editing, jobDescription: true })}
+          onClick={() => setEditing({ ...editing, description: true })}
           cursor="pointer"
         />
       </Box>
