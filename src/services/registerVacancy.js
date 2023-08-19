@@ -12,17 +12,15 @@ export const postVacancy = async (vacancyData, token, userId, companyId) => {
     };
     console.log("VacancyData", vacancyData);
     const jsonData = JSON.stringify(vacancyData);
-
     const response = await axios.post(url, jsonData, config);
 
     return response.data || null;
   } catch (error) {
-    console.log("Error Details:", error); // Log the entire error object
+    console.log("Error Details:", error);
     if (error.response) {
-      console.log("Status Code:", error.response.status);
-      console.error("Error response:", error.response);
-      // Log the server's response data
-      console.error("Server response data:", error.response.data);
+      // console.log("Status Code:", error.response.status);
+      // console.error("Error response:", error.response);
+      // console.error("Server response data:", error.response.data);
       throw new Error(
         error.response.data.message || "Network response was not ok"
       );

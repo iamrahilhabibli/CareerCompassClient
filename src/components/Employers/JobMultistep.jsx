@@ -48,7 +48,7 @@ export function JobMultistep() {
           duration: 1000,
           isClosable: true,
         });
-        navigate("/home");
+        navigate("/employerscareercompass");
       },
       onError: (error) => {
         toast({
