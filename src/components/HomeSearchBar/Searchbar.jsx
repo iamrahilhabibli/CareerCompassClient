@@ -1,13 +1,4 @@
-import {
-  Box,
-  Input,
-  Button,
-  Text,
-  List,
-  ListIcon,
-  ListItem,
-  Divider,
-} from "@chakra-ui/react";
+import { Box, Input, Button, Text, List, ListItem } from "@chakra-ui/react";
 import { useCombobox } from "downshift";
 import { useState } from "react";
 import useGetByLocation from "../../services/getByLocation";
@@ -21,7 +12,6 @@ export function Searchbar() {
     isOpen,
     getMenuProps,
     getInputProps,
-    getComboboxProps,
     highlightedIndex,
     getItemProps,
   } = useCombobox({

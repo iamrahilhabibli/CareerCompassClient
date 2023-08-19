@@ -9,7 +9,7 @@ import { Details } from "./components/CompanyDet/Details";
 import { Profile } from "./components/Profile/Profile";
 import Multistep from "./components/CompanyDet/CompanyDetailsName";
 import { Footer } from "./components/Footer/Footer";
-import { NotFound } from "./components/NotFound/NotFound";
+import { NotFound } from "./components/ExceptionPages/NotFound";
 import { ForgotPass } from "./components/ForgotPassword/ForgotPass";
 import { PasswordReset } from "./components/PasswordReset/PasswordReset";
 import { useLocation } from "react-router-dom";
@@ -17,6 +17,8 @@ import { SidebarWithHeader } from "./components/JobPost/Sidebar";
 import { Employers } from "./components/Employers/Employers";
 import { JobMultistep } from "./components/Employers/JobMultistep";
 import { WelcomePage } from "./components/WelcomePage/WelcomePage";
+import { Forbidden } from "./components/ExceptionPages/Forbidden";
+
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = ["/employerscareercompass", "/postjob"];
@@ -44,6 +46,7 @@ export function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/forgotpassword" element={<ForgotPass />} />
           <Route path="/passwordreset" element={<PasswordReset />} />
+          <Route path="/forbidden" element={<Forbidden />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}

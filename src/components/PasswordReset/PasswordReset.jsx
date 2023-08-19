@@ -14,21 +14,27 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 export function PasswordReset() {
   const bgColor = useColorModeValue("gray.50", "gray.800");
-  const queryParams = new URLSearchParams(window.location.search);
-  const userId = queryParams.get("userId");
-  const urlEncodedToken = queryParams.get("token");
-  console.log("Token from URL:", urlEncodedToken);
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get("userId");
+  const urlQueryParamsToken = searchParams.get("token");
+  const correctedToken = urlQueryParamsToken.replace(/ /g, "+");
+  const urlDecodedToken = decodeURIComponent(correctedToken);
+
+  console.log("QueryParamsToken:", urlQueryParamsToken);
+  console.log("CorrectedToken:", correctedToken);
+  console.log("DecodedToken:", urlDecodedToken);
+
   const toast = useToast();
   const navigate = useNavigate();
   const mutation = useMutation(
     (newPasswordData) => {
       return axios.post(
-        `https://localhost:7013/api/Accounts/ResetPassword?userId=${userId}&token=${urlEncodedToken}`,
+        `https://localhost:7013/api/Accounts/ResetPassword?userId=${userId}&token=${correctedToken}`,
         newPasswordData,
         {
           headers: {
@@ -54,6 +60,9 @@ export function PasswordReset() {
       onError: (error) => {
         console.error("Error during password reset:", error.response);
         console.log("Error details:", error.response.data);
+        console.error("Error status code:", error.response.status);
+        console.error("Error message:", error.response.data);
+
         toast({
           title: "Error",
           description:
@@ -92,8 +101,6 @@ export function PasswordReset() {
       const requestData = {
         password: values.newPassword,
         confirmPassword: values.confirmPassword,
-        userId: userId,
-        urlEncodedToken: urlEncodedToken,
       };
 
       console.log(requestData);
