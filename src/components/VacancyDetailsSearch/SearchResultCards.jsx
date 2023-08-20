@@ -1,5 +1,5 @@
-import { Box, Text } from "@chakra-ui/react";
-import { useLocation } from "react-router-dom";
+import { Box, Spinner, Text } from "@chakra-ui/react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useVacancies } from "../../services/getVacancies";
 
 export function SearchResultCards({ searchResults }) {
@@ -7,14 +7,27 @@ export function SearchResultCards({ searchResults }) {
   const queryParams = new URLSearchParams(location.search);
   const jobTitle = queryParams.get("jobTitle");
   const locationId = queryParams.get("locationId");
-
-  const { data: vacancies, isLoading } = useVacancies(jobTitle, locationId);
+  const navigate = useNavigate();
+  const {
+    data: vacancies,
+    isLoading,
+    isError,
+  } = useVacancies(jobTitle, locationId);
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
-        <Spinner size="xl" />
+        <Spinner
+          size="xl"
+          thickness="4px"
+          speed="0.5s"
+          emptyColor="gray.200"
+          color="blue.500"
+        />
       </Box>
     );
+  }
+  if (isError) {
+    navigate("/somethingwentwrong");
   }
   return (
     <Box display="flex" flexWrap="wrap" justifyContent="space-around">

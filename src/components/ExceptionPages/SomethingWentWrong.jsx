@@ -3,18 +3,18 @@
 import { Box, Heading, Text, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
-export function NotFound() {
+export function SomethingWentWrong() {
   const navigate = useNavigate();
   return (
     <Box textAlign="center" py={10} px={6}>
       <Heading display="inline-block" as="h2" size="2xl" color="#2557a7">
-        404
+        Oops...
       </Heading>
       <Text fontSize="18px" mt={3} mb={2}>
-        Page Not Found
+        Something went wrong
       </Text>
       <Text color={"gray.500"} mb={6}>
-        The page you&apos;re looking for does not seem to exist
+        Please try again later
       </Text>
 
       <Button

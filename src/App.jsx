@@ -19,6 +19,7 @@ import { JobMultistep } from "./components/Employers/JobMultistep";
 import { WelcomePage } from "./components/WelcomePage/WelcomePage";
 import { Forbidden } from "./components/ExceptionPages/Forbidden";
 import { SearchResultCards } from "./components/VacancyDetailsSearch/SearchResultCards";
+import { SomethingWentWrong } from "./components/ExceptionPages/SomethingWentWrong";
 
 export function App() {
   const location = useLocation();
@@ -49,6 +50,7 @@ export function App() {
           <Route path="/forgotpassword" element={<ForgotPass />} />
           <Route path="/passwordreset" element={<PasswordReset />} />
           <Route path="/forbidden" element={<Forbidden />} />
+          <Route path="/somethingwentwrong" element={<SomethingWentWrong />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}
