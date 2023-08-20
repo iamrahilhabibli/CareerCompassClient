@@ -1,7 +1,7 @@
 import { Box, Spinner, Text } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useVacancies } from "../../services/getVacancies";
-
+import moment from "moment";
 export function SearchResultCards({ searchResults }) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -29,6 +29,7 @@ export function SearchResultCards({ searchResults }) {
   if (isError) {
     navigate("/somethingwentwrong");
   }
+  console.log(vacancies);
   return (
     <Box display="flex" flexWrap="wrap" justifyContent="space-around">
       {vacancies?.map((result) => (
@@ -50,19 +51,24 @@ export function SearchResultCards({ searchResults }) {
             >
               {result.jobTitle}
             </Box>
-            <Text color="gray.500">Company ID: {result.companyId}</Text>
-            <Text>Location ID: {result.locationId}</Text>
+            <Text color="gray.500">Company ID: {result.companyName}</Text>
+            <Text>Location ID: {result.locationName}</Text>
             <Text>Salary: ${result.salary}</Text>
             <Text>Job Types: {result.jobTypeIds.join(", ")}</Text>
             <Text>
               Shifts and Schedules: {result.shiftAndScheduleIds.join(", ")}
             </Text>
-            <Text>Description: {result.description}</Text>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: `Description: ${result.description}`,
+              }}
+            />
+
             <Text>
               Company Link:{" "}
               <a href={result.companyLink}>{result.companyLink}</a>
             </Text>
-            <Text>Date Created: {result.dateCreated}</Text>
+            <Text>Date Created: {moment(result.dateCreated).fromNow()}</Text>
           </Box>
         </Box>
       ))}
