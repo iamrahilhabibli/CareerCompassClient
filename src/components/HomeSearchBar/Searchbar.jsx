@@ -5,6 +5,7 @@ import useGetByLocation from "../../services/getByLocation";
 import useGetByJobTitle from "../../services/getByJobTitle";
 import { useVacancies } from "../../services/getVacancies";
 import { useNavigate } from "react-router-dom";
+import { SearchResultCards } from "../VacancyDetailsSearch/SearchResultCards";
 
 export function Searchbar() {
   const [searchResults, setSearchResults] = useState([]);
@@ -25,9 +26,19 @@ export function Searchbar() {
 
   const handleSearch = () => {
     setSearchResults(vacancies);
-    navigate(
-      `/search?jobTitle=${jobTitleInputValue}&locationId=${selectedLocationId}`
-    );
+    const encodedJobTitle = jobTitleInputValue
+      ? encodeURIComponent(jobTitleInputValue)
+      : "";
+    let encodedLocationId = selectedLocationId
+      ? encodeURIComponent(selectedLocationId)
+      : "";
+    if (encodedLocationId === "null" || encodedLocationId === "") {
+      encodedLocationId = "";
+    }
+    const queryString =
+      `?jobTitle=${encodedJobTitle}` +
+      (encodedLocationId ? `&locationId=${encodedLocationId}` : "");
+    navigate(`/search${queryString}`);
   };
 
   const locationCombobox = useCombobox({
@@ -36,7 +47,6 @@ export function Searchbar() {
       setLocationInputValue(inputValue || "");
     },
     onSelectedItemChange: ({ selectedItem }) => {
-      // Store the selected location ID
       setSelectedLocationId(selectedItem ? selectedItem.id : null);
     },
     itemToString: (item) => (item ? item.location : ""),

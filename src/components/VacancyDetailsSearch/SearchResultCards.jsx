@@ -1,14 +1,17 @@
-import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useVacancies } from "../../services/getVacancies";
 import moment from "moment";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const jobTitle = queryParams.get("jobTitle");
-  const locationId = queryParams.get("locationId");
+  const [searchParams] = useSearchParams();
+  const jobTitle = decodeURIComponent(searchParams.get("jobTitle"));
+  const locationId = searchParams.get("locationId");
+  console.log(jobTitle);
+  console.log(locationId);
   const navigate = useNavigate();
   const {
     data: vacancies,
@@ -46,32 +49,37 @@ export function SearchResultCards({ searchResults }) {
             cursor="pointer"
           >
             <Box p="6">
-              <Box
+              <Text
+                fontSize="18px"
+                fontWeight="600"
                 mt="1"
-                fontWeight="semibold"
-                as="h4"
                 lineHeight="tight"
                 isTruncated
               >
                 {result.jobTitle}
-              </Box>
-              <Text color="gray.500">Company ID: {result.companyName}</Text>
-              <Text>Location ID: {result.locationName}</Text>
-              <Text>Salary: ${result.salary}</Text>
-              <Text>Job Types: {result.jobTypeIds.join(", ")}</Text>
-              <Text>
-                Shifts and Schedules: {result.shiftAndScheduleIds.join(", ")}
               </Text>
+              <Text color="gray.500">{result.companyName}</Text>
+              <Text>{result.locationName}</Text>
+              <Badge colorScheme="blue" p={1}>
+                ${result.salary}
+              </Badge>
+              <Badge colorScheme="blue" p={1}>
+                {result.jobTypeIds.join(", ")}
+              </Badge>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: `Description: ${result.description}`,
+                  __html: `${result.description}`,
                 }}
               />
               <Text>
                 Company Link:{" "}
                 <a href={result.companyLink}>{result.companyLink}</a>
               </Text>
-              <Text>Date Created: {moment(result.dateCreated).fromNow()}</Text>
+              <Flex justifyContent="space-between">
+                <Text fontSize="sm" color="gray.500">
+                  {moment(result.dateCreated).fromNow()}
+                </Text>
+              </Flex>
             </Box>
           </Box>
         ))}

@@ -3,10 +3,10 @@ import axios from "axios";
 
 const fetchVacancies = async (jobTitle, locationId) => {
   const url = `https://localhost:7013/api/Vacancies/GetFilteredSearch`;
-  const params = {
-    jobTitle: jobTitle || null,
-    locationId: locationId || null,
-  };
+  const params = { jobTitle: jobTitle || null };
+  if (locationId) {
+    params.locationId = locationId;
+  }
 
   const response = await axios.get(url, { params });
   return response.data;
