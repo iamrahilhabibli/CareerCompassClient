@@ -12,6 +12,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
+import { Spinner } from "@chakra-ui/react";
+import { useState } from "react";
 import * as Yup from "yup";
 import { useMutation } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -22,12 +24,13 @@ export function PasswordReset() {
   const [searchParams] = useSearchParams();
   const userId = searchParams.get("userId");
   const urlQueryParamsToken = searchParams.get("token");
-  const correctedToken = urlQueryParamsToken.replace(/ /g, "+");
-  const urlDecodedToken = decodeURIComponent(correctedToken);
+  const correctedToken = decodeURIComponent(
+    urlQueryParamsToken.replace(/ /g, "+")
+  );
+  const [showSpinner, setShowSpinner] = useState(false);
 
   console.log("QueryParamsToken:", urlQueryParamsToken);
   console.log("CorrectedToken:", correctedToken);
-  console.log("DecodedToken:", urlDecodedToken);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -45,6 +48,7 @@ export function PasswordReset() {
     },
     {
       onSuccess: () => {
+        setShowSpinner(true);
         toast({
           title: "Success",
           description:
@@ -54,6 +58,7 @@ export function PasswordReset() {
           isClosable: true,
         });
         setTimeout(() => {
+          setShowSpinner(false);
           navigate("/signin");
         }, 3000);
       },
@@ -110,57 +115,67 @@ export function PasswordReset() {
 
   return (
     <Flex minH={"100vh"} align={"center"} justify={"center"} bg={bgColor}>
-      <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
-        <Stack align={"center"}>
-          <Heading fontSize={"4xl"}>Reset Your Password</Heading>
-        </Stack>
-        <form onSubmit={formik.handleSubmit}>
-          <Box rounded={"lg"} bg={bgColor} boxShadow={"lg"} p={8}>
-            <Stack spacing={4}>
-              <FormControl id="new-password">
-                <FormLabel>New Password</FormLabel>
-                <Input
-                  type="password"
-                  name="newPassword"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.newPassword}
-                />
-                {formik.touched.newPassword && formik.errors.newPassword ? (
-                  <Box color="red.500">{formik.errors.newPassword}</Box>
-                ) : null}
-              </FormControl>
-              <FormControl id="confirm-password">
-                <FormLabel>Confirm New Password</FormLabel>
-                <Input
-                  type="password"
-                  name="confirmPassword"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.confirmPassword}
-                />
-                {formik.touched.confirmPassword &&
-                formik.errors.confirmPassword ? (
-                  <Box color="red.500">{formik.errors.confirmPassword}</Box>
-                ) : null}
-              </FormControl>
-              <Stack spacing={10}>
-                <Button
-                  type="submit"
-                  bg={"blue.400"}
-                  color={"white"}
-                  _hover={{
-                    bg: "blue.500",
-                  }}
-                  isLoading={mutation.isLoading}
-                >
-                  Reset Password
-                </Button>
+      {showSpinner ? (
+        <Spinner
+          size="xl"
+          thickness="4px"
+          speed="0.5s"
+          emptyColor="gray.200"
+          color="blue.500"
+        />
+      ) : (
+        <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+          <Stack align={"center"}>
+            <Heading fontSize={"4xl"}>Reset Your Password</Heading>
+          </Stack>
+          <form onSubmit={formik.handleSubmit}>
+            <Box rounded={"lg"} bg={bgColor} boxShadow={"lg"} p={8}>
+              <Stack spacing={4}>
+                <FormControl id="new-password">
+                  <FormLabel>New Password</FormLabel>
+                  <Input
+                    type="password"
+                    name="newPassword"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.newPassword}
+                  />
+                  {formik.touched.newPassword && formik.errors.newPassword ? (
+                    <Box color="red.500">{formik.errors.newPassword}</Box>
+                  ) : null}
+                </FormControl>
+                <FormControl id="confirm-password">
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <Input
+                    type="password"
+                    name="confirmPassword"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.confirmPassword}
+                  />
+                  {formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword ? (
+                    <Box color="red.500">{formik.errors.confirmPassword}</Box>
+                  ) : null}
+                </FormControl>
+                <Stack spacing={10}>
+                  <Button
+                    type="submit"
+                    bg={"blue.400"}
+                    color={"white"}
+                    _hover={{
+                      bg: "blue.500",
+                    }}
+                    isLoading={mutation.isLoading}
+                  >
+                    Reset Password
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
-          </Box>
-        </form>
-      </Stack>
+            </Box>
+          </form>
+        </Stack>
+      )}
     </Flex>
   );
 }
