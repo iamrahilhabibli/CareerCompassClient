@@ -1,4 +1,4 @@
-import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Badge, Box, Flex, Select, Spinner, Text } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link as ChakraLink } from "@chakra-ui/react";
 import { useVacancies } from "../../services/getVacancies";
@@ -9,17 +9,43 @@ import styles from "./SearchRes.module.css";
 import { useSearchParams } from "react-router-dom";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
+  const [dateFilter, setDateFilter] = useState(null);
+  const [jobTypeFilter, setJobTypeFilter] = useState([]);
+  const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const jobTitle = decodeURIComponent(searchParams.get("jobTitle"));
   const locationId = searchParams.get("locationId");
-
   const navigate = useNavigate();
+
   const {
     data: vacancies,
     isLoading,
     isError,
   } = useVacancies(jobTitle, locationId);
+
+  const filterByDate = (result) => {
+    if (!dateFilter) return true;
+    const duration = moment().subtract(dateFilter.value, dateFilter.unit);
+    return moment(result.dateCreated).isAfter(duration);
+  };
+
+  const filterByJobType = (result) => {
+    if (jobTypeFilter.length === 0) return true;
+    return jobTypeFilter.some((type) => result.jobTypeIds.includes(type));
+  };
+
+  const filterByLocation = (result) => {
+    return !locationFilter || result.locationName === locationFilter;
+  };
+
+  const filteredVacancies = vacancies?.filter(
+    (result) =>
+      filterByDate(result) &&
+      filterByJobType(result) &&
+      filterByLocation(result)
+  );
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -38,6 +64,17 @@ export function SearchResultCards({ searchResults }) {
   }
   return (
     <Flex flexDirection={"column"} maxWidth={"60%"}>
+      <Flex>
+        <Select
+          placeholder="Filter by Date"
+          onChange={(e) => setDateFilter(JSON.parse(e.target.value))}
+        >
+          <option value='{"value": 1, "unit": "days"}'>Last 24 hours</option>
+          <option value='{"value": 7, "unit": "days"}'>Last week</option>
+          <option value='{"value": 30, "unit": "days"}'>Last month</option>
+        </Select>
+        {/* Add jobTypeFilter and locationFilter controls here */}
+      </Flex>
       <Box display="flex" flexWrap="wrap" justifyContent="space-around">
         {vacancies?.map((result) => (
           <Box

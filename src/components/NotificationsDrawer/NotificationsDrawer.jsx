@@ -4,6 +4,11 @@ import {
   DrawerContent,
   DrawerOverlay,
   Drawer,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  Box,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
@@ -18,6 +23,7 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
   const unreadNotifications = notifications?.filter(
     (notification) => notification.readStatus === 1
   );
+
   useEffect(() => {
     setLocalNotifications(notifications);
   }, [notifications]);
@@ -56,39 +62,43 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
         </DrawerHeader>
         <DrawerBody>
           {unreadNotifications?.length > 0 ? (
-            <div className={styles.notificationContainer}>
+            <Accordion allowMultiple>
               {unreadNotifications.map((notification) => {
-                // Use unreadNotifications here
                 const localDate = new Date(
                   new Date(notification.dateCreated).getTime() - offset
                 );
 
                 return (
-                  <div
+                  <AccordionItem
                     key={notification.id}
-                    className={`${styles.notification} ${
-                      notification.readStatus === 1 ? styles.unread : ""
-                    }`}
                     onClick={() => markAsRead(notification.id)}
                     title="Click to mark as read"
                   >
-                    <div className={styles.notificationTitle}>
-                      <h5>{notification.title}</h5>
-                    </div>
-                    <div className={styles.notificationMessage}>
-                      <p>{notification.message}</p>
-                    </div>
-                    <div>
-                      <span className={styles.notificationTimeStamp}>
-                        {notification.dateCreated
-                          ? formatDistanceToNow(localDate) + " ago"
-                          : "Invalid date"}
-                      </span>
-                    </div>
-                  </div>
+                    <AccordionButton
+                      className={`${
+                        notification.readStatus === 1 ? styles.unread : ""
+                      }`}
+                    >
+                      <Box flex="1" textAlign="left">
+                        {notification.title}
+                      </Box>
+                    </AccordionButton>
+                    <AccordionPanel>
+                      <div className={styles.notificationMessage}>
+                        <p>{notification.message}</p>
+                      </div>
+                      <div>
+                        <span className={styles.notificationTimeStamp}>
+                          {notification.dateCreated
+                            ? formatDistanceToNow(localDate) + " ago"
+                            : "Invalid date"}
+                        </span>
+                      </div>
+                    </AccordionPanel>
+                  </AccordionItem>
                 );
               })}
-            </div>
+            </Accordion>
           ) : (
             <div className={styles.noUnreadNotifications}>
               <BellIcon
