@@ -1,6 +1,8 @@
 import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Link as ChakraLink } from "@chakra-ui/react";
 import { useVacancies } from "../../services/getVacancies";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment";
 import { useState } from "react";
 import styles from "./SearchRes.module.css";
@@ -39,7 +41,7 @@ export function SearchResultCards({ searchResults }) {
       <Box display="flex" flexWrap="wrap" justifyContent="space-around">
         {vacancies?.map((result) => (
           <Box
-            className={styles.container}
+            className={styles.Container}
             key={result.id}
             borderWidth="1px"
             borderRadius="lg"
@@ -59,29 +61,45 @@ export function SearchResultCards({ searchResults }) {
               >
                 {result.jobTitle}
               </Text>
-              <Text mb={3} color="gray.500">
+              <Text fontSize={"16px"} color="gray.500" fontWeight={300}>
                 {result.companyName}
               </Text>
-              <Text mb={3}>{result.locationName}</Text>
-              <Badge mb={3} colorScheme="blue" p={1}>
+              <Text fontSize={"16px"} color="gray.500" fontWeight={300} mb={3}>
+                {result.locationName}
+              </Text>
+              <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
                 ${result.salary}
               </Badge>
               <br />
-              <Badge mb={3} colorScheme="blue" p={1}>
-                {result.jobTypeIds.join(", ")}
-              </Badge>
+              {result.jobTypeIds.map((jobType, index) => (
+                <Badge
+                  fontWeight={600}
+                  key={index}
+                  mr={1}
+                  mb={3}
+                  colorScheme="gray"
+                  p={2}
+                >
+                  {jobType}
+                </Badge>
+              ))}
+
               <div
+                className={styles.Description}
                 dangerouslySetInnerHTML={{
-                  __html: `${result.description}`,
+                  __html: `${result.description.substring(0, 50)}`,
                 }}
               />
-              <Text>
-                {" "}
-                <a href={result.companyLink}>{result.companyLink}</a>
-              </Text>
+              <ChakraLink
+                color={"blue.400"}
+                href={result.companyLink}
+                isExternal
+              >
+                <ExternalLinkIcon mx="2px" />
+              </ChakraLink>
               <Flex justifyContent="space-between">
-                <Text fontSize="sm" color="gray.500">
-                  {moment(result.dateCreated).fromNow()}
+                <Text fontSize="xs" color="gray.500">
+                  {moment(result.dateCreated).local().fromNow()}
                 </Text>
               </Flex>
             </Box>

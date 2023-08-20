@@ -16,8 +16,10 @@ export const registerCompany = async (data, token, userId) => {
     return response.data || null;
   } catch (error) {
     if (error.response) {
+      console.log(error.response);
       throw new Error(
-        error.response.data.message || "Network response was not ok"
+        error.response.data.message ||
+          "Unexpected error occured please try again later"
       );
     } else if (error.request) {
       throw new Error("No response received from server.");

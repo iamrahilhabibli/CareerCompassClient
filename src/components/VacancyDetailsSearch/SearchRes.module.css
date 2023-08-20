@@ -1,4 +1,11 @@
-.container {
-  width: 400px !important;
+.Container {
+  width: 350px !important;
   text-align: left;
+}
+
+.Description {
+  font-size: 14px;
+  color: gray;
+  font-weight: 500;
+  margin-left: 16px;
 }
