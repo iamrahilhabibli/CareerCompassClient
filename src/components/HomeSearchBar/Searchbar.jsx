@@ -5,7 +5,6 @@ import useGetByLocation from "../../services/getByLocation";
 import useGetByJobTitle from "../../services/getByJobTitle";
 import { useVacancies } from "../../services/getVacancies";
 import { useNavigate } from "react-router-dom";
-import { SearchResultCards } from "../VacancyDetailsSearch/SearchResultCards";
 
 export function Searchbar() {
   const [searchResults, setSearchResults] = useState([]);

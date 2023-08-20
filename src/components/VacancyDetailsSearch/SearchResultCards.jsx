@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useVacancies } from "../../services/getVacancies";
 import moment from "moment";
 import { useState } from "react";
+import styles from "./SearchRes.module.css";
 import { useSearchParams } from "react-router-dom";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
@@ -10,8 +11,7 @@ export function SearchResultCards({ searchResults }) {
   const [searchParams] = useSearchParams();
   const jobTitle = decodeURIComponent(searchParams.get("jobTitle"));
   const locationId = searchParams.get("locationId");
-  console.log(jobTitle);
-  console.log(locationId);
+
   const navigate = useNavigate();
   const {
     data: vacancies,
@@ -34,12 +34,12 @@ export function SearchResultCards({ searchResults }) {
   if (isError) {
     navigate("/somethingwentwrong");
   }
-
   return (
-    <Flex flexDirection={"column"} maxWidth={"40%"}>
+    <Flex flexDirection={"column"} maxWidth={"60%"}>
       <Box display="flex" flexWrap="wrap" justifyContent="space-around">
         {vacancies?.map((result) => (
           <Box
+            className={styles.container}
             key={result.id}
             borderWidth="1px"
             borderRadius="lg"
@@ -55,15 +55,19 @@ export function SearchResultCards({ searchResults }) {
                 mt="1"
                 lineHeight="tight"
                 isTruncated
+                _hover={{ textDecoration: "underline" }}
               >
                 {result.jobTitle}
               </Text>
-              <Text color="gray.500">{result.companyName}</Text>
-              <Text>{result.locationName}</Text>
-              <Badge colorScheme="blue" p={1}>
+              <Text mb={3} color="gray.500">
+                {result.companyName}
+              </Text>
+              <Text mb={3}>{result.locationName}</Text>
+              <Badge mb={3} colorScheme="blue" p={1}>
                 ${result.salary}
               </Badge>
-              <Badge colorScheme="blue" p={1}>
+              <br />
+              <Badge mb={3} colorScheme="blue" p={1}>
                 {result.jobTypeIds.join(", ")}
               </Badge>
               <div
@@ -72,7 +76,7 @@ export function SearchResultCards({ searchResults }) {
                 }}
               />
               <Text>
-                Company Link:{" "}
+                {" "}
                 <a href={result.companyLink}>{result.companyLink}</a>
               </Text>
               <Flex justifyContent="space-between">
