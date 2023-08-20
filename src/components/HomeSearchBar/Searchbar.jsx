@@ -3,20 +3,41 @@ import { useCombobox } from "downshift";
 import { useState } from "react";
 import useGetByLocation from "../../services/getByLocation";
 import useGetByJobTitle from "../../services/getByJobTitle";
+import { useVacancies } from "../../services/getVacancies";
+import { useNavigate } from "react-router-dom";
 
 export function Searchbar() {
+  const [searchResults, setSearchResults] = useState([]);
+
   const [locationInputValue, setLocationInputValue] = useState("");
+  const [selectedLocationId, setSelectedLocationId] = useState(null);
   const { data: locations } = useGetByLocation(locationInputValue);
   const locationItems = locations || [];
 
   const [jobTitleInputValue, setJobTitleInputValue] = useState("");
   const { data: jobTitles } = useGetByJobTitle(jobTitleInputValue);
   const jobTitleItems = jobTitles || [];
+  const navigate = useNavigate();
+  const { data: vacancies } = useVacancies(
+    jobTitleInputValue,
+    selectedLocationId
+  );
+
+  const handleSearch = () => {
+    setSearchResults(vacancies);
+    navigate(
+      `/search?jobTitle=${jobTitleInputValue}&locationId=${selectedLocationId}`
+    );
+  };
 
   const locationCombobox = useCombobox({
     items: locationItems,
     onInputValueChange: ({ inputValue }) => {
       setLocationInputValue(inputValue || "");
+    },
+    onSelectedItemChange: ({ selectedItem }) => {
+      // Store the selected location ID
+      setSelectedLocationId(selectedItem ? selectedItem.id : null);
     },
     itemToString: (item) => (item ? item.location : ""),
   });
@@ -168,6 +189,7 @@ export function Searchbar() {
       </Box>
 
       <Button
+        onClick={handleSearch}
         backgroundColor="#2557a7"
         color="white"
         padding="12px 20px"
@@ -179,6 +201,7 @@ export function Searchbar() {
       >
         Search
       </Button>
+      {/* <SearchResultCards searchResults={searchResults} /> */}
     </Box>
   );
 }
