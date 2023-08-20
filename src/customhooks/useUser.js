@@ -10,6 +10,7 @@ const useUser = () => {
   const [userRole, setUserRole] = useState(null);
   const [isTokenExpired, setIsTokenExpired] = useState(false);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
   const {
     data: tokenResponse,
     error,
@@ -110,6 +111,7 @@ const useUser = () => {
 
   return {
     isAuthenticated,
+    token,
     userId,
     email,
     userRole,

@@ -29,7 +29,7 @@ const LinkItems = [
   { name: "Home", icon: FiHome, path: "/home" },
   { name: "Post a Job", icon: FiPlus, path: "/postjob" },
   { name: "Main", icon: FiMap, path: "/employerscareercompass" },
-  { name: "Jobs", icon: FiBriefcase, path: "" },
+  { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
   { name: "Messages", icon: FiMessageSquare },
   { name: "Applicants", icon: FiStar },
   { name: "Settings", icon: FiSettings },

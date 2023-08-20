@@ -20,10 +20,17 @@ import { WelcomePage } from "./components/WelcomePage/WelcomePage";
 import { Forbidden } from "./components/ExceptionPages/Forbidden";
 import { SearchResultCards } from "./components/VacancyDetailsSearch/SearchResultCards";
 import { SomethingWentWrong } from "./components/ExceptionPages/SomethingWentWrong";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { PostedJobs } from "./components/Employers/PostedJobs";
 
 export function App() {
   const location = useLocation();
-  const pathsForSpecialLayout = ["/employerscareercompass", "/postjob"];
+  const pathsForSpecialLayout = [
+    "/employerscareercompass",
+    "/postjob",
+    "/vacancieslist",
+  ];
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
 
   return (
@@ -34,6 +41,7 @@ export function App() {
           <Routes>
             <Route path="/employerscareercompass" element={<Employers />} />
             <Route path="/postjob" element={<JobMultistep />} />
+            <Route path="/vacancieslist" element={<PostedJobs />} />
           </Routes>
         </SidebarWithHeader>
       ) : (
