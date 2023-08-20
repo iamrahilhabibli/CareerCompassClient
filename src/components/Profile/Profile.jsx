@@ -1,7 +1,11 @@
 import React from "react";
-import { Box, Avatar, Heading, Text, VStack, Flex } from "@chakra-ui/react";
+import { Box, Avatar, Text, VStack, Flex } from "@chakra-ui/react";
 import profile from "../../images/profile.png";
+import useUser from "../../customhooks/useUser";
+
 export function Profile() {
+  const { userDetails, userDetailsLoading } = useUser();
+
   return (
     <Box>
       <Box
@@ -20,22 +24,35 @@ export function Profile() {
         position="relative"
       >
         <Flex alignItems={"center"} ml={"50px"} width={"100%"} height={"100%"}>
-          <Avatar size="2xl" name="Rahil" />
+          <Avatar size="2xl" name={userDetails?.firstName || "User"} />
         </Flex>
       </Box>
-      <VStack spacing={4} padding="20px" alignItems="center">
-        <Text fontSize="xl">Name: Rahil</Text>
-        <Text fontSize="xl">Email: rahil@example.com</Text>
-      </VStack>
-      <Box
-        bg="gray.200"
-        padding="10px"
-        position="absolute"
+      <VStack
+        spacing={4}
+        padding="20px"
+        alignItems="center"
+        bg="white"
+        borderRadius="md"
+        shadow="md"
+        maxWidth="600px"
         width="100%"
-        bottom="0"
+        margin="0 auto"
       >
-        <Text textAlign="center">This is the footer content</Text>
-      </Box>
+        {userDetailsLoading ? (
+          <Text fontSize="xl" color="gray.400">
+            Loading...
+          </Text>
+        ) : (
+          <>
+            <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+              {userDetails?.firstName} {userDetails?.lastName}
+            </Text>
+            <Text fontSize="lg" color="gray.500">
+              Email: {userDetails?.email}
+            </Text>
+          </>
+        )}
+      </VStack>
     </Box>
   );
 }

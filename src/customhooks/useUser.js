@@ -26,6 +26,10 @@ const useUser = () => {
       enabled: false,
     }
   );
+  const getUserDetails = (userId) =>
+    axios
+      .get(`https://localhost:7013/api/Users/GetUserDetails?userId=${userId}`)
+      .then((res) => res.data);
 
   const checkAuthentication = () => {
     const token = localStorage.getItem("token");
@@ -59,7 +63,13 @@ const useUser = () => {
       setLoading(false);
     }
   };
-
+  const { data: userDetails, isLoading: userDetailsLoading } = useQuery(
+    ["userDetails", userId],
+    () => getUserDetails(userId),
+    {
+      enabled: Boolean(userId) && isAuthenticated,
+    }
+  );
   const refreshJWT = useCallback(() => {
     refetch();
   }, [refetch]);
@@ -98,7 +108,15 @@ const useUser = () => {
     }
   }, [tokenResponse, error]);
 
-  return { isAuthenticated, userId, email, userRole, loading };
+  return {
+    isAuthenticated,
+    userId,
+    email,
+    userRole,
+    loading,
+    userDetails,
+    userDetailsLoading,
+  };
 };
 
 export default useUser;
