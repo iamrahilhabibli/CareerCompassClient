@@ -56,7 +56,7 @@ export function App() {
             <Route path="/signin" element={<Signin />} />
             <Route path="/companydetailform" element={<Multistep />} />
             <Route path="/companydetails" element={<Details />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/search" element={<SearchResultCards />} />
             <Route path="/forgotpassword" element={<ForgotPass />} />
             <Route path="/passwordreset" element={<PasswordReset />} />

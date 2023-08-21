@@ -71,10 +71,6 @@ export function Searchbar() {
     itemToString: (item) => (item ? item.jobTitle : ""),
   });
 
-  useEffect(() => {
-    console.log("Current search history:", searchHistory);
-  }, [searchHistory]);
-
   return (
     <Box display="flex" justifyContent="center" alignItems="center" pt="75px">
       <Box position="relative" mr="10px">

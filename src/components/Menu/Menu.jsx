@@ -54,7 +54,9 @@ export function Menu() {
       </MenuButton>
       <MenuList>
         <MenuGroup title="Profile">
-          <MenuItem onClick={() => navigate("/profile")}>My Account</MenuItem>
+          <MenuItem onClick={() => navigate(`/profile/${userId}`)}>
+            My Account
+          </MenuItem>
 
           {userRole === "Recruiter" && (
             <MenuItem

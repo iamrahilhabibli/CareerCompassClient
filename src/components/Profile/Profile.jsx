@@ -2,9 +2,11 @@ import React from "react";
 import { Box, Avatar, Text, VStack, Flex } from "@chakra-ui/react";
 import profile from "../../images/profile.png";
 import useUser from "../../customhooks/useUser";
+import { useParams } from "react-router-dom";
 
 export function Profile() {
-  const { userDetails, userDetailsLoading } = useUser();
+  const { userId } = useParams();
+  const { userDetails, userDetailsLoading } = useUser(userId);
 
   return (
     <Box>
