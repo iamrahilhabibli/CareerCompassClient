@@ -16,7 +16,6 @@ export function WelcomePage() {
   };
   return (
     <>
-      <WithSpeechBubbles />;
       <Box width="100vw">
         <Slider {...settings}>
           <Box p={4} className={styles.slide1}>

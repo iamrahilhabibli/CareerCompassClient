@@ -105,26 +105,33 @@ export function Signup() {
                 <HStack>
                   <FormControl id="firstName" isRequired>
                     <FormLabel>First Name</FormLabel>
-                    <Text fontSize={"15px"} color={"red"} mb="8px">
-                      {formik.touched.firstName && formik.errors.firstName}
-                    </Text>
-                    <Input type="text" {...formik.getFieldProps("firstName")} />
+                    <Input
+                      type="text"
+                      {...formik.getFieldProps("firstName")}
+                      isInvalid={
+                        formik.touched.firstName && !!formik.errors.firstName
+                      }
+                    />
                   </FormControl>
                   <FormControl id="lastName" isRequired>
                     <FormLabel>Last Name</FormLabel>
-                    <Text fontSize={"15px"} color={"red"} mb="8px">
-                      {formik.touched.lastName && formik.errors.lastName}
-                    </Text>
-                    <Input type="text" {...formik.getFieldProps("lastName")} />
+                    <Input
+                      type="text"
+                      {...formik.getFieldProps("lastName")}
+                      isInvalid={
+                        formik.touched.lastName && !!formik.errors.lastName
+                      }
+                    />
                   </FormControl>
                 </HStack>
               </Box>
               <FormControl id="email" isRequired>
                 <FormLabel>Email address</FormLabel>
-                <Text fontSize={"15px"} color={"red"} mb="8px">
-                  {formik.touched.email && formik.errors.email}
-                </Text>
-                <Input type="email" {...formik.getFieldProps("email")} />
+                <Input
+                  type="email"
+                  {...formik.getFieldProps("email")}
+                  isInvalid={formik.touched.email && !!formik.errors.email}
+                />
               </FormControl>
               <FormControl id="password" isRequired>
                 <FormLabel>Password</FormLabel>
@@ -135,6 +142,9 @@ export function Signup() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     {...formik.getFieldProps("password")}
+                    isInvalid={
+                      formik.touched.password && !!formik.errors.password
+                    }
                   />
                   <InputRightElement h={"full"}>
                     <Button
@@ -153,6 +163,7 @@ export function Signup() {
                 <Select
                   placeholder="Select role"
                   {...formik.getFieldProps("role")}
+                  isInvalid={formik.touched.role && !!formik.errors.role}
                 >
                   <option value="3">Job Seeker</option>
                   <option value="2">Recruiter</option>

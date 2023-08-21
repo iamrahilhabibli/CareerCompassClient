@@ -84,6 +84,11 @@ export function SearchResultCards({ searchResults }) {
   }
   return (
     <>
+      <Box>
+        <Button size={"sm"}>Date Created</Button>
+        <Button>Job location</Button>
+        <Button>Job Type</Button>
+      </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
         <Box display="flex" flexWrap="wrap" justifyContent="space-around">
           {vacancies?.map((result) => (
@@ -162,6 +167,7 @@ export function SearchResultCards({ searchResults }) {
           ))}
         </Box>
       </Flex>
+
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay>
           <DrawerContent>
