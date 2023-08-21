@@ -7,6 +7,7 @@ import {
   Spinner,
   Text,
 } from "@chakra-ui/react";
+import { Divider } from "@chakra-ui/react";
 import {
   Drawer,
   DrawerBody,
@@ -166,13 +167,45 @@ export function SearchResultCards({ searchResults }) {
           <DrawerContent>
             <DrawerHeader>{selectedVacancy?.jobTitle}</DrawerHeader>
             <DrawerBody>
-              {/* Add the details for the selected vacancy here */}
               <Text fontSize="16px" color="gray.500" fontWeight={300}>
                 {selectedVacancy?.companyName}
               </Text>
-              {/* ...other details... */}
+              <Divider my={3} />
+              <Text fontSize="16px" color="gray.500" fontWeight={300}>
+                {selectedVacancy?.locationName}
+              </Text>
+              <Divider my={3} />
+              <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
+                ${selectedVacancy.salary}
+              </Badge>
+              <Divider my={3} />
+              {selectedVacancy.jobTypeIds.map((jobType, index) => (
+                <Badge
+                  fontWeight={600}
+                  key={index}
+                  mr={1}
+                  mb={3}
+                  colorScheme="gray"
+                  p={2}
+                >
+                  {jobType}
+                </Badge>
+              ))}
+              <Divider my={3} />
+              <div
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: selectedVacancy?.description,
+                }}
+              />
             </DrawerBody>
-            <DrawerFooter>
+            <DrawerFooter display={"flex"} justifyContent={"space-between"}>
+              <Button colorScheme="blue" variant={"outline"} mr={3}>
+                Apply
+              </Button>
               <Button variant="outline" mr={3} onClick={onClose}>
                 Close
               </Button>
