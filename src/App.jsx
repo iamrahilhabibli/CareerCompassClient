@@ -25,6 +25,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { PostedJobs } from "./components/Employers/PostedJobs";
 import { store } from "./reduxstores/storgeConfig";
+import ThreeTierPricing from "./components/Pricing/Pricing";
 
 export function App() {
   const location = useLocation();
@@ -60,6 +61,7 @@ export function App() {
             <Route path="/search" element={<SearchResultCards />} />
             <Route path="/forgotpassword" element={<ForgotPass />} />
             <Route path="/passwordreset" element={<PasswordReset />} />
+            <Route path="/pricing" element={<ThreeTierPricing />} />
             <Route path="/forbidden" element={<Forbidden />} />
             <Route
               path="/somethingwentwrong"

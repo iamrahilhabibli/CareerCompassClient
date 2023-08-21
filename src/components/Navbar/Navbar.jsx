@@ -86,6 +86,7 @@ export function Navbar() {
           <Link to="/home">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
           <Link to="/findsalaries">Find Salaries</Link>
+          <Link to="/pricing">Pricing</Link>
         </div>
       </div>
       <div className={styles.navbarRightSide}>
