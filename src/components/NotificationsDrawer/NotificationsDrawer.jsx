@@ -10,6 +10,7 @@ import {
   AccordionPanel,
   Box,
 } from "@chakra-ui/react";
+
 import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import styles from "./NotificationDrawer.module.css";
@@ -18,6 +19,7 @@ import { BellIcon } from "@chakra-ui/icons";
 
 export function NotificationsDrawer({ isOpen, onClose, notifications }) {
   const [localNotifications, setLocalNotifications] = useState(notifications);
+
   const placement = "right";
   const token = localStorage.getItem("token");
   const unreadNotifications = notifications?.filter(

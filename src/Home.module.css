@@ -1,18 +1,24 @@
 .slide1 {
   background-color: #f00;
+  height: 500px;
 }
 .slide2 {
   background-color: #0f0;
+  height: 500px;
 }
 .slide3 {
   background-color: #00f;
+  height: 500px;
 }
 .slide4 {
   background-color: #ff0;
+  height: 500px;
 }
 .slide5 {
   background-color: #f0f;
+  height: 500px;
 }
 .slide6 {
   background-color: #0ff;
+  height: 500px;
 }
