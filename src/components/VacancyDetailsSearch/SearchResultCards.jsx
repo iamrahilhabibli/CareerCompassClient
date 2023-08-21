@@ -182,10 +182,10 @@ export function SearchResultCards({ searchResults }) {
               </Text>
               <Divider my={3} />
               <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
-                ${selectedVacancy.salary}
+                ${selectedVacancy?.salary}
               </Badge>
               <Divider my={3} />
-              {selectedVacancy.jobTypeIds.map((jobType, index) => (
+              {selectedVacancy?.jobTypeIds?.map((jobType, index) => (
                 <Badge
                   fontWeight={600}
                   key={index}

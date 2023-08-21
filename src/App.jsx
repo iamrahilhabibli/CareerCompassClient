@@ -2,6 +2,7 @@ import { Navbar } from "./components/Navbar/Navbar";
 import { Routes, Route } from "react-router-dom";
 import { Home } from "./components/Home";
 import { Companies } from "./components/Companies";
+import { Provider } from "react-redux";
 import "./index.css";
 import { Signup } from "./components/Signup/Signup";
 import { Signin } from "./components/Signin/Signin";
@@ -23,6 +24,7 @@ import { SomethingWentWrong } from "./components/ExceptionPages/SomethingWentWro
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { PostedJobs } from "./components/Employers/PostedJobs";
+import { store } from "./reduxstores/storgeConfig";
 
 export function App() {
   const location = useLocation();
@@ -45,22 +47,27 @@ export function App() {
           </Routes>
         </SidebarWithHeader>
       ) : (
-        <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/companies" element={<Companies />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/companydetailform" element={<Multistep />} />
-          <Route path="/companydetails" element={<Details />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/search" element={<SearchResultCards />} />
-          <Route path="/forgotpassword" element={<ForgotPass />} />
-          <Route path="/passwordreset" element={<PasswordReset />} />
-          <Route path="/forbidden" element={<Forbidden />} />
-          <Route path="/somethingwentwrong" element={<SomethingWentWrong />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Provider store={store}>
+          <Routes>
+            <Route path="/" element={<WelcomePage />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/signin" element={<Signin />} />
+            <Route path="/companydetailform" element={<Multistep />} />
+            <Route path="/companydetails" element={<Details />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<SearchResultCards />} />
+            <Route path="/forgotpassword" element={<ForgotPass />} />
+            <Route path="/passwordreset" element={<PasswordReset />} />
+            <Route path="/forbidden" element={<Forbidden />} />
+            <Route
+              path="/somethingwentwrong"
+              element={<SomethingWentWrong />}
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Provider>
       )}
       {!useSpecialLayout && <Footer />}
     </>

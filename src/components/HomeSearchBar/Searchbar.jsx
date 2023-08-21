@@ -1,14 +1,21 @@
 import { Box, Input, Button, Text, List, ListItem } from "@chakra-ui/react";
 import { useCombobox } from "downshift";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useGetByLocation from "../../services/getByLocation";
 import useGetByJobTitle from "../../services/getByJobTitle";
 import { useVacancies } from "../../services/getVacancies";
 import { useNavigate } from "react-router-dom";
+import { RecentSearches } from "./RecentSearches";
+import { useDispatch, useSelector } from "react-redux";
+import { addSearch } from "../../reducers/searchHistorySlice";
 
 export function Searchbar() {
   const [searchResults, setSearchResults] = useState([]);
+  const searchHistory = useSelector(
+    (state) => state.searchHistory.searchHistory
+  );
 
+  const dispatch = useDispatch();
   const [locationInputValue, setLocationInputValue] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState(null);
   const { data: locations } = useGetByLocation(locationInputValue);
@@ -25,6 +32,11 @@ export function Searchbar() {
 
   const handleSearch = () => {
     setSearchResults(vacancies);
+    dispatch(
+      addSearch(`Job: ${jobTitleInputValue}, Location: ${locationInputValue}`)
+    );
+
+    console.log("Search history after adding new search:", searchHistory);
     const encodedJobTitle = jobTitleInputValue
       ? encodeURIComponent(jobTitleInputValue)
       : "";
@@ -58,6 +70,10 @@ export function Searchbar() {
     },
     itemToString: (item) => (item ? item.jobTitle : ""),
   });
+
+  useEffect(() => {
+    console.log("Current search history:", searchHistory);
+  }, [searchHistory]);
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" pt="75px">
@@ -210,7 +226,9 @@ export function Searchbar() {
       >
         Search
       </Button>
-      {/* <SearchResultCards searchResults={searchResults} /> */}
+      <Box display="flex" flexDirection="column" alignItems="center" pt="75px">
+        <RecentSearches searchHistory={searchHistory} />
+      </Box>
     </Box>
   );
 }
