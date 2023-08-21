@@ -20,7 +20,7 @@ export function Searchbar() {
   const [selectedLocationId, setSelectedLocationId] = useState(null);
   const { data: locations } = useGetByLocation(locationInputValue);
   const locationItems = locations || [];
-
+  const [showRecentSearches, setShowRecentSearches] = useState(false);
   const [jobTitleInputValue, setJobTitleInputValue] = useState("");
   const { data: jobTitles } = useGetByJobTitle(jobTitleInputValue);
   const jobTitleItems = jobTitles || [];
@@ -29,12 +29,12 @@ export function Searchbar() {
     jobTitleInputValue,
     selectedLocationId
   );
-
+  const toggleRecentSearches = () => {
+    setShowRecentSearches(!showRecentSearches);
+  };
   const handleSearch = () => {
     setSearchResults(vacancies);
-    dispatch(
-      addSearch(`Job: ${jobTitleInputValue}, Location: ${locationInputValue}`)
-    );
+    dispatch(addSearch(`${jobTitleInputValue}  ${locationInputValue}`));
 
     console.log("Search history after adding new search:", searchHistory);
     const encodedJobTitle = jobTitleInputValue
@@ -70,161 +70,164 @@ export function Searchbar() {
     },
     itemToString: (item) => (item ? item.jobTitle : ""),
   });
-
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" pt="75px">
-      <Box position="relative" mr="10px">
-        <Text
-          position="absolute"
-          fontWeight="700"
-          fontSize="14px"
-          lineHeight="14px"
-          color="#2d2d2d"
-          left="10px"
-          top="50%"
-          transform="translateY(-50%)"
-        >
-          What
-        </Text>
-        <Input
-          {...jobTitleCombobox.getInputProps({
-            pl: "70px",
-            border: "1px solid #ccc",
-            w: "400px",
-            h: "45px",
-            borderTopRightRadius: "10px",
-            borderTopLeftRadius: "10px",
-            borderBottomRightRadius: jobTitleCombobox.isOpen ? "0" : "10px",
-            borderBottomLeftRadius: jobTitleCombobox.isOpen ? "0" : "10px",
-            borderColor: "#767676",
-            fontSize: "14px",
-            fontWeight: "400",
-            color: "#2d2d2d",
-            _hover: { borderColor: "#2557a7", outline: "none" },
-            _focus: { borderColor: "#2557a7", outline: "none" },
-            placeholder: "Job title or Company name",
-          })}
-        />
-        <List
-          {...jobTitleCombobox.getMenuProps()}
-          position="absolute"
-          fontSize={"13px"}
-          w="400px"
-          _hover={"blue.200"}
-          maxH="200px"
-          overflowY="auto"
-          border="1px solid #ccc"
-          borderTop={jobTitleCombobox.isOpen ? "0" : "1px solid #ccc"}
-          borderBottomLeftRadius="10px"
-          borderBottomRightRadius="10px"
-          bgColor="white"
-          zIndex={2}
-          listStyleType="none"
-          padding="0"
-          margin="0"
-        >
-          {jobTitleCombobox.isOpen &&
-            jobTitleItems.map((item, index) => (
-              <ListItem
-                key={item.id}
-                {...jobTitleCombobox.getItemProps({ item, index })}
-                padding="8px"
-                bgColor={
-                  jobTitleCombobox.highlightedIndex === index
-                    ? "blue.100"
-                    : "white"
-                }
-              >
-                {item.jobTitle}
-              </ListItem>
-            ))}
-        </List>
-      </Box>
+    <>
+      <Box display="flex" justifyContent="center" alignItems="center" pt="75px">
+        <Box position="relative" mr="10px">
+          <Text
+            position="absolute"
+            fontWeight="700"
+            fontSize="14px"
+            lineHeight="14px"
+            color="#2d2d2d"
+            left="10px"
+            top="50%"
+            transform="translateY(-50%)"
+          >
+            What
+          </Text>
+          <Input
+            {...jobTitleCombobox.getInputProps({
+              pl: "70px",
+              border: "1px solid #ccc",
+              w: "400px",
+              h: "45px",
+              borderTopRightRadius: "10px",
+              borderTopLeftRadius: "10px",
+              borderBottomRightRadius: jobTitleCombobox.isOpen ? "0" : "10px",
+              borderBottomLeftRadius: jobTitleCombobox.isOpen ? "0" : "10px",
+              borderColor: "#767676",
+              fontSize: "14px",
+              fontWeight: "400",
+              color: "#2d2d2d",
+              _hover: { borderColor: "#2557a7", outline: "none" },
+              _focus: { borderColor: "#2557a7", outline: "none" },
+              placeholder: "Job title or Company name",
+            })}
+          />
+          <List
+            {...jobTitleCombobox.getMenuProps()}
+            position="absolute"
+            fontSize={"13px"}
+            w="400px"
+            _hover={"blue.200"}
+            maxH="200px"
+            overflowY="auto"
+            border="1px solid #ccc"
+            borderTop={jobTitleCombobox.isOpen ? "0" : "1px solid #ccc"}
+            borderBottomLeftRadius="10px"
+            borderBottomRightRadius="10px"
+            bgColor="white"
+            zIndex={2}
+            listStyleType="none"
+            padding="0"
+            margin="0"
+          >
+            {jobTitleCombobox.isOpen &&
+              jobTitleItems.map((item, index) => (
+                <ListItem
+                  key={item.id}
+                  {...jobTitleCombobox.getItemProps({ item, index })}
+                  padding="8px"
+                  bgColor={
+                    jobTitleCombobox.highlightedIndex === index
+                      ? "blue.100"
+                      : "white"
+                  }
+                >
+                  {item.jobTitle}
+                </ListItem>
+              ))}
+          </List>
+        </Box>
 
-      <Box position="relative" mr="10px">
-        <Text
-          position="absolute"
-          fontWeight="700"
+        <Box position="relative" mr="10px">
+          <Text
+            position="absolute"
+            fontWeight="700"
+            fontSize="14px"
+            lineHeight="14px"
+            color="#2d2d2d"
+            left="10px"
+            top="50%"
+            transform="translateY(-50%)"
+          >
+            Where
+          </Text>
+          <Input
+            {...locationCombobox.getInputProps({
+              pl: "70px",
+              border: "1px solid #ccc",
+              w: "400px",
+              h: "45px",
+              borderTopRightRadius: "10px",
+              borderTopLeftRadius: "10px",
+              borderBottomRightRadius: locationCombobox.isOpen ? "0" : "10px",
+              borderBottomLeftRadius: locationCombobox.isOpen ? "0" : "10px",
+              borderColor: "#767676",
+              fontSize: "14px",
+              fontWeight: "400",
+              color: "#2d2d2d",
+              _hover: { borderColor: "#2557a7", outline: "none" },
+              _focus: { borderColor: "#2557a7", outline: "none" },
+              placeholder: "City,Country",
+            })}
+          />
+          <List
+            {...locationCombobox.getMenuProps()}
+            position="absolute"
+            fontSize={"13px"}
+            w="400px"
+            _hover={"blue.200"}
+            maxH="200px"
+            overflowY="auto"
+            border="1px solid #ccc"
+            borderTop={locationCombobox.isOpen ? "0" : "1px solid #ccc"}
+            borderBottomLeftRadius="10px"
+            borderBottomRightRadius="10px"
+            bgColor="white"
+            zIndex={2}
+            listStyleType="none"
+            padding="0"
+            margin="0"
+          >
+            {locationCombobox.isOpen &&
+              locationItems.map((item, index) => (
+                <ListItem
+                  key={item.id}
+                  {...locationCombobox.getItemProps({ item, index })}
+                  padding="8px"
+                  bgColor={
+                    locationCombobox.highlightedIndex === index
+                      ? "blue.100"
+                      : "white"
+                  }
+                >
+                  {item.location}
+                </ListItem>
+              ))}
+          </List>
+        </Box>
+        <Button
+          onClick={handleSearch}
+          backgroundColor="#2557a7"
+          color="white"
+          padding="12px 20px"
+          border="none"
+          cursor="pointer"
           fontSize="14px"
-          lineHeight="14px"
-          color="#2d2d2d"
-          left="10px"
-          top="50%"
-          transform="translateY(-50%)"
+          fontWeight="500"
+          borderRadius="10px"
         >
-          Where
-        </Text>
-        <Input
-          {...locationCombobox.getInputProps({
-            pl: "70px",
-            border: "1px solid #ccc",
-            w: "400px",
-            h: "45px",
-            borderTopRightRadius: "10px",
-            borderTopLeftRadius: "10px",
-            borderBottomRightRadius: locationCombobox.isOpen ? "0" : "10px",
-            borderBottomLeftRadius: locationCombobox.isOpen ? "0" : "10px",
-            borderColor: "#767676",
-            fontSize: "14px",
-            fontWeight: "400",
-            color: "#2d2d2d",
-            _hover: { borderColor: "#2557a7", outline: "none" },
-            _focus: { borderColor: "#2557a7", outline: "none" },
-            placeholder: "City,Country",
-          })}
-        />
-        <List
-          {...locationCombobox.getMenuProps()}
-          position="absolute"
-          fontSize={"13px"}
-          w="400px"
-          _hover={"blue.200"}
-          maxH="200px"
-          overflowY="auto"
-          border="1px solid #ccc"
-          borderTop={locationCombobox.isOpen ? "0" : "1px solid #ccc"}
-          borderBottomLeftRadius="10px"
-          borderBottomRightRadius="10px"
-          bgColor="white"
-          zIndex={2}
-          listStyleType="none"
-          padding="0"
-          margin="0"
-        >
-          {locationCombobox.isOpen &&
-            locationItems.map((item, index) => (
-              <ListItem
-                key={item.id}
-                {...locationCombobox.getItemProps({ item, index })}
-                padding="8px"
-                bgColor={
-                  locationCombobox.highlightedIndex === index
-                    ? "blue.100"
-                    : "white"
-                }
-              >
-                {item.location}
-              </ListItem>
-            ))}
-        </List>
+          Search
+        </Button>
       </Box>
-
-      <Button
-        onClick={handleSearch}
-        backgroundColor="#2557a7"
-        color="white"
-        padding="12px 20px"
-        border="none"
-        cursor="pointer"
-        fontSize="14px"
-        fontWeight="500"
-        borderRadius="10px"
-      >
-        Search
-      </Button>
       <Box display="flex" flexDirection="column" alignItems="center" pt="75px">
-        <RecentSearches searchHistory={searchHistory} />
+        <Button onClick={toggleRecentSearches}>
+          {showRecentSearches ? "Hide Recent Searches" : "Show Recent Searches"}
+        </Button>
+        {showRecentSearches && <RecentSearches searchHistory={searchHistory} />}
       </Box>
-    </Box>
+    </>
   );
 }

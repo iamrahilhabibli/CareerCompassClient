@@ -18,6 +18,18 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+} from "@chakra-ui/react";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link as ChakraLink } from "@chakra-ui/react";
@@ -38,6 +50,12 @@ export function SearchResultCards({ searchResults }) {
   const locationId = searchParams.get("locationId");
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
+  } = useDisclosure();
+
   const {
     data: vacancies,
     isLoading,
@@ -209,7 +227,12 @@ export function SearchResultCards({ searchResults }) {
               />
             </DrawerBody>
             <DrawerFooter display={"flex"} justifyContent={"space-between"}>
-              <Button colorScheme="blue" variant={"outline"} mr={3}>
+              <Button
+                colorScheme="blue"
+                variant={"outline"}
+                mr={3}
+                onClick={onModalOpen}
+              >
                 Apply
               </Button>
               <Button variant="outline" mr={3} onClick={onClose}>
@@ -219,6 +242,28 @@ export function SearchResultCards({ searchResults }) {
           </DrawerContent>
         </DrawerOverlay>
       </Drawer>
+      <Modal isOpen={isModalOpen} onClose={onModalClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Apply for {selectedVacancy?.jobTitle}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text mb={4}>
+              Do you wish to continue with the application for this vacancy?
+              Please be advised that failure to respond to applications may
+              result in the suspension of your account.
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+              Confirm Application
+            </Button>
+            <Button variant="outline" onClick={onModalClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
