@@ -14,7 +14,7 @@ import {
 import { FaCheckCircle } from "react-icons/fa";
 
 function PriceWrapper(props) {
-  const { children } = props;
+  const { children, isPopular = false } = props;
 
   return (
     <Box
@@ -24,15 +24,43 @@ function PriceWrapper(props) {
       alignSelf={{ base: "center", lg: "flex-start" }}
       borderColor={useColorModeValue("gray.200", "gray.500")}
       borderRadius={"xl"}
+      position="relative"
+      transition="transform 0.2s"
+      _hover={{ transform: "scale(1.05)" }}
     >
+      {isPopular && (
+        <Box
+          position="absolute"
+          top="-30px"
+          left="50%"
+          transform="translateX(-50%)"
+          p="2"
+          color="white"
+          bg="red.500"
+          borderRadius="12px"
+          zIndex="1"
+        >
+          Most Popular
+        </Box>
+      )}
       {children}
     </Box>
   );
 }
-
 export default function ThreeTierPricing() {
   const borderColor = useColorModeValue("gray.200", "gray.500");
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
+
+  const plans = [
+    { name: "Free", price: "0", limit: "3 posts per month" },
+    {
+      name: "Basic",
+      price: "149",
+      limit: "10 posts per month",
+      isPopular: true,
+    },
+    { name: "Pro", price: "349", limit: "Unlimited posts" },
+  ];
 
   return (
     <Box py={12}>
@@ -40,10 +68,6 @@ export default function ThreeTierPricing() {
         <Heading as="h1" fontSize="4xl">
           Plans that fit your need
         </Heading>
-        <Text fontSize="lg" color={"gray.500"}>
-          Start with 14-day free trial. No credit card needed. Cancel at
-          anytime.
-        </Text>
       </VStack>
       <Stack
         direction={{ base: "column", md: "row" }}
@@ -52,21 +76,21 @@ export default function ThreeTierPricing() {
         spacing={{ base: 4, lg: 10 }}
         py={10}
       >
-        {["Hobby", "Growth", "Scale"].map((plan, index) => (
-          <PriceWrapper key={index}>
+        {plans.map((plan, index) => (
+          <PriceWrapper key={index} isPopular={plan.isPopular}>
             <Box py={4} px={12}>
               <Text fontWeight="500" fontSize="2xl">
-                {plan}
+                {plan.name}
               </Text>
               <HStack justifyContent="center">
                 <Text fontSize="3xl" fontWeight="600">
                   $
                 </Text>
                 <Text fontSize="5xl" fontWeight="900">
-                  {index === 0 ? "79" : index === 1 ? "149" : "349"}
+                  {plan.price}
                 </Text>
-                <Text fontSize="3xl" color="gray.500">
-                  /month
+                <Text fontSize="lpx" color="gray.500">
+                  /per month
                 </Text>
               </HStack>
             </Box>
@@ -74,8 +98,9 @@ export default function ThreeTierPricing() {
               <List spacing={3} textAlign="start" px={12}>
                 <ListItem>
                   <ListIcon as={FaCheckCircle} color="green.500" />
-                  unlimited build minutes
+                  {plan.limit}
                 </ListItem>
+                {/* Add other features as required */}
               </List>
               <Box w="80%" pt={7}>
                 <Button
