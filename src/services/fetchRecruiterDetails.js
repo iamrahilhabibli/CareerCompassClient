@@ -1,4 +1,5 @@
 import axios from "axios";
+
 export const fetchRecruiterDetails = (userId, token) => {
   const url = `https://localhost:7013/api/Recruiters/GetRecruiter/${userId}`;
   return axios
@@ -7,7 +8,10 @@ export const fetchRecruiterDetails = (userId, token) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((response) => response.data)
+    .then((response) => {
+      console.log("Full response:", response);
+      return response.data;
+    })
     .catch((error) => {
       console.error(
         "An error occurred while fetching recruiter details:",

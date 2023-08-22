@@ -15,6 +15,8 @@ import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
+import useUser from "../../customhooks/useUser";
+import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 function PriceWrapper(props) {
   const { children, isPopular = false } = props;
 
@@ -53,28 +55,42 @@ export default function ThreeTierPricing() {
   const navigate = useNavigate();
   const borderColor = useColorModeValue("gray.200", "gray.500");
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
+  const { userId, token } = useUser();
 
   const handleStartTrialClick = (plan) => {
-    const selectedPlan = {
-      Name: plan.name,
-      Amount: parseFloat(plan.price),
-    };
-    axios
-      .post(
-        "https://localhost:7013/api/Payments/CreateCheckoutSession",
-        selectedPlan
-      )
-      .then(async (response) => {
-        const sessionId = response.data.sessionId;
-        const stripe = await loadStripe(
-          "pk_test_51NhmkOKejEIF8WJNRrxkn2jtUfu8FsRHxqXJbeI9S0eEtTFNkACX8di4jd2j4IKNYnzwV9gkCTLKAnxgOwYSYQnE00tmebMvSx"
-        );
-        stripe && stripe.redirectToCheckout({ sessionId });
-      })
-      .catch((error) => {
-        console.error("An error occurred while processing the payment:", error);
-      });
+    fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
+      if (recruiterDetails && recruiterDetails.id) {
+        console.log(recruiterDetails);
+        const selectedPlan = {
+          Name: plan.name,
+          Amount: parseFloat(plan.price),
+          RecruiterId: recruiterDetails.id,
+        };
+
+        axios
+          .post(
+            "https://localhost:7013/api/Payments/CreateCheckoutSession",
+            selectedPlan
+          )
+          .then(async (response) => {
+            const sessionId = response.data.sessionId;
+            const stripePublishableKey =
+              process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+            const stripe = await loadStripe(stripePublishableKey);
+            stripe && stripe.redirectToCheckout({ sessionId });
+          })
+          .catch((error) => {
+            console.error(
+              "An error occurred while processing the payment:",
+              error
+            );
+          });
+      } else {
+        console.error("Recruiter details are missing");
+      }
+    });
   };
+
   const plans = [
     { name: "Free", price: "0", limit: "3 posts per month" },
     {
