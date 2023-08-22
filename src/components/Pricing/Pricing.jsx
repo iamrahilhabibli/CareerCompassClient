@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Stack,
@@ -10,17 +11,17 @@ import {
   ListItem,
   ListIcon,
   Button,
+  useToast,
 } from "@chakra-ui/react";
-import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import useUser from "../../customhooks/useUser";
 import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
+
 function PriceWrapper(props) {
   const { children, isPopular = false } = props;
-
   return (
     <Box
       mb={4}
@@ -55,48 +56,81 @@ function PriceWrapper(props) {
 export default function ThreeTierPricing() {
   const toast = useToast();
   const navigate = useNavigate();
-  const borderColor = useColorModeValue("gray.200", "gray.500");
-  const backgroundColor = useColorModeValue("gray.50", "gray.700");
   const { userId, token } = useUser();
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const isSubscriptionActive = (startDate) => {
+    const subscriptionEndDate = new Date(startDate);
+    subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
+    const currentDate = new Date();
+    return currentDate < subscriptionEndDate;
+  };
+
+  useEffect(() => {
+    fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
+      if (recruiterDetails && recruiterDetails.subscriptionStartDate) {
+        const isActive = isSubscriptionActive(
+          recruiterDetails.subscriptionStartDate
+        );
+        setIsSubscribed(isActive);
+
+        if (isActive) {
+          toast({
+            title: "Already Subscribed",
+            description: "You are already subscribed to a plan.",
+            status: "warning",
+            duration: 10000,
+            isClosable: true,
+            position: "top-right",
+          });
+        }
+      }
+    });
+  }, [userId, token, toast]);
 
   const handleStartTrialClick = (plan) => {
-    fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
-      if (recruiterDetails && recruiterDetails.id) {
-        console.log(recruiterDetails);
-        const selectedPlan = {
-          Name: plan.name,
-          Amount: parseFloat(plan.price),
-          RecruiterId: recruiterDetails.id,
-        };
+    if (isSubscribed) {
+      toast({
+        title: "Already Subscribed",
+        description: "You are already subscribed to a plan.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
-        axios
-          .post(
-            "https://localhost:7013/api/Payments/CreateCheckoutSession",
-            selectedPlan
-          )
-          .then(async (response) => {
-            toast({
-              title: "Redirecting",
-              description: "Redirecting you to the checkout page",
-              status: "info",
-              duration: 3000,
-              isClosable: true,
-            });
-            const sessionId = response.data.sessionId;
-            const stripePublishableKey =
-              process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
-            const stripe = await loadStripe(stripePublishableKey);
-            stripe && stripe.redirectToCheckout({ sessionId });
-          })
-          .catch((error) => {
-            console.error(
-              "An error occurred while processing the payment:",
-              error
-            );
+    fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
+      const selectedPlan = {
+        Name: plan.name,
+        Amount: parseFloat(plan.price),
+        RecruiterId: recruiterDetails.id,
+      };
+
+      axios
+        .post(
+          "https://localhost:7013/api/Payments/CreateCheckoutSession",
+          selectedPlan
+        )
+        .then(async (response) => {
+          toast({
+            title: "Redirecting",
+            description: "Redirecting you to the checkout page",
+            status: "info",
+            duration: 3000,
+            isClosable: true,
           });
-      } else {
-        console.error("Recruiter details are missing");
-      }
+          const sessionId = response.data.sessionId;
+          const stripePublishableKey =
+            process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+          const stripe = await loadStripe(stripePublishableKey);
+          stripe && stripe.redirectToCheckout({ sessionId });
+        })
+        .catch((error) => {
+          console.error(
+            "An error occurred while processing the payment:",
+            error
+          );
+        });
     });
   };
 
@@ -110,6 +144,7 @@ export default function ThreeTierPricing() {
     },
     { name: "Pro", price: "349", limit: "Unlimited posts" },
   ];
+  const backgroundColor = useColorModeValue("gray.50", "gray.700");
 
   return (
     <Box py={12}>
@@ -138,12 +173,12 @@ export default function ThreeTierPricing() {
                 <Text fontSize="5xl" fontWeight="900">
                   {plan.price}
                 </Text>
-                <Text fontSize="lpx" color="gray.500">
+                <Text fontSize="16px" color="gray.500">
                   /per month
                 </Text>
               </HStack>
             </Box>
-            <VStack bg={backgroundColor} py={4} borderBottomRadius={"xl"}>
+            <VStack bg={backgroundColor} py={4} borderBottomRadius="xl">
               <List spacing={3} textAlign="start" px={12}>
                 <ListItem>
                   <ListIcon as={FaCheckCircle} color="green.500" />
@@ -157,7 +192,7 @@ export default function ThreeTierPricing() {
                   colorScheme="red"
                   variant="outline"
                   onClick={() => handleStartTrialClick(plan)}
-                  isDisabled={plan.isFree}
+                  isDisabled={plan.isFree || isSubscribed}
                   _disabled={{
                     color: "gray.400",
                     cursor: "not-allowed",
