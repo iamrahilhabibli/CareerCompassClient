@@ -11,8 +11,10 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
-
+import { useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
 function PriceWrapper(props) {
   const { children, isPopular = false } = props;
 
@@ -48,9 +50,31 @@ function PriceWrapper(props) {
   );
 }
 export default function ThreeTierPricing() {
+  const navigate = useNavigate();
   const borderColor = useColorModeValue("gray.200", "gray.500");
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
 
+  const handleStartTrialClick = (plan) => {
+    const selectedPlan = {
+      Name: plan.name,
+      Amount: parseFloat(plan.price),
+    };
+    axios
+      .post(
+        "https://localhost:7013/api/Payments/CreateCheckoutSession",
+        selectedPlan
+      )
+      .then(async (response) => {
+        const sessionId = response.data.sessionId;
+        const stripe = await loadStripe(
+          "pk_test_51NhmkOKejEIF8WJNRrxkn2jtUfu8FsRHxqXJbeI9S0eEtTFNkACX8di4jd2j4IKNYnzwV9gkCTLKAnxgOwYSYQnE00tmebMvSx"
+        );
+        stripe && stripe.redirectToCheckout({ sessionId });
+      })
+      .catch((error) => {
+        console.error("An error occurred while processing the payment:", error);
+      });
+  };
   const plans = [
     { name: "Free", price: "0", limit: "3 posts per month" },
     {
@@ -107,6 +131,7 @@ export default function ThreeTierPricing() {
                   w="full"
                   colorScheme="red"
                   variant={index === 1 ? "" : "outline"}
+                  onClick={() => handleStartTrialClick(plan)}
                 >
                   Start trial
                 </Button>
