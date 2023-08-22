@@ -11,6 +11,7 @@ import {
   ListIcon,
   Button,
 } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +53,7 @@ function PriceWrapper(props) {
   );
 }
 export default function ThreeTierPricing() {
+  const toast = useToast();
   const navigate = useNavigate();
   const borderColor = useColorModeValue("gray.200", "gray.500");
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
@@ -73,6 +75,13 @@ export default function ThreeTierPricing() {
             selectedPlan
           )
           .then(async (response) => {
+            toast({
+              title: "Redirecting",
+              description: "Redirecting you to the checkout page",
+              status: "info",
+              duration: 3000,
+              isClosable: true,
+            });
             const sessionId = response.data.sessionId;
             const stripePublishableKey =
               process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
@@ -92,7 +101,7 @@ export default function ThreeTierPricing() {
   };
 
   const plans = [
-    { name: "Free", price: "0", limit: "3 posts per month" },
+    { name: "Free", price: "0", limit: "3 posts per month", isFree: true },
     {
       name: "Basic",
       price: "149",
@@ -146,8 +155,14 @@ export default function ThreeTierPricing() {
                 <Button
                   w="full"
                   colorScheme="red"
-                  variant={index === 1 ? "" : "outline"}
+                  variant="outline"
                   onClick={() => handleStartTrialClick(plan)}
+                  isDisabled={plan.isFree}
+                  _disabled={{
+                    color: "gray.400",
+                    cursor: "not-allowed",
+                    backgroundColor: "gray.100",
+                  }}
                 >
                   Start trial
                 </Button>
