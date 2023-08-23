@@ -93,26 +93,24 @@ export function Signin() {
               <Stack spacing={4}>
                 <FormControl id="email">
                   <FormLabel>Email address</FormLabel>
-                  <Text fontSize={"15px"} color={"red"} mb="8px">
-                    {formik.touched.email && formik.errors.email}
-                  </Text>
                   <Input
                     type="email"
                     name="email"
                     onChange={formik.handleChange}
                     value={formik.values.email}
+                    isInvalid={formik.touched.email && formik.errors.email}
                   />
                 </FormControl>
                 <FormControl id="password">
                   <FormLabel>Password</FormLabel>
-                  <Text fontSize={"15px"} color={"red"} mb="8px">
-                    {formik.touched.password && formik.errors.password}
-                  </Text>
                   <Input
                     type="password"
                     name="password"
                     onChange={formik.handleChange}
                     value={formik.values.password}
+                    isInvalid={
+                      formik.touched.password && formik.errors.password
+                    }
                   />
                 </FormControl>
                 <Stack spacing={10}>

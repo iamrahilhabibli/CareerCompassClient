@@ -87,8 +87,15 @@ export default function Multistep() {
 
   const stepSchemas = [
     Yup.object().shape({
-      name: Yup.string().required("Company name is required"),
+      name: Yup.string()
+        .required("Company name is required")
+        .max(50, "Company name should be max 50 characters")
+        .matches(
+          /^[a-zA-Z0-9&!@ ]+$/,
+          "Company name can only contain letters, digits, and the symbols & ! @"
+        ),
     }),
+
     Yup.object().shape({
       ceoName: Yup.string().required("CEO name is required"),
     }),
@@ -128,11 +135,14 @@ export default function Multistep() {
     validationSchema: validationSchema,
   });
   const handleNext = async () => {
-    const currentSchema = stepSchemas[step - 1];
     try {
+      await formik.validateForm();
+      const currentSchema = stepSchemas[step - 1];
       await currentSchema.validate(formik.values);
-      setStep(step + 1);
-      setProgress(progress + 33.33);
+      if (Object.keys(formik.errors).length === 0) {
+        setStep(step + 1);
+        setProgress(progress + 33.33);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -191,6 +201,7 @@ export default function Multistep() {
                 onClick={handleNext}
                 colorScheme="teal"
                 variant="outline"
+                disabled={step !== 3 && Object.keys(formik.errors).length > 0}
               >
                 Next
               </Button>
