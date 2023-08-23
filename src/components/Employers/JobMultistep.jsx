@@ -107,27 +107,29 @@ export function JobMultistep() {
       salary: 0,
       jobTypeIds: [],
       locationId: "",
+      applicationLimit: 1,
       description: "",
       shiftIds: [],
     },
     validationSchema: stepSchemas[step - 1],
-    onSubmit: (values) => {
-      values.salary = parseFloat(values.salary);
-      postVacancyMutation.mutate(values);
-    },
   });
   const handleNext = async () => {
     const currentSchema = stepSchemas[step - 1];
-
     try {
       await currentSchema.validate(formik.values);
-      setStep(step + 1);
-      setProgress(progress + 33.33);
+      if (step < 5) {
+        setStep(step + 1);
+        setProgress((step / 4) * 100);
+      }
     } catch (err) {
       console.log(err);
     }
   };
-
+  const handleSubmit = () => {
+    const values = formik.values;
+    values.salary = parseFloat(values.salary);
+    postVacancyMutation.mutate(values);
+  };
   const renderStepContent = (currentStep) => {
     switch (currentStep) {
       case 1:
@@ -321,7 +323,7 @@ export function JobMultistep() {
                 </Button>
               ) : (
                 <Button
-                  type="submit"
+                  onClick={handleSubmit}
                   w="7rem"
                   colorScheme="blue"
                   variant="solid"

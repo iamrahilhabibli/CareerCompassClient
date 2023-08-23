@@ -79,6 +79,31 @@ export function PayBenefitsForm({ formik }) {
             </option>
           ))}
         </Select>
+        <FormControl isRequired>
+          <FormLabel
+            htmlFor="applicationLimit"
+            fontWeight="md"
+            color="gray.700"
+            _dark={{ color: "gray.50" }}
+          >
+            Number of Employees for this position?
+          </FormLabel>
+          <NumberInput
+            id="applicationLimit"
+            step={1}
+            onChange={(value) =>
+              formik.setFieldValue("applicationLimit", value)
+            }
+            onBlur={formik.handleBlur}
+            value={formik.values.applicationLimit}
+          >
+            <NumberInputField placeholder="Enter the number of application limit" />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
       </FormControl>
     </>
   );
