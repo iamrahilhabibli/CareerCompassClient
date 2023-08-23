@@ -28,6 +28,7 @@ import { store } from "./reduxstores/storgeConfig";
 import ThreeTierPricing from "./components/Pricing/Pricing";
 import SuccessPayment from "./components/Pricing/SuccessPayment";
 import ErrorPayment from "./components/Pricing/ErrorPayment";
+import { ResumeBuild } from "./components/Resume/ResumeBuild";
 
 export function App() {
   const location = useLocation();
@@ -55,6 +56,7 @@ export function App() {
             <Route path="/" element={<WelcomePage />} />
             <Route path="/home" element={<Home />} />
             <Route path="/companies" element={<Companies />} />
+            <Route path="/resumebuild" element={<ResumeBuild />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/companydetailform" element={<Multistep />} />

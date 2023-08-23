@@ -98,6 +98,7 @@ export function Navbar() {
           <Link to="/home">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
           <Link to="/findsalaries">Find Salaries</Link>
+          <Link to="/resumebuild">Build your Resume</Link>
           <Link to="/pricing">Pricing</Link>
         </div>
       </div>
