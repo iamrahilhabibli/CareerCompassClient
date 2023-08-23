@@ -12,6 +12,7 @@ import {
   ListIcon,
   Button,
   useToast,
+  Tooltip,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FaCheckCircle } from "react-icons/fa";
@@ -53,10 +54,10 @@ function PriceWrapper(props) {
     </Box>
   );
 }
+
 export default function ThreeTierPricing() {
   const toast = useToast();
-  const navigate = useNavigate();
-  const { userId, token } = useUser();
+  const { userId, token, userRole } = useUser();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const isSubscriptionActive = (startDate) => {
     const subscriptionEndDate = new Date(startDate);
@@ -64,7 +65,8 @@ export default function ThreeTierPricing() {
     const currentDate = new Date();
     return currentDate < subscriptionEndDate;
   };
-
+  const isJobSeeker = () => userRole === "JobSeeker";
+  console.log(userRole);
   useEffect(() => {
     fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
       if (recruiterDetails && recruiterDetails.subscriptionStartDate) {
@@ -88,6 +90,18 @@ export default function ThreeTierPricing() {
   }, [userId, token, toast]);
 
   const handleStartTrialClick = (plan) => {
+    if (isJobSeeker()) {
+      toast({
+        title: "Access Denied",
+        description:
+          "These plans are exclusive to recruiters. Please sign in as a recruiter to access them.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+      return;
+    }
     if (isSubscribed) {
       toast({
         title: "Already Subscribed",
@@ -192,7 +206,7 @@ export default function ThreeTierPricing() {
                   colorScheme="red"
                   variant="outline"
                   onClick={() => handleStartTrialClick(plan)}
-                  isDisabled={plan.isFree || isSubscribed}
+                  isDisabled={plan.isFree || (isSubscribed && !isJobSeeker())}
                   _disabled={{
                     color: "gray.400",
                     cursor: "not-allowed",

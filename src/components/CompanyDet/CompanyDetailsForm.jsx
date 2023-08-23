@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   GridItem,
   Heading,
@@ -48,7 +49,7 @@ export const CompanyDetailsForm = ({ formik }) => {
 
       <FormControl as={GridItem} colSpan={[6, 3]} isRequired>
         <FormLabel
-          htmlFor="country"
+          htmlFor="locationId"
           fontSize="sm"
           fontWeight="md"
           color="gray.700"
@@ -57,9 +58,9 @@ export const CompanyDetailsForm = ({ formik }) => {
           Country / Region
         </FormLabel>
         <Select
-          id="country"
-          name="country"
-          autoComplete="country"
+          id="locationId"
+          name="locationId"
+          autoComplete="locationId"
           placeholder="Select option"
           focusBorderColor="brand.400"
           shadow="sm"
@@ -68,7 +69,7 @@ export const CompanyDetailsForm = ({ formik }) => {
           rounded="md"
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          value={formik.values.country}
+          value={formik.values.locationId}
         >
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>
@@ -76,6 +77,9 @@ export const CompanyDetailsForm = ({ formik }) => {
             </option>
           ))}
         </Select>
+        {formik.touched.locationId && formik.errors.locationId ? (
+          <FormErrorMessage>{formik.errors.locationId}</FormErrorMessage>
+        ) : null}
       </FormControl>
 
       <FormControl as={GridItem} colSpan={[6, 6, null, 2]} isRequired>
@@ -149,6 +153,9 @@ export const CompanyDetailsForm = ({ formik }) => {
         >
           Street address
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.address && formik.errors.address}
+        </Text>
         <Input
           type="text"
           name="address"
@@ -207,6 +214,9 @@ export const CompanyDetailsForm = ({ formik }) => {
         >
           Choose your Industry
         </FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.industryId && formik.errors.industryId}
+        </Text>
         <Select
           id="industryId"
           name="industryId"

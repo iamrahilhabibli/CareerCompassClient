@@ -97,9 +97,10 @@ export default function Multistep() {
     }),
 
     Yup.object().shape({
-      ceoName: Yup.string().required("CEO name is required"),
-    }),
-    Yup.object().shape({
+      locationId: Yup.string().required("Location is required"),
+      ceoName: Yup.string()
+        .matches(/^[A-Za-z\s]*$/, "CEO name cannot contain digits or symbols")
+        .required("CEO name is required"),
       dateFounded: Yup.number()
         .required("Date founded is required")
         .min(1900, "Please enter a valid year")
@@ -107,6 +108,21 @@ export default function Multistep() {
           new Date().getFullYear(),
           "Date founded cannot be after the current year"
         ),
+      address: Yup.string()
+        .matches(
+          /^[a-zA-Z0-9\s,]+$/,
+          "Address can only contain letters, digits, spaces"
+        )
+        .required("Address is required"),
+      industryId: Yup.string().required("Industry is required"),
+    }),
+
+    Yup.object().shape({
+      websiteLink: Yup.string(),
+      description: Yup.string().max(
+        255,
+        "Description should be max 255 characters"
+      ),
     }),
   ];
 
@@ -119,6 +135,7 @@ export default function Multistep() {
   const formik = useFormik({
     initialValues: {
       name: "",
+      locationId: "",
       ceoName: "",
       dateFounded: 0,
       address: "",
@@ -130,7 +147,6 @@ export default function Multistep() {
     onSubmit: (values) => {
       values.companySize = parseInt(values.companySize, 10);
       mutation.mutate(values);
-      console.log(values);
     },
     validationSchema: validationSchema,
   });
@@ -174,6 +190,9 @@ export default function Multistep() {
       </Flex>
     );
   }
+  const handleSubmitClick = () => {
+    formik.handleSubmit();
+  };
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box

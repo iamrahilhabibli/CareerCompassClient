@@ -32,6 +32,18 @@ export function Navbar() {
       navigate("/signin");
       return;
     }
+    if (userRole === "JobSeeker") {
+      toast({
+        title: "Access Restricted",
+        description:
+          "This section is for recruiters only. Please contact support if you need assistance.",
+        status: "warning",
+        position: "top-right",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
     if (userRole === "Recruiter" && userId && token) {
       fetchRecruiterDetails(userId, token).then((recruiter) => {
         if (recruiter && recruiter.companyId === null) {

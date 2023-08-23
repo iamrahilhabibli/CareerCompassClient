@@ -4,6 +4,7 @@ import {
   Heading,
   Input,
   Textarea,
+  Text,
 } from "@chakra-ui/react";
 
 export const CompanyDetailsAbout = ({ formik }) => {
@@ -13,7 +14,7 @@ export const CompanyDetailsAbout = ({ formik }) => {
         Company Details
       </Heading>
 
-      <FormControl mt={4} isRequired>
+      <FormControl mt={4}>
         <FormLabel htmlFor="websiteLink">Website Link</FormLabel>
         <Input
           placeholder="www.yourcompany.com"
@@ -26,8 +27,11 @@ export const CompanyDetailsAbout = ({ formik }) => {
         />
       </FormControl>
 
-      <FormControl mt={4}>
+      <FormControl mt={4} isRequired>
         <FormLabel htmlFor="description">Company Description</FormLabel>
+        <Text fontSize={"15px"} color={"red"} mb="8px">
+          {formik.touched.description && formik.errors.description}
+        </Text>
         <Textarea
           placeholder="Enter a brief overview of your company..."
           rows={3}
