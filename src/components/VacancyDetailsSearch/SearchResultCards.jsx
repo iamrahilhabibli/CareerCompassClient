@@ -8,6 +8,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { Divider } from "@chakra-ui/react";
+import { AttachmentIcon } from "@chakra-ui/icons";
 import {
   Drawer,
   DrawerBody,
@@ -49,6 +50,7 @@ export function SearchResultCards({ searchResults }) {
   const jobTitle = decodeURIComponent(searchParams.get("jobTitle"));
   const locationId = searchParams.get("locationId");
   const navigate = useNavigate();
+  const [cvFile, setCvFile] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isModalOpen,
@@ -83,7 +85,33 @@ export function SearchResultCards({ searchResults }) {
       filterByJobType(result) &&
       filterByLocation(result)
   );
+  const handleFileChange = (e) => {
+    setCvFile(e.target.files[0]);
+  };
+  const handleApplication = async () => {
+    if (cvFile) {
+      // Send the file to the backend (Azure Blob Storage)
+      const formData = new FormData();
+      formData.append("file", cvFile);
 
+      const response = await fetch("/api/cv", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Proceed with the application
+        // Redirect or show success message
+        console.log("CV uploaded successfully");
+        onModalClose();
+      } else {
+        console.log("Error uploading CV");
+      }
+    } else {
+      // Handle the case where CV is not provided (if it's required)
+      console.log("Please upload a CV");
+    }
+  };
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -253,6 +281,26 @@ export function SearchResultCards({ searchResults }) {
               Please be advised that failure to respond to applications may
               result in the suspension of your account.
             </Text>
+            <FormControl>
+              <FormLabel>Upload your CV:</FormLabel>
+              <label>
+                <Input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  display="none"
+                  id="cvFile"
+                />
+                <Button
+                  as="span"
+                  colorScheme="blue"
+                  leftIcon={<AttachmentIcon />}
+                >
+                  Choose File
+                </Button>
+              </label>
+              {cvFile && <Text mt={2}>File selected: {cvFile.name}</Text>}
+            </FormControl>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onModalClose}>

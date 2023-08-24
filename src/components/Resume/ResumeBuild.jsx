@@ -85,11 +85,12 @@ export function ResumeBuild() {
       </Heading>
       <Text>Email: {values.email}</Text>
       <Text>Phone: {values.phoneNumber}</Text>
-      <Text>Experience: {values.experience}</Text>
+      <Text>Experience: {values.experience} years</Text>
       <Text>
         Education:{" "}
         {educationLevels.find((level) => level.id === values.education)?.name}
       </Text>
+      <Text>Description: {values.description}</Text>
     </Box>
   );
 
