@@ -11,6 +11,7 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Text,
   Button,
   VStack,
   Flex,
@@ -32,6 +33,22 @@ export function ResumeBuild() {
       });
   }, []);
 
+  const renderPreview = (values) => (
+    <Box>
+      <Heading>
+        {values.firstName} {values.lastName}
+      </Heading>
+      <Text>Email: {values.email}</Text>
+      <Text>Phone: {values.phoneNumber}</Text>
+      <Text>Experience: {values.experience}</Text>
+      <Text>
+        Education:{" "}
+        {educationLevels.find((level) => level.id === values.education)?.name}
+      </Text>
+      <Text>Skills: {values.skills}</Text>
+    </Box>
+  );
+
   const formik = useFormik({
     initialValues: {
       firstName: "",
@@ -49,16 +66,14 @@ export function ResumeBuild() {
 
   const downloadPDF = () => {
     const content = resumePreviewRef.current;
-    const pdf = html2pdf().from(content).outputPdf();
-
-    pdf.then((pdf) => {
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(
-        new Blob([pdf], { type: "application/pdf" })
-      );
-      link.download = "resume.pdf";
-      link.click();
-    });
+    const opt = {
+      margin: 10,
+      filename: "resume.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().set(opt).from(content).save();
   };
 
   return (
@@ -87,23 +102,7 @@ export function ResumeBuild() {
       <VStack spacing={4} align="center" w="100%">
         <Flex direction="column" w={["90%", "80%", "70%", "60%"]}>
           <form onSubmit={formik.handleSubmit}>
-            <FormControl isRequired mb={"20px"}>
-              <FormLabel
-                htmlFor="firstName"
-                fontWeight="md"
-                color="gray.700"
-                _dark={{ color: "gray.50" }}
-              >
-                First Name
-              </FormLabel>
-              <Input
-                id="firstName"
-                name="firstName"
-                onChange={formik.handleChange}
-                value={formik.values.firstName}
-              />
-            </FormControl>
-            {/* ... Repeat for other fields like lastName, email, phoneNumber, etc. ... */}
+            {/* Include other form controls like firstName, lastName, email, phoneNumber, etc. */}
             <FormControl isRequired mb={"20px"}>
               <FormLabel
                 htmlFor="education"
@@ -141,7 +140,7 @@ export function ResumeBuild() {
             borderWidth={1}
             borderRadius="lg"
           >
-            {/* ... Preview content ... */}
+            {renderPreview(formik.values)}
           </Box>
           <Button onClick={downloadPDF} colorScheme="teal">
             Download PDF
