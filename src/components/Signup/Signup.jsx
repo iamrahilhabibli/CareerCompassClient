@@ -52,6 +52,7 @@ export function Signup() {
       firstName: "",
       lastName: "",
       email: "",
+      phoneNumber: "",
       password: "",
       role: "",
     },
@@ -125,12 +126,22 @@ export function Signup() {
                   </FormControl>
                 </HStack>
               </Box>
-              <FormControl id="email" isRequired>
+              <FormControl id="phoneNumber" isRequired>
                 <FormLabel>Email address</FormLabel>
                 <Input
                   type="email"
                   {...formik.getFieldProps("email")}
                   isInvalid={formik.touched.email && !!formik.errors.email}
+                />
+              </FormControl>
+              <FormControl id="phoneNumber" isRequired>
+                <FormLabel>Phone number</FormLabel>
+                <Input
+                  type="phoneNumber"
+                  {...formik.getFieldProps("phoneNumber")}
+                  isInvalid={
+                    formik.touched.phoneNumber && !!formik.errors.phoneNumber
+                  }
                 />
               </FormControl>
               <FormControl id="password" isRequired>

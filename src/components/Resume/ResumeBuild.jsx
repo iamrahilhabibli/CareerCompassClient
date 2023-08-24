@@ -24,7 +24,20 @@ export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
   const resumePreviewRef = useRef(null);
   const { userId, token } = useUser();
-  console.log(userId);
+  const YearsOfExperienceLabels = [
+    "Less Than 1",
+    "1 to 3",
+    "4 to 6",
+    "7 to 9",
+    "10 to 12",
+    "13 to 15",
+    "16 to 18",
+    "19 to 20",
+    "20 Plus",
+  ];
+
+  // Now you can map over the entries of this object:
+
   useEffect(() => {
     axios
       .get("https://localhost:7013/api/EducationLevels/GetAll")
@@ -69,8 +82,11 @@ export function ResumeBuild() {
   useEffect(() => {
     fetchJobSeekerDetails(userId, token).then((details) => {
       if (details) {
+        console.log(details);
         formik.setFieldValue("firstName", details.firstName);
         formik.setFieldValue("lastName", details.lastName);
+        formik.setFieldValue("email", details.email);
+        formik.setFieldValue("phoneNumber", details.phoneNumber);
       }
     });
   }, [userId, token]);
@@ -112,7 +128,7 @@ export function ResumeBuild() {
       <VStack spacing={4} align="center" w="100%">
         <Flex direction="column" w={["90%", "80%", "70%", "60%"]}>
           <form onSubmit={formik.handleSubmit}>
-            <FormControl isRequired mb={"20px"}>
+            <FormControl mb={"20px"}>
               <FormLabel
                 htmlFor="firstName"
                 fontWeight="md"
@@ -131,7 +147,7 @@ export function ResumeBuild() {
               />
             </FormControl>
 
-            <FormControl isRequired mb={"20px"}>
+            <FormControl mb={"20px"}>
               <FormLabel
                 htmlFor="lastName"
                 fontWeight="md"
@@ -148,6 +164,71 @@ export function ResumeBuild() {
                 isReadOnly
                 bg="gray.100"
               />
+            </FormControl>
+
+            <FormControl mb={"20px"}>
+              <FormLabel
+                htmlFor="email"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{ color: "gray.50" }}
+              >
+                Email
+              </FormLabel>
+              <Input
+                id="email"
+                name="email"
+                onChange={formik.handleChange}
+                value={formik.values.email}
+                isReadOnly
+                bg="gray.100"
+              />
+            </FormControl>
+
+            <FormControl mb={"20px"}>
+              <FormLabel
+                htmlFor="phoneNumber"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{ color: "gray.50" }}
+              >
+                Phone number
+              </FormLabel>
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                onChange={formik.handleChange}
+                value={formik.values.phoneNumber}
+                isReadOnly
+                bg="gray.100"
+              />
+            </FormControl>
+
+            <FormControl isRequired mb={"20px"}>
+              <FormLabel
+                htmlFor="experience"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{ color: "gray.50" }}
+              >
+                Years of Experience
+              </FormLabel>
+              <Select
+                name="experience"
+                id="experience"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.experience}
+              >
+                <option value="" disabled>
+                  Select option
+                </option>
+                {YearsOfExperienceLabels.map((label, index) => (
+                  <option key={index} value={label}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             {/* Include other form controls like firstName, lastName, email, phoneNumber, etc. */}
