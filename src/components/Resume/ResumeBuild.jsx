@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import html2pdf from "html2pdf.js";
 import resumeImg from "../../images/resumecreate.png";
-import { FiCheck, FiPlus } from "react-icons/fi";
+import { FiCheck, FiChevronDown, FiChevronUp, FiPlus } from "react-icons/fi";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import {
   Box,
@@ -24,6 +24,10 @@ import useUser from "../../customhooks/useUser";
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const [displaySkillsLimit, setDisplaySkillsLimit] = useState(4);
+  const [displayMoreSkills, setDisplayMoreSkills] = useState(false);
+  const [isResumeCreated, setIsResumeCreated] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const resumePreviewRef = useRef(null);
   const { userId, token } = useUser();
   const YearsOfExperienceLabels = [
@@ -49,7 +53,7 @@ export function ResumeBuild() {
     "AnalyticalThinking",
     "AttentionToDetail",
   ];
-
+  const remainingSkills = Skills.length - displaySkillsLimit;
   const handleAddSkill = (skill) => {
     let newSelectedSkills;
     if (selectedSkills.includes(skill)) {
@@ -100,6 +104,8 @@ export function ResumeBuild() {
     },
     onSubmit: (values) => {
       // Handle submission
+      setShowPreview(true);
+      setIsResumeCreated(true);
     },
   });
   useEffect(() => {
@@ -253,8 +259,6 @@ export function ResumeBuild() {
                 ))}
               </Select>
             </FormControl>
-
-            {/* Include other form controls like firstName, lastName, email, phoneNumber, etc. */}
             <FormControl isRequired mb={"20px"}>
               <FormLabel
                 htmlFor="education"
@@ -283,7 +287,10 @@ export function ResumeBuild() {
             </FormControl>
 
             <Flex wrap="wrap">
-              {Skills.map((skill) => (
+              {Skills.slice(
+                0,
+                displayMoreSkills ? Skills.length : displaySkillsLimit
+              ).map((skill) => (
                 <Button
                   key={skill}
                   borderColor="blue.500"
@@ -302,23 +309,55 @@ export function ResumeBuild() {
                   {skill}
                 </Button>
               ))}
+              {remainingSkills > 0 && (
+                <Flex
+                  color={"blue.700"}
+                  fontWeight={700}
+                  onClick={() => setDisplayMoreSkills(!displayMoreSkills)}
+                  m={2}
+                  alignItems="center"
+                >
+                  <Text as="span" mr={1}>
+                    {" "}
+                    {displayMoreSkills ? "Show less" : "Show more"}
+                  </Text>
+                  <Text as="span" mr={2}>
+                    {" "}
+                    ({remainingSkills})
+                  </Text>
+                  {displayMoreSkills ? (
+                    <FiChevronUp size={24} />
+                  ) : (
+                    <FiChevronDown size={24} />
+                  )}{" "}
+                </Flex>
+              )}
             </Flex>
+
             <Button type="submit" colorScheme="blue">
               Create Resume
             </Button>
           </form>
-          <Box
-            ref={resumePreviewRef}
-            w="100%"
-            p={4}
-            borderWidth={1}
-            borderRadius="lg"
-          >
-            {renderPreview(formik.values)}
-          </Box>
-          <Button onClick={downloadPDF} colorScheme="teal">
-            Download PDF
-          </Button>
+          {showPreview && (
+            <>
+              <Box
+                ref={resumePreviewRef}
+                w="100%"
+                p={4}
+                borderWidth={1}
+                borderRadius="lg"
+              >
+                {renderPreview(formik.values)}
+              </Box>
+              <Button
+                onClick={downloadPDF}
+                colorScheme="teal"
+                isDisabled={!isResumeCreated}
+              >
+                Download PDF
+              </Button>
+            </>
+          )}
         </Flex>
       </VStack>
     </>
