@@ -56,7 +56,7 @@ export function App() {
             <Route path="/" element={<WelcomePage />} />
             <Route path="/home" element={<Home />} />
             <Route path="/companies" element={<Companies />} />
-            <Route path="/resumebuild" element={<ResumeBuild />} />
+            <Route path="/resumebuild/:userId" element={<ResumeBuild />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/companydetailform" element={<Multistep />} />

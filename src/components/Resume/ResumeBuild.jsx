@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import html2pdf from "html2pdf.js";
 import resumeImg from "../../images/resumecreate.png";
+import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import {
   Box,
   Center,
@@ -17,11 +18,13 @@ import {
   Flex,
   Select,
 } from "@chakra-ui/react";
+import useUser from "../../customhooks/useUser";
 
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
   const resumePreviewRef = useRef(null);
-
+  const { userId, token } = useUser();
+  console.log(userId);
   useEffect(() => {
     axios
       .get("https://localhost:7013/api/EducationLevels/GetAll")
@@ -63,7 +66,14 @@ export function ResumeBuild() {
       // Handle submission
     },
   });
-
+  useEffect(() => {
+    fetchJobSeekerDetails(userId, token).then((details) => {
+      if (details) {
+        formik.setFieldValue("firstName", details.firstName);
+        formik.setFieldValue("lastName", details.lastName);
+      }
+    });
+  }, [userId, token]);
   const downloadPDF = () => {
     const content = resumePreviewRef.current;
     const opt = {
@@ -102,6 +112,44 @@ export function ResumeBuild() {
       <VStack spacing={4} align="center" w="100%">
         <Flex direction="column" w={["90%", "80%", "70%", "60%"]}>
           <form onSubmit={formik.handleSubmit}>
+            <FormControl isRequired mb={"20px"}>
+              <FormLabel
+                htmlFor="firstName"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{ color: "gray.50" }}
+              >
+                First Name
+              </FormLabel>
+              <Input
+                id="firstName"
+                name="firstName"
+                onChange={formik.handleChange}
+                value={formik.values.firstName}
+                isReadOnly
+                bg="gray.100"
+              />
+            </FormControl>
+
+            <FormControl isRequired mb={"20px"}>
+              <FormLabel
+                htmlFor="lastName"
+                fontWeight="md"
+                color="gray.700"
+                _dark={{ color: "gray.50" }}
+              >
+                Last Name
+              </FormLabel>
+              <Input
+                id="lastName"
+                name="lastName"
+                onChange={formik.handleChange}
+                value={formik.values.lastName}
+                isReadOnly
+                bg="gray.100"
+              />
+            </FormControl>
+
             {/* Include other form controls like firstName, lastName, email, phoneNumber, etc. */}
             <FormControl isRequired mb={"20px"}>
               <FormLabel
