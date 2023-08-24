@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import html2pdf from "html2pdf.js";
 import resumeImg from "../../images/resumecreate.png";
+import { FiCheck, FiPlus } from "react-icons/fi";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import {
   Box,
@@ -22,6 +23,7 @@ import useUser from "../../customhooks/useUser";
 
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const resumePreviewRef = useRef(null);
   const { userId, token } = useUser();
   const YearsOfExperienceLabels = [
@@ -35,8 +37,29 @@ export function ResumeBuild() {
     "19 to 20",
     "20 Plus",
   ];
+  const Skills = [
+    "Communication",
+    "Leadership",
+    "ProblemSolving",
+    "Teamwork",
+    "Creativity",
+    "TechnicalLiteracy",
+    "ProjectManagement",
+    "TimeManagement",
+    "AnalyticalThinking",
+    "AttentionToDetail",
+  ];
 
-  // Now you can map over the entries of this object:
+  const handleAddSkill = (skill) => {
+    let newSelectedSkills;
+    if (selectedSkills.includes(skill)) {
+      newSelectedSkills = selectedSkills.filter((s) => s !== skill);
+    } else {
+      newSelectedSkills = [...selectedSkills, skill];
+    }
+    setSelectedSkills(newSelectedSkills);
+    formik.setFieldValue("skills", newSelectedSkills.join(", "));
+  };
 
   useEffect(() => {
     axios
@@ -258,6 +281,28 @@ export function ResumeBuild() {
                 ))}
               </Select>
             </FormControl>
+
+            <Flex wrap="wrap">
+              {Skills.map((skill) => (
+                <Button
+                  key={skill}
+                  borderColor="blue.500"
+                  borderWidth="1px"
+                  borderRadius="12px"
+                  bg={selectedSkills.includes(skill) ? "blue.500" : "white"}
+                  color={selectedSkills.includes(skill) ? "white" : "blue.500"}
+                  m={2}
+                  _hover={{
+                    color: "white",
+                    bg: "blue.500",
+                  }}
+                  onClick={() => handleAddSkill(skill)}
+                >
+                  {selectedSkills.includes(skill) ? <FiCheck /> : <FiPlus />}{" "}
+                  {skill}
+                </Button>
+              ))}
+            </Flex>
             <Button type="submit" colorScheme="blue">
               Create Resume
             </Button>
