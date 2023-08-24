@@ -6,6 +6,7 @@ import html2pdf from "html2pdf.js";
 import resumeImg from "../../images/resumecreate.png";
 import { FiCheck, FiChevronDown, FiChevronUp, FiPlus } from "react-icons/fi";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
+import { loadStripe } from "@stripe/stripe-js";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   Box,
@@ -28,6 +29,7 @@ export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [displaySkillsLimit, setDisplaySkillsLimit] = useState(4);
+  const [isPaymentSuccessful, setPaymentSuccessful] = useState(false);
   const [displayMoreSkills, setDisplayMoreSkills] = useState(false);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -178,6 +180,27 @@ export function ResumeBuild() {
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
     html2pdf().set(opt).from(content).save();
+  };
+  const initiatePaymentProcess = () => {
+    axios
+      .post("https://localhost:7013/api/Payments/CreateResumeCheckoutSession")
+      .then(async (response) => {
+        toast({
+          title: "Redirecting",
+          description: "Redirecting you to the checkout page",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+        });
+        const sessionId = response.data.sessionId;
+        const stripePublishableKey =
+          process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+        const stripe = await loadStripe(stripePublishableKey);
+        stripe && stripe.redirectToCheckout({ sessionId });
+      })
+      .catch((error) => {
+        console.error("An error occurred while processing the payment:", error);
+      });
   };
 
   return (
@@ -336,55 +359,6 @@ export function ResumeBuild() {
                 ))}
               </Select>
             </FormControl>
-
-            {/* <Flex wrap="wrap">
-              {Skills.slice(
-                0,
-                displayMoreSkills ? Skills.length : displaySkillsLimit
-              ).map((skill) => (
-                <Button
-                  key={skill.name}
-                  onClick={() => handleAddSkill(skill.name)}
-                  borderColor="blue.500"
-                  borderWidth="1px"
-                  borderRadius="12px"
-                  bg={selectedSkillsValue & skill.value ? "blue.500" : "white"}
-                  color={
-                    selectedSkillsValue & skill.value ? "white" : "blue.500"
-                  }
-                  m={2}
-                  _hover={{
-                    color: "white",
-                    bg: "blue.500",
-                  }}
-                >
-                  {selectedSkillsValue & skill.value ? <FiCheck /> : <FiPlus />}{" "}
-                  {skill.name}
-                </Button>
-              ))}
-              {remainingSkills > 0 && (
-                <Flex
-                  color={"blue.700"}
-                  fontWeight={700}
-                  onClick={() => setDisplayMoreSkills(!displayMoreSkills)}
-                  m={2}
-                  alignItems="center"
-                >
-                  <Text as="span" mr={1}>
-                    {displayMoreSkills ? "Show less" : "Show more"}
-                  </Text>
-                  <Text as="span" mr={2}>
-                    ({remainingSkills})
-                  </Text>
-                  {displayMoreSkills ? (
-                    <FiChevronUp size={24} />
-                  ) : (
-                    <FiChevronDown size={24} />
-                  )}
-                </Flex>
-              )}
-            </Flex> */}
-
             <Editor
               apiKey="ampk5o36dpm7qqhr2h54evb0g8b4fqptomyoa5ntgpubk2h4"
               value={formik.values.description}
@@ -421,13 +395,19 @@ export function ResumeBuild() {
               >
                 {renderPreview(formik.values)}
               </Box>
-              <Button
-                onClick={downloadPDF}
-                colorScheme="teal"
-                isDisabled={!isResumeCreated}
-              >
-                Download PDF
-              </Button>
+
+              {isPaymentSuccessful ? (
+                <Button onClick={downloadPDF} colorScheme="teal">
+                  Download PDF
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => initiatePaymentProcess()}
+                  colorScheme="yellow"
+                >
+                  Pay & Download PDF
+                </Button>
+              )}
             </>
           )}
         </Flex>

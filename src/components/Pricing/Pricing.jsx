@@ -66,7 +66,6 @@ export default function ThreeTierPricing() {
     return currentDate < subscriptionEndDate;
   };
   const isJobSeeker = () => userRole === "JobSeeker";
-  console.log(userRole);
   useEffect(() => {
     fetchRecruiterDetails(userId, token).then((recruiterDetails) => {
       if (recruiterDetails && recruiterDetails.subscriptionStartDate) {
