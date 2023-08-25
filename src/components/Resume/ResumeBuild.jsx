@@ -27,13 +27,9 @@ import { useMutation } from "react-query";
 
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
-  const [selectedSkills, setSelectedSkills] = useState([]);
-  const [displaySkillsLimit, setDisplaySkillsLimit] = useState(4);
   const [isPaymentSuccessful, setPaymentSuccessful] = useState(false);
-  const [displayMoreSkills, setDisplayMoreSkills] = useState(false);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [selectedSkillsValue, setSelectedSkillsValue] = useState(0);
   const toast = useToast();
   const resumePreviewRef = useRef(null);
   const { userId, token } = useUser();
@@ -48,25 +44,26 @@ export function ResumeBuild() {
     { label: "19 to 20", value: 7 },
     { label: "20 Plus", value: 8 },
   ];
-  const Skills = [
-    { name: "Communication", value: 1 << 0 },
-    { name: "Leadership", value: 1 << 1 },
-    { name: "Problem Solving", value: 1 << 2 },
-    { name: "Teamwork", value: 1 << 3 },
-    { name: "Creativity", value: 1 << 4 },
-    { name: "Technical Literacy", value: 1 << 5 },
-    { name: "Project Management", value: 1 << 6 },
-    { name: "Time Management", value: 1 << 7 },
-    { name: "Analytical Thinking", value: 1 << 8 },
-    { name: "Attention To Detail", value: 1 << 9 },
+  const resumePlans = [
+    { name: "Basic", price: "14.99", description: "Basic Resume Plan" },
+    { name: "Advanced", price: "29.99", description: "Advanced Resume Plan" },
+    {
+      name: "Pro",
+      price: "49.99",
+      description: "Pro Resume Plan",
+      isPopular: true,
+    },
   ];
-
-  const remainingSkills = Skills.length - displaySkillsLimit;
-
-  const handleAddSkill = (skillName) => {
-    const skill = Skills.find((s) => s.name === skillName);
-    const updatedSkillsValue = selectedSkillsValue ^ skill.value;
-    setSelectedSkillsValue(updatedSkillsValue);
+  const downloadPDF = () => {
+    const content = resumePreviewRef.current;
+    const opt = {
+      margin: 10,
+      filename: "resume.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().set(opt).from(content).save();
   };
 
   useEffect(() => {
@@ -140,7 +137,6 @@ export function ResumeBuild() {
       phoneNumber: "",
     },
     onSubmit: (values) => {
-      console.log(values);
       const experience = parseInt(values.experience, 10);
       const dataToSend = {
         experience,
@@ -148,7 +144,6 @@ export function ResumeBuild() {
         description: values.description,
         phoneNumber: values.phoneNumber,
       };
-
       mutation.mutate(dataToSend, {
         onSuccess: () => {
           setShowPreview(true);
@@ -160,6 +155,7 @@ export function ResumeBuild() {
       });
     },
   });
+
   useEffect(() => {
     fetchJobSeekerDetails(userId, token).then((details) => {
       if (details) {
@@ -170,49 +166,27 @@ export function ResumeBuild() {
       }
     });
   }, [userId, token]);
-  fetchJobSeekerDetails(userId, token).then((jobSeeker) => {
-    if (jobSeeker) {
-      const jobSeekerId = jobSeeker.id;
 
-      // Get the name and amount based on the selected plan
-      const selectedPlan = resumePlans.find((plan) => plan.name === "Basic"); // Adjust this based on user selection
-      const name = selectedPlan.name;
-      const amount = parseFloat(selectedPlan.price);
-
-      const paymentDto = {
-        jobSeekerId,
-        name,
-        amount,
-      };
-
-      initiatePaymentProcess(paymentDto);
+  const initiatePaymentProcess = (selectedPlan) => {
+    if (!selectedPlan) {
+      console.error("Selected plan must be provided.");
+      return;
     }
-  });
 
-  const resumePlans = [
-    { name: "Basic", price: "14.99", description: "Basic Resume Plan" },
-    { name: "Advanced", price: "29.99", description: "Advanced Resume Plan" },
-    {
-      name: "Pro",
-      price: "49.99",
-      description: "Pro Resume Plan",
-      isPopular: true,
-    },
-  ];
-  const downloadPDF = () => {
-    const content = resumePreviewRef.current;
-    const opt = {
-      margin: 10,
-      filename: "resume.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    const { name, price } = selectedPlan;
+    const jobSeekerId = userId;
+
+    const paymentDetails = {
+      jobSeekerId,
+      name,
+      amount: parseFloat(price),
     };
-    html2pdf().set(opt).from(content).save();
-  };
-  const initiatePaymentProcess = () => {
+
     axios
-      .post("https://localhost:7013/api/Payments/CreateResumeCheckoutSession")
+      .post(
+        "https://localhost:7013/api/Payments/CreateResumeCheckoutSession",
+        paymentDetails
+      )
       .then(async (response) => {
         toast({
           title: "Redirecting",
@@ -231,7 +205,6 @@ export function ResumeBuild() {
         console.error("An error occurred while processing the payment:", error);
       });
   };
-
   return (
     <>
       <Box
@@ -431,7 +404,12 @@ export function ResumeBuild() {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => initiatePaymentProcess()}
+                  onClick={() => {
+                    const selectedPlan = resumePlans.find(
+                      (plan) => plan.name === "Basic"
+                    );
+                    initiatePaymentProcess(selectedPlan);
+                  }}
                   colorScheme="yellow"
                 >
                   Pay & Download PDF
