@@ -170,6 +170,35 @@ export function ResumeBuild() {
       }
     });
   }, [userId, token]);
+  fetchJobSeekerDetails(userId, token).then((jobSeeker) => {
+    if (jobSeeker) {
+      const jobSeekerId = jobSeeker.id;
+
+      // Get the name and amount based on the selected plan
+      const selectedPlan = resumePlans.find((plan) => plan.name === "Basic"); // Adjust this based on user selection
+      const name = selectedPlan.name;
+      const amount = parseFloat(selectedPlan.price);
+
+      const paymentDto = {
+        jobSeekerId,
+        name,
+        amount,
+      };
+
+      initiatePaymentProcess(paymentDto);
+    }
+  });
+
+  const resumePlans = [
+    { name: "Basic", price: "14.99", description: "Basic Resume Plan" },
+    { name: "Advanced", price: "29.99", description: "Advanced Resume Plan" },
+    {
+      name: "Pro",
+      price: "49.99",
+      description: "Pro Resume Plan",
+      isPopular: true,
+    },
+  ];
   const downloadPDF = () => {
     const content = resumePreviewRef.current;
     const opt = {
