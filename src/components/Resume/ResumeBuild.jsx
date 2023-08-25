@@ -1,10 +1,8 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Spinner, useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import html2pdf from "html2pdf.js";
 import resumeImg from "../../images/resumecreate.png";
-import { FiCheck, FiChevronDown, FiChevronUp, FiPlus } from "react-icons/fi";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import { loadStripe } from "@stripe/stripe-js";
 import { Editor } from "@tinymce/tinymce-react";
@@ -24,14 +22,21 @@ import {
 } from "@chakra-ui/react";
 import useUser from "../../customhooks/useUser";
 import { useMutation } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { setContent, setLoading } from "../../reducers/resumeSlice";
 
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
-  const [isPaymentSuccessful, setPaymentSuccessful] = useState(false);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const toast = useToast();
+  const { content, download: triggerDownload } = useSelector(
+    (state) => state.resume
+  );
+
+  const dispatch = useDispatch();
   const resumePreviewRef = useRef(null);
+  const toast = useToast();
+
   const { userId, token } = useUser();
   const YearsOfExperienceOptions = [
     { label: "Less Than 1", value: 0 },
@@ -54,44 +59,47 @@ export function ResumeBuild() {
       isPopular: true,
     },
   ];
-  const downloadPDF = () => {
-    const content = resumePreviewRef.current;
-    const opt = {
-      margin: 10,
-      filename: "resume.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    };
-    html2pdf().set(opt).from(content).save();
-  };
-
   useEffect(() => {
-    axios
-      .get("https://localhost:7013/api/EducationLevels/GetAll")
-      .then((response) => {
+    const fetchEducationLevels = async () => {
+      try {
+        const response = await axios.get(
+          "https://localhost:7013/api/EducationLevels/GetAll"
+        );
         setEducationLevels(response.data);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching education levels:", error);
-      });
+      }
+    };
+
+    fetchEducationLevels();
   }, []);
 
-  const renderPreview = (values) => (
-    <Box>
-      <Heading>
-        {values.firstName} {values.lastName}
-      </Heading>
-      <Text>Email: {values.email}</Text>
-      <Text>Phone: {values.phoneNumber}</Text>
-      <Text>Experience: {values.experience} years</Text>
-      <Text>
-        Education:{" "}
-        {educationLevels.find((level) => level.id === values.education)?.name}
-      </Text>
-      <Text>Description: {values.description}</Text>
-    </Box>
-  );
+  const renderPreview = (values) => {
+    const educationName = educationLevels.find(
+      (level) => level.id === values.education
+    )?.name;
+
+    dispatch(setLoading(true));
+
+    const content = (
+      <div>
+        <h1>
+          {values.firstName} {values.lastName}
+        </h1>
+        <p>Email: {values.email}</p>
+        <p>Phone: {values.phoneNumber}</p>
+        <p>Experience: {values.experience} years</p>
+        <p>Education: {educationName}</p>
+        <p>Description: {values.description}</p>
+      </div>
+    );
+
+    console.log("Dispatching content:", content);
+    dispatch(setContent(content));
+    dispatch(setLoading(false));
+
+    return content;
+  };
 
   const mutation = useMutation(
     (values) => {
@@ -124,6 +132,7 @@ export function ResumeBuild() {
           status: "success",
           duration: 5000,
           isClosable: true,
+          position: "top-right",
         });
       },
     }
@@ -386,37 +395,15 @@ export function ResumeBuild() {
               Create Resume
             </Button>
           </form>
-          {showPreview && (
-            <>
-              <Box
-                ref={resumePreviewRef}
-                w="100%"
-                p={4}
-                borderWidth={1}
-                borderRadius="lg"
-              >
-                {renderPreview(formik.values)}
-              </Box>
-
-              {isPaymentSuccessful ? (
-                <Button onClick={downloadPDF} colorScheme="teal">
-                  Download PDF
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    const selectedPlan = resumePlans.find(
-                      (plan) => plan.name === "Basic"
-                    );
-                    initiatePaymentProcess(selectedPlan);
-                  }}
-                  colorScheme="yellow"
-                >
-                  Pay & Download PDF
-                </Button>
-              )}
-            </>
-          )}
+          <div
+            ref={resumePreviewRef}
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+          {resumePlans.map((plan, index) => (
+            <Button key={index} onClick={() => initiatePaymentProcess(plan)}>
+              Pay and Download {plan.name} for {plan.price}
+            </Button>
+          ))}
         </Flex>
       </VStack>
     </>

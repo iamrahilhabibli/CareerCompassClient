@@ -29,6 +29,7 @@ import ThreeTierPricing from "./components/Pricing/Pricing";
 import SuccessPayment from "./components/Pricing/SuccessPayment";
 import ErrorPayment from "./components/Pricing/ErrorPayment";
 import { ResumeBuild } from "./components/Resume/ResumeBuild";
+import { DownloadProvider } from "./components/DownloadContext/DownloadProvider";
 
 export function App() {
   const location = useLocation();
@@ -52,29 +53,31 @@ export function App() {
         </SidebarWithHeader>
       ) : (
         <Provider store={store}>
-          <Routes>
-            <Route path="/" element={<WelcomePage />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/companies" element={<Companies />} />
-            <Route path="/resumebuild/:userId" element={<ResumeBuild />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/companydetailform" element={<Multistep />} />
-            <Route path="/companydetails" element={<Details />} />
-            <Route path="/profile/:userId" element={<Profile />} />
-            <Route path="/search" element={<SearchResultCards />} />
-            <Route path="/forgotpassword" element={<ForgotPass />} />
-            <Route path="/passwordreset" element={<PasswordReset />} />
-            <Route path="/pricing" element={<ThreeTierPricing />} />
-            <Route path="/paymentsuccess" element={<SuccessPayment />} />
-            <Route path="/paymenterror" element={<ErrorPayment />} />
-            <Route path="/forbidden" element={<Forbidden />} />
-            <Route
-              path="/somethingwentwrong"
-              element={<SomethingWentWrong />}
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <DownloadProvider>
+            <Routes>
+              <Route path="/" element={<WelcomePage />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/companies" element={<Companies />} />
+              <Route path="/resumebuild/:userId" element={<ResumeBuild />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/signin" element={<Signin />} />
+              <Route path="/companydetailform" element={<Multistep />} />
+              <Route path="/companydetails" element={<Details />} />
+              <Route path="/profile/:userId" element={<Profile />} />
+              <Route path="/search" element={<SearchResultCards />} />
+              <Route path="/forgotpassword" element={<ForgotPass />} />
+              <Route path="/passwordreset" element={<PasswordReset />} />
+              <Route path="/pricing" element={<ThreeTierPricing />} />
+              <Route path="/paymentsuccess" element={<SuccessPayment />} />
+              <Route path="/paymenterror" element={<ErrorPayment />} />
+              <Route path="/forbidden" element={<Forbidden />} />
+              <Route
+                path="/somethingwentwrong"
+                element={<SomethingWentWrong />}
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </DownloadProvider>
         </Provider>
       )}
       {!useSpecialLayout && <Footer />}
