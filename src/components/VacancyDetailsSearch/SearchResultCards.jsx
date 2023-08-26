@@ -6,6 +6,7 @@ import {
   Select,
   Spinner,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { Divider } from "@chakra-ui/react";
 import { AttachmentIcon } from "@chakra-ui/icons";
@@ -40,10 +41,14 @@ import moment from "moment";
 import { useState } from "react";
 import styles from "./SearchRes.module.css";
 import { useSearchParams } from "react-router-dom";
+import useUser from "../../customhooks/useUser";
+import axios from "axios";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
   const [jobTypeFilter, setJobTypeFilter] = useState([]);
+  const { userId } = useUser();
+  const toast = useToast();
   const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -96,30 +101,62 @@ export function SearchResultCards({ searchResults }) {
       const formData = new FormData();
       formData.append("containerName", "resume");
       formData.append("files", cvFile);
+      formData.append("appUserId", userId);
 
       try {
-        const response = await fetch(
-          "https://localhost:7013/api/Files/Upload",
+        const response = await axios.post(
+          `https://localhost:7013/api/Files/Upload?appUserId=${userId}`,
+          formData,
           {
-            method: "POST",
-            body: formData,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           }
         );
 
-        if (response.ok) {
-          console.log("CV uploaded to Azure successfully");
+        if (response.status === 200) {
+          toast({
+            title: "Success.",
+            description: "CV uploaded successfully!",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
           setIsUploading(false);
           onModalClose();
         } else {
-          console.log("Error uploading to Azure");
+          toast({
+            title: "Error.",
+            description: "Error uploading.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top-right",
+          });
           setIsUploading(false);
         }
       } catch (error) {
-        console.log("Something went wrong:", error);
+        console.error("Something went wrong:", error);
+        toast({
+          title: "Error.",
+          description: `Something went wrong: ${error.message}`,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
         setIsUploading(false);
       }
     } else {
-      console.log("Please upload a CV");
+      toast({
+        title: "Warning.",
+        description: "Please upload a CV.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
     }
   };
 
