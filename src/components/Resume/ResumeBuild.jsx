@@ -217,6 +217,20 @@ export function ResumeBuild() {
         console.error("An error occurred while processing the payment:", error);
       });
   };
+  const defaultTemplate = `
+  <h2>Education:</h2>
+  <ul>
+    <li></li>
+  </ul>
+  <h2>Skills:</h2>
+  <ul>
+    <li></li>
+  </ul>
+  <h2>Interests:</h2>
+  <ul>
+    <li></li>
+  </ul>
+`;
   return (
     <>
       <Box
@@ -375,7 +389,7 @@ export function ResumeBuild() {
             </FormControl>
             <Editor
               apiKey="ampk5o36dpm7qqhr2h54evb0g8b4fqptomyoa5ntgpubk2h4"
-              value={formik.values.description}
+              value={formik.values.description || defaultTemplate}
               id="description"
               init={{
                 height: 300,

@@ -27,6 +27,7 @@ export default function SuccessPayment() {
       console.error("Content is null, undefined, or empty!");
       return;
     }
+
     const formattedContent = `
     <div style="font-family: Arial, sans-serif;">
       <h1>${contentToUse.firstName} ${contentToUse.lastName}</h1>

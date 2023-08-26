@@ -51,6 +51,8 @@ export function SearchResultCards({ searchResults }) {
   const locationId = searchParams.get("locationId");
   const navigate = useNavigate();
   const [cvFile, setCvFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isModalOpen,
@@ -90,28 +92,37 @@ export function SearchResultCards({ searchResults }) {
   };
   const handleApplication = async () => {
     if (cvFile) {
-      // Send the file to the backend (Azure Blob Storage)
+      setIsUploading(true);
       const formData = new FormData();
-      formData.append("file", cvFile);
+      formData.append("containerName", "resume");
+      formData.append("files", cvFile);
 
-      const response = await fetch("/api/cv", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const response = await fetch(
+          "https://localhost:7013/api/Files/Upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-      if (response.ok) {
-        // Proceed with the application
-        // Redirect or show success message
-        console.log("CV uploaded successfully");
-        onModalClose();
-      } else {
-        console.log("Error uploading CV");
+        if (response.ok) {
+          console.log("CV uploaded to Azure successfully");
+          setIsUploading(false);
+          onModalClose();
+        } else {
+          console.log("Error uploading to Azure");
+          setIsUploading(false);
+        }
+      } catch (error) {
+        console.log("Something went wrong:", error);
+        setIsUploading(false);
       }
     } else {
-      // Handle the case where CV is not provided (if it's required)
       console.log("Please upload a CV");
     }
   };
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
@@ -303,9 +314,10 @@ export function SearchResultCards({ searchResults }) {
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="blue" mr={3} onClick={handleApplication}>
               Confirm Application
             </Button>
+            {uploadError && <Text color="red.500">{uploadError}</Text>}
             <Button variant="outline" onClick={onModalClose}>
               Cancel
             </Button>
