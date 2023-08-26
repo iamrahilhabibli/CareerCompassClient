@@ -28,6 +28,7 @@ import { setContent, setLoading } from "../../reducers/resumeSlice";
 export function ResumeBuild() {
   const [educationLevels, setEducationLevels] = useState([]);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
+  const [localState, setLocalState] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const { content, download: triggerDownload } = useSelector(
     (state) => state.resume
@@ -74,31 +75,35 @@ export function ResumeBuild() {
     fetchEducationLevels();
   }, []);
 
+  useEffect(() => {
+    if (content && resumePreviewRef.current) {
+      resumePreviewRef.current.innerHTML = content;
+    }
+  }, [content]);
+
   const renderPreview = (values) => {
     const educationName = educationLevels.find(
       (level) => level.id === values.education
     )?.name;
 
-    dispatch(setLoading(true));
+    const contentData = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      phoneNumber: values.phoneNumber,
+      experience: values.experience,
+      education: educationName,
+      description: values.description,
+    };
 
-    const content = (
-      <div>
-        <h1>
-          {values.firstName} {values.lastName}
-        </h1>
-        <p>Email: {values.email}</p>
-        <p>Phone: {values.phoneNumber}</p>
-        <p>Experience: {values.experience} years</p>
-        <p>Education: {educationName}</p>
-        <p>Description: {values.description}</p>
-      </div>
-    );
+    console.log("Dispatching content:", contentData);
 
-    console.log("Dispatching content:", content);
-    dispatch(setContent(content));
-    dispatch(setLoading(false));
+    dispatch(setContent(contentData));
 
-    return content;
+    setLocalState(contentData);
+    localStorage.setItem("resumeContent", JSON.stringify(contentData));
+
+    console.log("Local State after dispatch:", localState);
   };
 
   const mutation = useMutation(
@@ -153,6 +158,7 @@ export function ResumeBuild() {
         description: values.description,
         phoneNumber: values.phoneNumber,
       };
+      renderPreview(values);
       mutation.mutate(dataToSend, {
         onSuccess: () => {
           setShowPreview(true);

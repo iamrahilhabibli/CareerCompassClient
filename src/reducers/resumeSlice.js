@@ -12,6 +12,7 @@ export const resumeSlice = createSlice({
 
   reducers: {
     setContent: (state, action) => {
+      console.log("Setting content:", action.payload);
       state.content = action.payload;
     },
     clearContent: (state) => {

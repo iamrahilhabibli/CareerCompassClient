@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Heading, Text, Spinner } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,10 +9,29 @@ export default function SuccessPayment() {
   const dispatch = useDispatch();
   const content = useSelector((state) => state.resume.content);
   const loading = useSelector((state) => state.resume.loading);
+  const [localContent, setLocalContent] = useState(null);
 
-  console.log("Redux Content:", content);
+  useEffect(() => {
+    if (!content) {
+      const localStoredContent = JSON.parse(
+        localStorage.getItem("resumeContent")
+      );
+      setLocalContent(localStoredContent);
+    }
+  }, [content]);
 
   const downloadResumeAsPDF = () => {
+    const contentToUse = content || localContent;
+
+    if (!contentToUse || JSON.stringify(contentToUse).trim() === "{}") {
+      console.error("Content is null, undefined, or empty!");
+      return;
+    }
+
+    const formattedContent = Object.keys(contentToUse)
+      .map((key) => `<p><strong>${key}:</strong> ${contentToUse[key]}</p>`)
+      .join("");
+
     const opt = {
       margin: 10,
       filename: "resume.pdf",
@@ -21,14 +40,14 @@ export default function SuccessPayment() {
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
 
-    if (content && content.trim() !== "") {
-      const contentElement = document.createElement("div");
-      contentElement.innerHTML = content;
-      html2pdf().set(opt).from(contentElement).save();
-      dispatch(setDownload(false));
-    } else {
-      console.log("Content is null, undefined, or empty!");
-    }
+    const contentElement = document.createElement("div");
+    contentElement.innerHTML = formattedContent;
+
+    html2pdf()
+      .set(opt)
+      .from(contentElement)
+      .save()
+      .catch((error) => console.error("PDF generation failed:", error));
   };
 
   return (
@@ -42,10 +61,16 @@ export default function SuccessPayment() {
             Congratulations, Payment Successful!
           </Heading>
           <Text color={"gray.500"} fontSize={"lg"}>
-            Thank you for your purchase! Your payment has been processed
-            successfully. You will receive an email confirmation shortly.
+            Thank you for your purchase!
           </Text>
-          <div dangerouslySetInnerHTML={{ __html: content }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html:
+                content || localContent
+                  ? content || localContent.description
+                  : "Loading content...",
+            }}
+          />
           <Button onClick={downloadResumeAsPDF} colorScheme="blue" mt={6}>
             Download Resume
           </Button>
