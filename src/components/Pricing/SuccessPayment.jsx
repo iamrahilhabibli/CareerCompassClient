@@ -27,10 +27,19 @@ export default function SuccessPayment() {
       console.error("Content is null, undefined, or empty!");
       return;
     }
-
-    const formattedContent = Object.keys(contentToUse)
-      .map((key) => `<p><strong>${key}:</strong> ${contentToUse[key]}</p>`)
-      .join("");
+    const formattedContent = `
+    <div style="font-family: Arial, sans-serif;">
+      <h1>${contentToUse.firstName} ${contentToUse.lastName}</h1>
+      <hr/>
+      <div style="display: flex; justify-content: space-between;">
+        <p><strong>Email:</strong> ${contentToUse.email}</p>
+        <p><strong>Phone:</strong> ${contentToUse.phoneNumber}</p>
+      </div>
+      <h2>Experience: ${contentToUse.experience} years</h2>
+      <h2>Education: ${contentToUse.education}</h2>
+      <div>${contentToUse.description}</div>
+    </div>
+  `;
 
     const opt = {
       margin: 10,
@@ -63,14 +72,6 @@ export default function SuccessPayment() {
           <Text color={"gray.500"} fontSize={"lg"}>
             Thank you for your purchase!
           </Text>
-          <div
-            dangerouslySetInnerHTML={{
-              __html:
-                content || localContent
-                  ? content || localContent.description
-                  : "Loading content...",
-            }}
-          />
           <Button onClick={downloadResumeAsPDF} colorScheme="blue" mt={6}>
             Download Resume
           </Button>

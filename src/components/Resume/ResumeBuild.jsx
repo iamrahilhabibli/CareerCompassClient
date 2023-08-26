@@ -30,6 +30,7 @@ export function ResumeBuild() {
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [localState, setLocalState] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [resumeCreated, setResumeCreated] = useState(false);
   const { content, download: triggerDownload } = useSelector(
     (state) => state.resume
   );
@@ -37,7 +38,9 @@ export function ResumeBuild() {
   const dispatch = useDispatch();
   const resumePreviewRef = useRef(null);
   const toast = useToast();
-
+  const handleCreateResume = () => {
+    setResumeCreated(true);
+  };
   const { userId, token } = useUser();
   const YearsOfExperienceOptions = [
     { label: "Less Than 1", value: 0 },
@@ -95,15 +98,9 @@ export function ResumeBuild() {
       education: educationName,
       description: values.description,
     };
-
-    console.log("Dispatching content:", contentData);
-
     dispatch(setContent(contentData));
-
     setLocalState(contentData);
     localStorage.setItem("resumeContent", JSON.stringify(contentData));
-
-    console.log("Local State after dispatch:", localState);
   };
 
   const mutation = useMutation(
@@ -397,19 +394,18 @@ export function ResumeBuild() {
               colorScheme="blue"
               isLoading={mutation.isLoading}
               leftIcon={mutation.isLoading ? <Spinner /> : null}
+              onClick={handleCreateResume}
             >
               Create Resume
             </Button>
           </form>
-          <div
-            ref={resumePreviewRef}
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
-          {resumePlans.map((plan, index) => (
-            <Button key={index} onClick={() => initiatePaymentProcess(plan)}>
-              Pay and Download {plan.name} for {plan.price}
-            </Button>
-          ))}
+
+          {resumeCreated &&
+            resumePlans.map((plan, index) => (
+              <Button key={index} onClick={() => initiatePaymentProcess(plan)}>
+                Pay and Download {plan.name} for {plan.price}
+              </Button>
+            ))}
         </Flex>
       </VStack>
     </>
