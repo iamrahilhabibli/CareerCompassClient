@@ -7,9 +7,21 @@ import {
   AlertDialogOverlay,
   Button,
 } from "@chakra-ui/react";
+import axios from "axios";
 import React from "react";
-export function AcceptApplicantAlert({ isOpen, onClose }) {
+export function AcceptApplicantAlert({ isOpen, onClose, id }) {
   const cancelRef = React.useRef();
+  const updateApplicationStatus = async (id, status) => {
+    await axios.put(`https://localhost:7013/api/JobApplications/UpdateStatus`, {
+      id,
+      newStatus: status,
+    });
+  };
+
+  function handleAccept() {
+    updateApplicationStatus(id, 2);
+    onClose();
+  }
 
   return (
     <AlertDialog
@@ -31,7 +43,7 @@ export function AcceptApplicantAlert({ isOpen, onClose }) {
             <Button ref={cancelRef} onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="green" onClick={onClose} ml={3}>
+            <Button colorScheme="green" onClick={handleAccept} ml={3}>
               Accept
             </Button>
           </AlertDialogFooter>

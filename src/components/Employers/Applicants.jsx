@@ -35,8 +35,6 @@ import { RejectApplicantAlert } from "../AlertDialog/RejectApplicantAlert";
 export function Applicants() {
   const { userId } = useUser();
   const [isUserIdFetched, setIsUserIdFetched] = useState(false);
-  const [selectedApplicantId, setSelectedApplicantId] = useState(null);
-
   const {
     isOpen: isOpenCheck,
     onOpen: onOpenCheck,
@@ -69,6 +67,17 @@ export function Applicants() {
       enabled: isUserIdFetched,
     }
   );
+  const updateApplicationStatus = async (applicationId, newStatus) => {
+    try {
+      await axios.put(
+        `https://localhost:7013/api/JobApplications/UpdateStatus?applicationId=${applicationId}&newStatus=${newStatus}`
+      );
+      console.log("Status updated successfully");
+      // You may also want to refresh your list of applicants here
+    } catch (error) {
+      console.log("An error occurred while updating the status", error);
+    }
+  };
 
   return (
     <Box
@@ -161,6 +170,7 @@ export function Applicants() {
                         <AcceptApplicantAlert
                           isOpen={isOpenCheck}
                           onClose={onCloseCheck}
+                          applicationId={applicant.id}
                         />
 
                         <IoCloseSharp
@@ -172,6 +182,7 @@ export function Applicants() {
                         <RejectApplicantAlert
                           isOpen={isOpenClose}
                           onClose={onCloseClose}
+                          applicationId={applicant.id}
                         />
                       </Flex>
                     </Td>
