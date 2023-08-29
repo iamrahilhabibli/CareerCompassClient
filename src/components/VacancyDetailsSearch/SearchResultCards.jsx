@@ -8,7 +8,10 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
+import { HubConnectionBuilder } from "@microsoft/signalr";
+import * as signalR from "@microsoft/signalr";
 import { Divider } from "@chakra-ui/react";
+import { updateApplicationCount } from "../../reducers/jobVacancySlice";
 import { AttachmentIcon } from "@chakra-ui/icons";
 import {
   Drawer,
@@ -45,6 +48,7 @@ import useUser from "../../customhooks/useUser";
 import axios from "axios";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
@@ -67,7 +71,7 @@ export function SearchResultCards({ searchResults }) {
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
-
+  const dispatch = useDispatch();
   const {
     data: vacancies,
     isLoading,
@@ -108,6 +112,41 @@ export function SearchResultCards({ searchResults }) {
   const handleFileChange = (e) => {
     setCvFile(e.target.files[0]);
   };
+  const [applicationLimit, setApplicationLimit] = useState(0);
+  const [currentApplicationCount, setCurrentApplicationCount] = useState(0);
+
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7013/application")
+      .build();
+
+    const start = async () => {
+      try {
+        await connection.start();
+        console.log("SignalR Connected");
+      } catch (err) {
+        console.log(err);
+        setTimeout(() => start(), 5000);
+      }
+    };
+    connection.on("ReceiveApplicationUpdate", (updatedCount) => {
+      console.log("Updated count received:", updatedCount);
+      setCurrentApplicationCount(updatedCount);
+      dispatch(updateApplicationCount(updatedCount));
+    });
+    start();
+    return () => {
+      connection.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedVacancy) {
+      setApplicationLimit(selectedVacancy.applicationLimit);
+      setCurrentApplicationCount(selectedVacancy.currentApplicationCount);
+      dispatch(updateApplicationCount(selectedVacancy.currentApplicationCount));
+    }
+  }, [selectedVacancy]);
   const handleApplication = async () => {
     if (cvFile) {
       setIsUploading(true);
@@ -326,9 +365,14 @@ export function SearchResultCards({ searchResults }) {
                 variant={"outline"}
                 mr={3}
                 onClick={onModalOpen}
+                isDisabled={currentApplicationCount >= applicationLimit}
               >
                 Apply
               </Button>
+              <Text>
+                Current Application Count: {currentApplicationCount}
+                Application Limit: {applicationLimit}
+              </Text>
               <Button variant="outline" mr={3} onClick={onClose}>
                 Close
               </Button>
@@ -372,7 +416,6 @@ export function SearchResultCards({ searchResults }) {
             <Button colorScheme="blue" mr={3} onClick={handleApplication}>
               Confirm Application
             </Button>
-            {uploadError && <Text color="red.500">{uploadError}</Text>}
             <Button variant="outline" onClick={onModalClose}>
               Cancel
             </Button>
