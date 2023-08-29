@@ -3,6 +3,14 @@ import {
   Button,
   Flex,
   Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Spinner,
   Table,
   TableCaption,
   TableContainer,
@@ -12,8 +20,9 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { IoCheckmarkSharp, IoCloseSharp } from "react-icons/io5";
 import { FaDownload } from "react-icons/fa";
 import applicantPicture from "../../images/applicants.png";
@@ -22,7 +31,23 @@ import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
 export function Applicants() {
   const { userId } = useUser();
-  console.log(userId);
+  const [isUserIdFetched, setIsUserIdFetched] = useState(false);
+  const {
+    isOpen: isOpenCheck,
+    onOpen: onOpenCheck,
+    onClose: onCloseCheck,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenClose,
+    onOpen: onOpenClose,
+    onClose: onCloseClose,
+  } = useDisclosure();
+
+  useEffect(() => {
+    if (userId) {
+      setIsUserIdFetched(true);
+    }
+  }, [userId]);
   const {
     data: applicants,
     isLoading,
@@ -30,20 +55,15 @@ export function Applicants() {
   } = useQuery(
     ["applicants", userId],
     async () => {
-      try {
-        const response = await axios.get(
-          `https://localhost:7013/api/JobApplications/GetApplicants?appUserId=${userId}`
-        );
-        return response.data;
-      } catch (error) {
-        throw new Error("An error occurred while fetching applicants.");
-      }
+      const response = await axios.get(
+        `https://localhost:7013/api/JobApplications/GetApplicants?appUserId=${userId}`
+      );
+      return response.data;
     },
     {
-      enabled: Boolean(userId), // Only fetch data if userId exists
+      enabled: isUserIdFetched,
     }
   );
-
   return (
     <Box
       rounded={"lg"}
@@ -94,14 +114,23 @@ export function Applicants() {
             <Tbody>
               {isLoading ? (
                 <Tr>
-                  <Td colSpan="6">Loading...</Td>
+                  <Td colSpan="6">
+                    <Flex
+                      justify="center"
+                      align="center"
+                      height="100px"
+                      width="100%"
+                    >
+                      <Spinner />
+                    </Flex>
+                  </Td>
                 </Tr>
               ) : isError ? (
                 <Tr>
                   <Td colSpan="6">An error occurred</Td>
                 </Tr>
               ) : (
-                applicants.map((applicant, index) => (
+                applicants?.map((applicant, index) => (
                   <Tr key={index}>
                     <Td isNumeric>{index + 1}</Td>
                     <Td>{applicant.firstName}</Td>
@@ -121,12 +150,58 @@ export function Applicants() {
                           color="green"
                           size={"24px"}
                           style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={onOpenCheck}
                         />
+                        <Modal isOpen={isOpenCheck} onClose={onCloseCheck}>
+                          <ModalOverlay
+                            style={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
+                          />
+
+                          <ModalContent>
+                            <ModalHeader>Accept Applicant</ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                              Are you sure you want to accept this applicant?
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button
+                                colorScheme="blue"
+                                mr={3}
+                                onClick={onCloseCheck}
+                              >
+                                Close
+                              </Button>
+                              <Button variant="ghost">Accept</Button>
+                            </ModalFooter>
+                          </ModalContent>
+                        </Modal>
+
                         <IoCloseSharp
                           size={"24px"}
                           color="red"
                           style={{ cursor: "pointer" }}
+                          onClick={onOpenClose}
                         />
+                        <Modal isOpen={isOpenClose} onClose={onCloseClose}>
+                          <ModalOverlay />
+                          <ModalContent>
+                            <ModalHeader>Reject Applicant</ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                              Are you sure you want to reject this applicant?
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button
+                                colorScheme="blue"
+                                mr={3}
+                                onClick={onCloseClose}
+                              >
+                                Close
+                              </Button>
+                              <Button variant="ghost">Reject</Button>
+                            </ModalFooter>
+                          </ModalContent>
+                        </Modal>
                       </Flex>
                     </Td>
                   </Tr>
