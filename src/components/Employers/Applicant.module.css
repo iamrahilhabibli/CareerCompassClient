@@ -1,0 +1,4 @@
+.customOverlay {
+  background-color: rgba(0, 0, 0, 0.054) !important;
+  z-index: 1000 !important;
+}
