@@ -3,6 +3,7 @@ import WithSpeechBubbles from "../Testimonials/Testimonials";
 import { Box, Heading } from "@chakra-ui/react";
 import Slider from "react-slick";
 import styles from "../../Home.module.css";
+import useUser from "../../customhooks/useUser";
 export function WelcomePage() {
   const settings = {
     dots: true,

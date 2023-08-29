@@ -31,7 +31,6 @@ import ErrorPayment from "./components/Pricing/ErrorPayment";
 import { ResumeBuild } from "./components/Resume/ResumeBuild";
 import { DownloadProvider } from "./components/DownloadContext/DownloadProvider";
 import { Applicants } from "./components/Employers/Applicants";
-
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [

@@ -13,33 +13,36 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { IoCheckmarkSharp, IoCloseSharp } from "react-icons/io5";
+import { FaDownload } from "react-icons/fa";
 import applicantPicture from "../../images/applicants.png";
-import useUser from "../../customhooks/useUser";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
-
+import useUser from "../../customhooks/useUser";
 export function Applicants() {
   const { userId } = useUser();
+  console.log(userId);
   const {
     data: applicants,
     isLoading,
     isError,
   } = useQuery(
     ["applicants", userId],
-    () =>
-      axios
-        .get(
+    async () => {
+      try {
+        const response = await axios.get(
           `https://localhost:7013/api/JobApplications/GetApplicants?appUserId=${userId}`
-        )
-        .then((res) => res.data),
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error("An error occurred while fetching applicants.");
+      }
+    },
     {
-      enabled: Boolean(userId),
+      enabled: Boolean(userId), // Only fetch data if userId exists
     }
   );
-  console.log(applicants);
 
   return (
     <Box
@@ -106,7 +109,10 @@ export function Applicants() {
                     <Td>{applicant.jobTitle}</Td>
                     <Td>
                       <a href={applicant.Resume} download>
-                        <button>Download Resume</button>
+                        <FaDownload
+                          size={"24px"}
+                          style={{ cursor: "pointer" }}
+                        />
                       </a>
                     </Td>
                     <Td>

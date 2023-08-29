@@ -36,6 +36,7 @@ const useUser = () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwt_decode(token);
+      console.log(decodedToken);
       const current_time = new Date().getTime() / 1000;
 
       if (decodedToken.exp < current_time) {
