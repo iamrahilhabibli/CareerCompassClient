@@ -30,6 +30,7 @@ import SuccessPayment from "./components/Pricing/SuccessPayment";
 import ErrorPayment from "./components/Pricing/ErrorPayment";
 import { ResumeBuild } from "./components/Resume/ResumeBuild";
 import { DownloadProvider } from "./components/DownloadContext/DownloadProvider";
+import { Applicants } from "./components/Employers/Applicants";
 
 export function App() {
   const location = useLocation();
@@ -37,6 +38,7 @@ export function App() {
     "/employerscareercompass",
     "/postjob",
     "/vacancieslist",
+    "/applicants",
   ];
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
 
@@ -49,6 +51,7 @@ export function App() {
             <Route path="/employerscareercompass" element={<Employers />} />
             <Route path="/postjob" element={<JobMultistep />} />
             <Route path="/vacancieslist" element={<PostedJobs />} />
+            <Route path="/applicants" element={<Applicants />} />
           </Routes>
         </SidebarWithHeader>
       ) : (

@@ -8,7 +8,6 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { HubConnectionBuilder } from "@microsoft/signalr";
 import * as signalR from "@microsoft/signalr";
 import { Divider } from "@chakra-ui/react";
 import { updateApplicationCount } from "../../reducers/jobVacancySlice";
@@ -41,7 +40,7 @@ import { Link as ChakraLink } from "@chakra-ui/react";
 import { useVacancies } from "../../services/getVacancies";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import moment from "moment";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import styles from "./SearchRes.module.css";
 import { useSearchParams } from "react-router-dom";
 import useUser from "../../customhooks/useUser";
@@ -55,6 +54,8 @@ export function SearchResultCards({ searchResults }) {
   const [jobTypeFilter, setJobTypeFilter] = useState([]);
   const [jobSeekerId, setJobSeekerId] = useState(null);
   const { userId, token } = useUser();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
   const toast = useToast();
   const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
@@ -64,7 +65,6 @@ export function SearchResultCards({ searchResults }) {
   const navigate = useNavigate();
   const [cvFile, setCvFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isModalOpen,
@@ -87,6 +87,12 @@ export function SearchResultCards({ searchResults }) {
     };
     fetchData();
   }, [userId, token]);
+  const pageCount = Math.ceil(vacancies?.length / itemsPerPage);
+
+  const displayedVacancies = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return vacancies?.slice(startIndex, startIndex + itemsPerPage);
+  }, [currentPage, vacancies]);
 
   const filterByDate = (result) => {
     if (!dateFilter) return true;
@@ -130,7 +136,6 @@ export function SearchResultCards({ searchResults }) {
       }
     };
     connection.on("ReceiveApplicationUpdate", (updatedCount) => {
-      console.log("Updated count received:", updatedCount);
       setCurrentApplicationCount(updatedCount);
       dispatch(updateApplicationCount(updatedCount));
     });
@@ -241,7 +246,7 @@ export function SearchResultCards({ searchResults }) {
       </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
         <Box display="flex" flexWrap="wrap" justifyContent="space-around">
-          {vacancies?.map((result) => (
+          {displayedVacancies?.map((result) => (
             <Box
               className={styles.Container}
               key={result.id}
@@ -316,6 +321,21 @@ export function SearchResultCards({ searchResults }) {
             </Box>
           ))}
         </Box>
+      </Flex>
+      <Flex justifyContent="center" mt={4}>
+        <Button onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}>
+          Previous
+        </Button>
+        <Text mx={4}>
+          Page {currentPage} of {pageCount}
+        </Text>
+        <Button
+          onClick={() =>
+            setCurrentPage((page) => Math.min(page + 1, pageCount))
+          }
+        >
+          Next
+        </Button>
       </Flex>
 
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
