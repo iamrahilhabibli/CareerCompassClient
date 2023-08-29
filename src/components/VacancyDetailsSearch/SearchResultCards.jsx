@@ -43,11 +43,14 @@ import styles from "./SearchRes.module.css";
 import { useSearchParams } from "react-router-dom";
 import useUser from "../../customhooks/useUser";
 import axios from "axios";
+import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
+import { useEffect } from "react";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
   const [jobTypeFilter, setJobTypeFilter] = useState([]);
-  const { userId } = useUser();
+  const [jobSeekerId, setJobSeekerId] = useState(null);
+  const { userId, token } = useUser();
   const toast = useToast();
   const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
@@ -70,6 +73,16 @@ export function SearchResultCards({ searchResults }) {
     isLoading,
     isError,
   } = useVacancies(jobTitle, locationId);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const jobSeekerDetails = await fetchJobSeekerDetails(userId, token);
+      if (jobSeekerDetails) {
+        setJobSeekerId(jobSeekerDetails.id);
+      }
+    };
+    fetchData();
+  }, [userId, token]);
 
   const filterByDate = (result) => {
     if (!dateFilter) return true;
@@ -115,9 +128,13 @@ export function SearchResultCards({ searchResults }) {
         );
 
         if (response.status === 200) {
+          await axios.post(`https://localhost:7013/api/JobApplications/Post`, {
+            vacancyId: selectedVacancy.id,
+            jobSeekerId: jobSeekerId,
+          });
           toast({
             title: "Success.",
-            description: "CV uploaded successfully!",
+            description: "You have successfully applied for this position!",
             status: "success",
             duration: 5000,
             isClosable: true,
@@ -274,6 +291,7 @@ export function SearchResultCards({ searchResults }) {
               <Text fontSize="16px" color="gray.500" fontWeight={300}>
                 {selectedVacancy?.locationName}
               </Text>
+              <Text>{selectedVacancy?.id}</Text>
               <Divider my={3} />
               <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
                 ${selectedVacancy?.salary}
