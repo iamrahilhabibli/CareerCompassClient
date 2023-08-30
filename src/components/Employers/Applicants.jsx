@@ -32,10 +32,30 @@ import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
 import { AcceptApplicantAlert } from "../AlertDialog/AcceptApplicantAlert";
 import { RejectApplicantAlert } from "../AlertDialog/RejectApplicantAlert";
+import { useDispatch, useSelector } from "react-redux";
 export function Applicants() {
   const { userId } = useUser();
   const [isUserIdFetched, setIsUserIdFetched] = useState(false);
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const dispatch = useDispatch();
+  const {
+    applicants: reduxApplicants,
+    status,
+    error,
+  } = useSelector((state) => state.applicant);
+
+  const mapEnumToString = (status) => {
+    switch (status) {
+      case 0:
+        return "Rejected";
+      case 1:
+        return "Pending";
+      case 2:
+        return "Accepted";
+      default:
+        return "Unknown";
+    }
+  };
 
   const {
     isOpen: isOpenCheck,
@@ -57,6 +77,7 @@ export function Applicants() {
     data: applicants,
     isLoading,
     isError,
+    refetch,
   } = useQuery(
     ["applicants", userId],
     async () => {
@@ -69,7 +90,6 @@ export function Applicants() {
       enabled: isUserIdFetched,
     }
   );
-  console.log(applicants);
 
   return (
     <Box
@@ -153,43 +173,44 @@ export function Applicants() {
                     </Td>
                     <Td>
                       <Flex>
-                        <IoCheckmarkSharp
-                          color="green"
-                          size={"24px"}
-                          style={{ cursor: "pointer", marginRight: "10px" }}
-                          onClick={() => {
-                            setSelectedApplicationId(applicant.applicationid);
-                            onOpenCheck();
-                          }}
-                        />
-
-                        <AcceptApplicantAlert
-                          isOpen={isOpenCheck}
-                          onClose={() => {
-                            setSelectedApplicationId(null);
-                            onCloseCheck();
-                          }}
-                          applicationId={selectedApplicationId}
-                        />
-
-                        <IoCloseSharp
-                          size={"24px"}
-                          color="red"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            setSelectedApplicationId(applicant.applicationid);
-                            onOpenClose();
-                          }}
-                        />
-
-                        <RejectApplicantAlert
-                          isOpen={isOpenClose}
-                          onClose={() => {
-                            setSelectedApplicationId(null);
-                            onCloseClose();
-                          }}
-                          applicationId={selectedApplicationId}
-                        />
+                        {applicant.status === 1 ? (
+                          <>
+                            <IoCheckmarkSharp
+                              color="green"
+                              size={"24px"}
+                              style={{ cursor: "pointer", marginRight: "10px" }}
+                              onClick={() => {
+                                setSelectedApplicationId(
+                                  applicant.applicationid
+                                );
+                                onOpenCheck();
+                              }}
+                            />
+                            <AcceptApplicantAlert
+                              isOpen={isOpenCheck}
+                              onClose={onCloseCheck}
+                              applicationId={selectedApplicationId}
+                            />
+                            <IoCloseSharp
+                              size={"24px"}
+                              color="red"
+                              style={{ cursor: "pointer" }}
+                              onClick={() => {
+                                setSelectedApplicationId(
+                                  applicant.applicationid
+                                );
+                                onOpenClose();
+                              }}
+                            />
+                            <RejectApplicantAlert
+                              isOpen={isOpenClose}
+                              onClose={onCloseClose}
+                              applicationId={selectedApplicationId}
+                            />
+                          </>
+                        ) : (
+                          <span>{mapEnumToString(applicant.status)}</span>
+                        )}
                       </Flex>
                     </Td>
                   </Tr>

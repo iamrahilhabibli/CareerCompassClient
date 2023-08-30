@@ -42,19 +42,19 @@ export function App() {
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
 
   return (
-    <>
-      {!useSpecialLayout && <Navbar />}
-      {useSpecialLayout ? (
-        <SidebarWithHeader>
-          <Routes>
-            <Route path="/employerscareercompass" element={<Employers />} />
-            <Route path="/postjob" element={<JobMultistep />} />
-            <Route path="/vacancieslist" element={<PostedJobs />} />
-            <Route path="/applicants" element={<Applicants />} />
-          </Routes>
-        </SidebarWithHeader>
-      ) : (
-        <Provider store={store}>
+    <Provider store={store}>
+      <>
+        {!useSpecialLayout && <Navbar />}
+        {useSpecialLayout ? (
+          <SidebarWithHeader>
+            <Routes>
+              <Route path="/employerscareercompass" element={<Employers />} />
+              <Route path="/postjob" element={<JobMultistep />} />
+              <Route path="/vacancieslist" element={<PostedJobs />} />
+              <Route path="/applicants" element={<Applicants />} />
+            </Routes>
+          </SidebarWithHeader>
+        ) : (
           <DownloadProvider>
             <Routes>
               <Route path="/" element={<WelcomePage />} />
@@ -80,9 +80,9 @@ export function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </DownloadProvider>
-        </Provider>
-      )}
-      {!useSpecialLayout && <Footer />}
-    </>
+        )}
+        {!useSpecialLayout && <Footer />}
+      </>
+    </Provider>
   );
 }

@@ -6,11 +6,13 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React from "react";
 export function RejectApplicantAlert({ isOpen, onClose, applicationId }) {
   const cancelRef = React.useRef();
+  const toast = useToast();
   const updateApplicationStatus = async (applicationId, status) => {
     await axios.put(`https://localhost:7013/api/JobApplications/UpdateStatus`, {
       applicationId,
