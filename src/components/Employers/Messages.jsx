@@ -126,6 +126,7 @@ export function Messages() {
             </Heading>
           </Flex>
         </Box>
+
         <Box my={4} />
 
         <Box
@@ -139,39 +140,48 @@ export function Messages() {
           bgPosition="right"
           shadow="1px 1px 3px rgba(0,0,0,0.3)"
         >
-          {approvedApplicants?.map((applicant) => (
-            <Flex
-              key={applicant.id}
-              p={3}
-              cursor="pointer"
-              borderWidth="1px"
-              borderRadius="md"
-              justifyContent="space-between"
-              onClick={() => openChatWithApplicant(applicant)}
-            >
-              <Flex alignItems="center">
-                <Avatar
-                  src={applicant.avatar || "https://via.placeholder.com/40"}
-                  size="sm"
-                />
-                <Box ml={4}>
-                  <Text fontWeight="bold">{`${applicant.firstName} ${applicant.lastName}`}</Text>
-                  <Text fontSize="sm">Click to chat</Text>
-                </Box>
-              </Flex>
-              <Button
-                colorScheme="red"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
+          {approvedApplicants?.length > 0 ? (
+            approvedApplicants.map((applicant) => (
+              <Flex
+                key={applicant.id}
+                p={3}
+                cursor="pointer"
+                borderWidth="1px"
+                borderRadius="md"
+                justifyContent="space-between"
+                onClick={() => openChatWithApplicant(applicant)}
               >
-                Delete
-              </Button>
+                <Flex alignItems="center">
+                  <Avatar
+                    src={applicant.avatar || "https://via.placeholder.com/40"}
+                    size="sm"
+                  />
+                  <Box ml={4}>
+                    <Text fontWeight="bold">{`${applicant.firstName} ${applicant.lastName}`}</Text>
+                    <Text fontSize="sm">Click to chat</Text>
+                  </Box>
+                </Flex>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  Delete
+                </Button>
+              </Flex>
+            ))
+          ) : (
+            <Flex justifyContent="center" alignItems="center" height="100%">
+              <Text fontSize="md" color="gray.500">
+                No messages available
+              </Text>
             </Flex>
-          ))}
+          )}
         </Box>
       </Box>
+
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent width="600px">
@@ -186,8 +196,8 @@ export function Messages() {
               flex="1"
               bg="gray.100"
               border="1px"
-              maxHeight="600px" // Increasing the height here
-              overflowY="auto" // Adding scroll
+              maxHeight="600px"
+              overflowY="auto"
             >
               {messages.map((message, index) => (
                 <Flex

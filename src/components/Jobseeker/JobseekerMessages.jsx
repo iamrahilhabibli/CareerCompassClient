@@ -136,39 +136,48 @@ export function JobseekerMessages() {
           bgPosition="right"
           shadow="1px 1px 3px rgba(0,0,0,0.3)"
         >
-          {jobseekerContacts?.map((contact) => (
-            <Flex
-              key={contact.id}
-              p={3}
-              cursor="pointer"
-              borderWidth="1px"
-              borderRadius="md"
-              justifyContent="space-between"
-              onClick={() => openChatWithContact(contact)}
-            >
-              <Flex alignItems="center">
-                <Avatar
-                  src={contact.avatar || "https://via.placeholder.com/40"}
-                  size="sm"
-                />
-                <Box ml={4}>
-                  <Text fontWeight="bold">{`${contact.firstName} ${contact.lastName}`}</Text>
-                  <Text fontSize="sm">Click to chat</Text>
-                </Box>
-              </Flex>
-              <Button
-                colorScheme="red"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
+          {jobseekerContacts?.length > 0 ? (
+            jobseekerContacts.map((contact) => (
+              <Flex
+                key={contact.id}
+                p={3}
+                cursor="pointer"
+                borderWidth="1px"
+                borderRadius="md"
+                justifyContent="space-between"
+                onClick={() => openChatWithContact(contact)}
               >
-                Delete
-              </Button>
+                <Flex alignItems="center">
+                  <Avatar
+                    src={contact.avatar || "https://via.placeholder.com/40"}
+                    size="sm"
+                  />
+                  <Box ml={4}>
+                    <Text fontWeight="bold">{`${contact.firstName} ${contact.lastName}`}</Text>
+                    <Text fontSize="sm">Click to chat</Text>
+                  </Box>
+                </Flex>
+                <Button
+                  colorScheme="red"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  Delete
+                </Button>
+              </Flex>
+            ))
+          ) : (
+            <Flex justifyContent="center" alignItems="center" height="100%">
+              <Text fontSize="md" color="gray.500">
+                No chats available
+              </Text>
             </Flex>
-          ))}
+          )}
         </Box>
       </Box>
+
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent width="600px">
