@@ -31,6 +31,7 @@ import ErrorPayment from "./components/Pricing/ErrorPayment";
 import { ResumeBuild } from "./components/Resume/ResumeBuild";
 import { DownloadProvider } from "./components/DownloadContext/DownloadProvider";
 import { Applicants } from "./components/Employers/Applicants";
+import { Messages } from "./components/Employers/Messages";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -38,6 +39,7 @@ export function App() {
     "/postjob",
     "/vacancieslist",
     "/applicants",
+    "/messages",
   ];
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
 
@@ -52,6 +54,7 @@ export function App() {
               <Route path="/postjob" element={<JobMultistep />} />
               <Route path="/vacancieslist" element={<PostedJobs />} />
               <Route path="/applicants" element={<Applicants />} />
+              <Route path="/messages" element={<Messages />} />
             </Routes>
           </SidebarWithHeader>
         ) : (
