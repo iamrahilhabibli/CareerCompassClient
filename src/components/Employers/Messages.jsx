@@ -22,17 +22,20 @@ import {
 
 import React, { useEffect, useState } from "react";
 import inboxImg from "../../images/inbox.png";
-import { MessageBox } from "react-chat-elements";
 import axios from "axios";
 import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl("https://localhost:7013/chat")
+  .configureLogging(signalR.LogLevel.Debug)
+  .build();
 export function Messages() {
   const toast = useToast();
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [messages, setMessages] = useState([]);
-
+  const [inputMessage, setInputMessage] = useState("");
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedApplicants/${userId}`
@@ -49,28 +52,42 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7013/chat")
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
+  console.log(approvedApplicants);
   useEffect(() => {
     connection
       .start()
       .then(() => {
         console.log("Connected to SignalR Hub");
 
-        connection.on("ReceiveMessage", (user, message) => {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: user, text: message },
-          ]);
+        connection.on("ReceiveMessage", (senderId, recipientId, message) => {
+          if (
+            (senderId === userId && recipientId === currentApplicant.id) ||
+            (senderId === currentApplicant.id && recipientId === userId)
+          ) {
+            setMessages((prevMessages) => [
+              ...prevMessages,
+              { sender: senderId, text: message },
+            ]);
+          }
         });
       })
       .catch((err) =>
         console.log("Error while establishing the connection :(", err)
       );
-  }, []);
+
+    return () => {
+      connection.stop();
+    };
+  }, [userId, currentApplicant]);
+
+  const handleSendMessage = () => {
+    if (inputMessage && currentApplicant) {
+      connection
+        .invoke("SendMessage", userId, currentApplicant.id, inputMessage)
+        .catch((err) => console.error(err.toString()));
+      setInputMessage("");
+    }
+  };
 
   const openChatWithApplicant = (applicant) => {
     setCurrentApplicant(applicant);
@@ -226,8 +243,12 @@ export function Messages() {
               size="md"
               borderRadius="full"
               mr={2}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
             />
-            <Button colorScheme="blue">Send</Button>
+            <Button colorScheme="blue" onClick={handleSendMessage}>
+              Send
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
