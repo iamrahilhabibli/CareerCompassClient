@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -7,9 +8,6 @@ import {
   Spinner,
   Text,
   useToast,
-} from "@chakra-ui/react";
-import * as signalR from "@microsoft/signalr";
-import {
   Modal,
   ModalOverlay,
   ModalContent,
@@ -19,32 +17,30 @@ import {
   ModalFooter,
   Input,
 } from "@chakra-ui/react";
-
-import React, { useEffect, useState } from "react";
-import inboxImg from "../../images/inbox.png";
-import { MessageBox } from "react-chat-elements";
 import axios from "axios";
 import { useQuery } from "react-query";
+import * as signalR from "@microsoft/signalr";
 import useUser from "../../customhooks/useUser";
-export function Messages() {
+import inboxImg from "../../images/inbox.png";
+export function JobseekerMessages() {
   const toast = useToast();
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-  const [currentApplicant, setCurrentApplicant] = useState(null);
+  const [currentContact, setCurrentContact] = useState(null);
   const [messages, setMessages] = useState([]);
 
-  const fetchApprovedApplicants = async () => {
+  const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
-      `https://localhost:7013/api/JobApplications/GetApprovedApplicants/${userId}`
+      `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
     );
     return data;
   };
-
+  console.log(userId);
   const {
-    data: approvedApplicants,
+    data: jobseekerContacts,
     isLoading,
     isError,
-  } = useQuery(["approvedApplicants", userId], fetchApprovedApplicants, {
+  } = useQuery(["jobseekerContacts", userId], fetchJobseekerContacts, {
     retry: 1,
     refetchOnWindowFocus: false,
     enabled: !!userId,
@@ -72,20 +68,20 @@ export function Messages() {
       );
   }, []);
 
-  const openChatWithApplicant = (applicant) => {
-    setCurrentApplicant(applicant);
+  const openChatWithContact = (contact) => {
+    setCurrentContact(contact);
     setIsOpen(true);
   };
+
   const closeModal = () => {
-    setCurrentApplicant(null);
+    setCurrentContact(null);
     setIsOpen(false);
   };
-
   if (isLoading) return <Spinner />;
   if (isError) {
     toast({
       title: "An error occurred.",
-      description: "Unable to load applicants.",
+      description: "Unable to load contacts.",
       status: "error",
       duration: 3000,
       isClosable: true,
@@ -126,6 +122,7 @@ export function Messages() {
             </Heading>
           </Flex>
         </Box>
+
         <Box my={4} />
 
         <Box
@@ -139,23 +136,23 @@ export function Messages() {
           bgPosition="right"
           shadow="1px 1px 3px rgba(0,0,0,0.3)"
         >
-          {approvedApplicants?.map((applicant) => (
+          {jobseekerContacts?.map((contact) => (
             <Flex
-              key={applicant.id}
+              key={contact.id}
               p={3}
               cursor="pointer"
               borderWidth="1px"
               borderRadius="md"
               justifyContent="space-between"
-              onClick={() => openChatWithApplicant(applicant)}
+              onClick={() => openChatWithContact(contact)}
             >
               <Flex alignItems="center">
                 <Avatar
-                  src={applicant.avatar || "https://via.placeholder.com/40"}
+                  src={contact.avatar || "https://via.placeholder.com/40"}
                   size="sm"
                 />
                 <Box ml={4}>
-                  <Text fontWeight="bold">{`${applicant.firstName} ${applicant.lastName}`}</Text>
+                  <Text fontWeight="bold">{`${contact.firstName} ${contact.lastName}`}</Text>
                   <Text fontSize="sm">Click to chat</Text>
                 </Box>
               </Flex>
@@ -176,8 +173,8 @@ export function Messages() {
         <ModalOverlay />
         <ModalContent width="600px">
           <ModalHeader>
-            {currentApplicant
-              ? `${currentApplicant.firstName} ${currentApplicant.lastName}`
+            {currentContact
+              ? `${currentContact.firstName} ${currentContact.lastName}`
               : ""}
           </ModalHeader>
           <ModalCloseButton />
@@ -186,8 +183,8 @@ export function Messages() {
               flex="1"
               bg="gray.100"
               border="1px"
-              maxHeight="600px" // Increasing the height here
-              overflowY="auto" // Adding scroll
+              maxHeight="600px"
+              overflowY="auto"
             >
               {messages.map((message, index) => (
                 <Flex

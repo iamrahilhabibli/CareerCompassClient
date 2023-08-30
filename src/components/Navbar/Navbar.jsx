@@ -62,7 +62,9 @@ export function Navbar() {
       });
     }
   };
-
+  const redirectToMessages = () => {
+    navigate("/jsmessages");
+  };
   useEffect(() => {
     if (
       !initialLoad &&
@@ -111,6 +113,7 @@ export function Navbar() {
                 transition="color 0.3s ease"
                 _hover={{ color: "#2557a7" }}
                 cursor={"pointer"}
+                onClick={redirectToMessages}
               />
               <BellIcon
                 boxSize={6}

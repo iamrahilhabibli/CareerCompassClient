@@ -10,8 +10,6 @@ import {
   AccordionPanel,
   Box,
 } from "@chakra-ui/react";
-import notificatioImage from "../../images/notification.png";
-
 import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import styles from "./NotificationDrawer.module.css";
@@ -55,15 +53,11 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
         console.error("An error occurred:", error);
       });
   };
-  const drawerStyle = {
-    backgroundImage: `url(${notificatioImage})`,
-    backgroundRepeat: "repeat",
-    backgroundPosition: "center",
-  };
+
   return (
     <Drawer placement={placement} onClose={onClose} isOpen={isOpen}>
       <DrawerOverlay />
-      <DrawerContent style={drawerStyle}>
+      <DrawerContent>
         <DrawerHeader borderBottomWidth="1px" textAlign={"center"}>
           Notifications
         </DrawerHeader>

@@ -32,6 +32,7 @@ import { ResumeBuild } from "./components/Resume/ResumeBuild";
 import { DownloadProvider } from "./components/DownloadContext/DownloadProvider";
 import { Applicants } from "./components/Employers/Applicants";
 import { Messages } from "./components/Employers/Messages";
+import { JobseekerMessages } from "./components/Jobseeker/JobseekerMessages";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -75,6 +76,7 @@ export function App() {
               <Route path="/pricing" element={<ThreeTierPricing />} />
               <Route path="/paymentsuccess" element={<SuccessPayment />} />
               <Route path="/paymenterror" element={<ErrorPayment />} />
+              <Route path="/jsmessages" element={<JobseekerMessages />} />
               <Route path="/forbidden" element={<Forbidden />} />
               <Route
                 path="/somethingwentwrong"
