@@ -9,17 +9,17 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import React from "react";
-export function RejectApplicantAlert({ isOpen, onClose, id }) {
+export function RejectApplicantAlert({ isOpen, onClose, applicationId }) {
   const cancelRef = React.useRef();
-  const updateApplicationStatus = async (id, status) => {
+  const updateApplicationStatus = async (applicationId, status) => {
     await axios.put(`https://localhost:7013/api/JobApplications/UpdateStatus`, {
-      id,
+      applicationId,
       newStatus: status,
     });
   };
 
   function handleReject() {
-    updateApplicationStatus(id, 0);
+    updateApplicationStatus(applicationId, 0);
     onClose();
   }
   return (

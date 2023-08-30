@@ -35,6 +35,8 @@ import { RejectApplicantAlert } from "../AlertDialog/RejectApplicantAlert";
 export function Applicants() {
   const { userId } = useUser();
   const [isUserIdFetched, setIsUserIdFetched] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+
   const {
     isOpen: isOpenCheck,
     onOpen: onOpenCheck,
@@ -67,17 +69,7 @@ export function Applicants() {
       enabled: isUserIdFetched,
     }
   );
-  const updateApplicationStatus = async (applicationId, newStatus) => {
-    try {
-      await axios.put(
-        `https://localhost:7013/api/JobApplications/UpdateStatus?applicationId=${applicationId}&newStatus=${newStatus}`
-      );
-      console.log("Status updated successfully");
-      // You may also want to refresh your list of applicants here
-    } catch (error) {
-      console.log("An error occurred while updating the status", error);
-    }
-  };
+  console.log(applicants);
 
   return (
     <Box
@@ -165,24 +157,38 @@ export function Applicants() {
                           color="green"
                           size={"24px"}
                           style={{ cursor: "pointer", marginRight: "10px" }}
-                          onClick={onOpenCheck}
+                          onClick={() => {
+                            setSelectedApplicationId(applicant.applicationid);
+                            onOpenCheck();
+                          }}
                         />
+
                         <AcceptApplicantAlert
                           isOpen={isOpenCheck}
-                          onClose={onCloseCheck}
-                          applicationId={applicant.id}
+                          onClose={() => {
+                            setSelectedApplicationId(null);
+                            onCloseCheck();
+                          }}
+                          applicationId={selectedApplicationId}
                         />
 
                         <IoCloseSharp
                           size={"24px"}
                           color="red"
                           style={{ cursor: "pointer" }}
-                          onClick={onOpenClose}
+                          onClick={() => {
+                            setSelectedApplicationId(applicant.applicationid);
+                            onOpenClose();
+                          }}
                         />
+
                         <RejectApplicantAlert
                           isOpen={isOpenClose}
-                          onClose={onCloseClose}
-                          applicationId={applicant.id}
+                          onClose={() => {
+                            setSelectedApplicationId(null);
+                            onCloseClose();
+                          }}
+                          applicationId={selectedApplicationId}
                         />
                       </Flex>
                     </Td>
