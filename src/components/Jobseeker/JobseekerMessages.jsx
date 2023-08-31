@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Avatar,
   Box,
@@ -28,14 +28,38 @@ export function JobseekerMessages() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
   const [messages, setMessages] = useState([]);
-
+  const [inputMessage, setInputMessage] = useState("");
+  const connectionRef = useRef(null);
+  const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
     );
     return data;
   };
-  console.log(userId);
+
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7013/chat")
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    connectionRef.current = connection;
+
+    connection.on("ReceiveMessage", (user, message) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: user, text: message },
+      ]);
+    });
+
+    connection.start().catch((err) => console.error(err));
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
+
   const {
     data: jobseekerContacts,
     isLoading,
@@ -45,30 +69,9 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7013/chat")
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  useEffect(() => {
-    connection
-      .start()
-      .then(() => {
-        console.log("Connected to SignalR Hub");
-
-        connection.on("ReceiveMessage", (user, message) => {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: user, text: message },
-          ]);
-        });
-      })
-      .catch((err) =>
-        console.log("Error while establishing the connection :(", err)
-      );
-  }, []);
 
   const openChatWithContact = (contact) => {
+    setCurrentRecipientId(contact.recruiterAppUserId);
     setCurrentContact(contact);
     setIsOpen(true);
   };
@@ -76,6 +79,62 @@ export function JobseekerMessages() {
   const closeModal = () => {
     setCurrentContact(null);
     setIsOpen(false);
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage || !userId || !currentRecipientId) {
+      toast({
+        title: "Incomplete information.",
+        description: "Make sure you're logged in and a recipient is selected.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      await connectionRef.current.invoke(
+        "SendMessageAsync",
+        userId,
+        currentRecipientId,
+        inputMessage
+      );
+
+      const newMessage = {
+        senderId: userId,
+        receiverId: currentRecipientId,
+        content: inputMessage,
+        isRead: false,
+        messageType: "Text",
+      };
+
+      const response = await fetch("https://localhost:7013/api/Messages/Send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMessage),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: data.Message,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error(data.Message);
+      }
+      setMessages([...messages, newMessage]);
+      setInputMessage("");
+    } catch (err) {
+      console.error(err);
+    }
   };
   if (isLoading) return <Spinner />;
   if (isError) {
@@ -87,9 +146,8 @@ export function JobseekerMessages() {
       isClosable: true,
       position: "top-right",
     });
-    return;
+    return null;
   }
-
   return (
     <>
       <Box
@@ -177,7 +235,6 @@ export function JobseekerMessages() {
           )}
         </Box>
       </Box>
-
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent width="600px">
@@ -200,16 +257,16 @@ export function JobseekerMessages() {
                   key={index}
                   p={2}
                   flexDirection={
-                    message.sender === "Rahil" ? "row-reverse" : "row"
+                    message.senderId === userId ? "row-reverse" : "row"
                   }
                 >
                   <Box
-                    bg={message.sender === "Rahil" ? "blue.400" : "gray.300"}
+                    bg={message.senderId === userId ? "blue.400" : "gray.300"}
                     p={3}
                     borderRadius="lg"
-                    color={message.sender === "Rahil" ? "white" : "black"}
+                    color={message.senderId === userId ? "white" : "black"}
                   >
-                    {message.text}
+                    {message.content}
                   </Box>
                 </Flex>
               ))}
@@ -222,8 +279,12 @@ export function JobseekerMessages() {
               size="md"
               borderRadius="full"
               mr={2}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
             />
-            <Button colorScheme="blue">Send</Button>
+            <Button colorScheme="blue" onClick={handleSendMessage}>
+              Send
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
