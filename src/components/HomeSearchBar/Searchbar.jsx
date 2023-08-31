@@ -36,7 +36,6 @@ export function Searchbar() {
     setSearchResults(vacancies);
     dispatch(addSearch(`${jobTitleInputValue}  ${locationInputValue}`));
 
-    console.log("Search history after adding new search:", searchHistory);
     const encodedJobTitle = jobTitleInputValue
       ? encodeURIComponent(jobTitleInputValue)
       : "";

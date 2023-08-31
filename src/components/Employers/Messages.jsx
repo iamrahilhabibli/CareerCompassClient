@@ -20,15 +20,12 @@ import {
   Input,
 } from "@chakra-ui/react";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import inboxImg from "../../images/inbox.png";
 import axios from "axios";
 import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
-const connection = new signalR.HubConnectionBuilder()
-  .withUrl("https://localhost:7013/chat")
-  .configureLogging(signalR.LogLevel.Debug)
-  .build();
+
 export function Messages() {
   const toast = useToast();
   const { userId } = useUser();
@@ -36,6 +33,31 @@ export function Messages() {
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const connectionRef = useRef(null);
+  const [currentRecipientId, setCurrentRecipientId] = useState(null);
+
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7013/chat")
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    connectionRef.current = connection;
+
+    connection.on("ReceiveMessage", (user, message) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: user, text: message },
+      ]);
+    });
+
+    connection.start().catch((err) => console.error(err));
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
+
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedApplicants/${userId}`
@@ -52,47 +74,69 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  console.log(approvedApplicants);
-  useEffect(() => {
-    connection
-      .start()
-      .then(() => {
-        console.log("Connected to SignalR Hub");
 
-        connection.on("ReceiveMessage", (senderId, recipientId, message) => {
-          if (
-            (senderId === userId && recipientId === currentApplicant.id) ||
-            (senderId === currentApplicant.id && recipientId === userId)
-          ) {
-            setMessages((prevMessages) => [
-              ...prevMessages,
-              { sender: senderId, text: message },
-            ]);
-          }
-        });
-      })
-      .catch((err) =>
-        console.log("Error while establishing the connection :(", err)
+  const handleSendMessage = async () => {
+    if (!inputMessage || !userId || !currentRecipientId) {
+      toast({
+        title: "Incomplete information.",
+        description: "Make sure you're logged in and a recipient is selected.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      await connectionRef.current.invoke(
+        "SendMessageAsync",
+        userId,
+        currentRecipientId,
+        inputMessage
       );
 
-    return () => {
-      connection.stop();
-    };
-  }, [userId, currentApplicant]);
+      const newMessage = {
+        senderId: userId,
+        receiverId: currentRecipientId,
+        content: inputMessage,
+        isRead: false,
+        messageType: "Text",
+      };
 
-  const handleSendMessage = () => {
-    if (inputMessage && currentApplicant) {
-      connection
-        .invoke("SendMessage", userId, currentApplicant.id, inputMessage)
-        .catch((err) => console.error(err.toString()));
+      const response = await fetch("https://localhost:7013/api/Messages/Send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMessage),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent",
+          description: data.Message,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error(data.Message);
+      }
+      setMessages([...messages, newMessage]);
       setInputMessage("");
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const openChatWithApplicant = (applicant) => {
+    setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
     setIsOpen(true);
   };
+
   const closeModal = () => {
     setCurrentApplicant(null);
     setIsOpen(false);
@@ -106,11 +150,9 @@ export function Messages() {
       status: "error",
       duration: 3000,
       isClosable: true,
-      position: "top-right",
     });
-    return;
+    return null;
   }
-
   return (
     <>
       <Box
@@ -198,7 +240,6 @@ export function Messages() {
           )}
         </Box>
       </Box>
-
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent width="600px">
@@ -221,16 +262,16 @@ export function Messages() {
                   key={index}
                   p={2}
                   flexDirection={
-                    message.sender === "Rahil" ? "row-reverse" : "row"
+                    message.senderId === userId ? "row-reverse" : "row"
                   }
                 >
                   <Box
-                    bg={message.sender === "Rahil" ? "blue.400" : "gray.300"}
+                    bg={message.senderId === userId ? "blue.400" : "gray.300"}
                     p={3}
                     borderRadius="lg"
-                    color={message.sender === "Rahil" ? "white" : "black"}
+                    color={message.senderId === userId ? "white" : "black"}
                   >
-                    {message.text}
+                    {message.content}
                   </Box>
                 </Flex>
               ))}
