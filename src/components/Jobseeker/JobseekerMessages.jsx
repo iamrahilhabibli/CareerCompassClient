@@ -31,49 +31,90 @@ export function JobseekerMessages() {
   const [inputMessage, setInputMessage] = useState("");
   const connectionRef = useRef(null);
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
+
+  const openChatWithContact = async (contact) => {
+    setCurrentRecipientId(contact.recruiterAppUserId);
+    setCurrentContact(contact);
+    try {
+      await connectionRef.current.invoke(
+        "JoinGroup",
+        userId,
+        contact.recruiterAppUserId
+      );
+      console.log("Joined group.");
+    } catch (err) {
+      console.error("Error joining group: ", err);
+    }
+    setIsOpen(true);
+  };
+
+  const setRecipientMessages = (recipientId, message) => {
+    const standardizedMessage = {
+      senderId: message.senderId,
+      receiverId: recipientId,
+      content: message.content,
+      isRead: message.isRead,
+      messageType: message.messageType,
+    };
+    setMessages((prevMessages) => {
+      const updatedMessages = { ...prevMessages };
+
+      if (!updatedMessages[recipientId]) {
+        updatedMessages[recipientId] = [];
+      }
+
+      updatedMessages[recipientId].push(standardizedMessage);
+      console.log(
+        "Updated Messages State in setRecipientMessages: ",
+        updatedMessages
+      );
+
+      return updatedMessages;
+    });
+  };
+
   const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
     );
     return data;
   };
-  const setRecipientMessages = (recipientId, message) => {
-    setMessages((prevMessages) => {
-      const newMessages = { ...prevMessages };
-      if (!newMessages[recipientId]) {
-        newMessages[recipientId] = [];
+
+  useEffect(() => {
+    console.log("Current Recipient ID:", currentRecipientId);
+    const startConnection = async () => {
+      try {
+        await connectionRef.current.start();
+        console.log("SignalR Connected.");
+      } catch (err) {
+        console.error("Error establishing connection: ", err);
       }
-      newMessages[recipientId].push(message);
-      return newMessages;
-    });
-  };
-  useEffect(() => {
-    if (connectionRef.current && userId) {
-      connectionRef.current.invoke("JoinGroup", userId);
-      return () => {
-        connectionRef.current.invoke("LeaveGroup", userId);
-      };
+    };
+
+    if (userId) {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7013/chat")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+      connectionRef.current = connection;
+
+      connection.on("ReceiveMessage", (user, message) => {
+        setRecipientMessages(currentRecipientId, {
+          senderId: user,
+          content: message,
+        });
+      });
+
+      startConnection();
     }
-  }, [userId]);
-
-  useEffect(() => {
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7013/chat")
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
-
-    connectionRef.current = connection;
-
-    connection.on("ReceiveMessage", (user, message) => {
-      setRecipientMessages(user, { sender: user, text: message });
-    });
-
-    connection.start().catch((err) => console.error(err));
 
     return () => {
-      connection.stop();
+      if (connectionRef.current) {
+        connectionRef.current.stop();
+      }
     };
-  }, []);
+  }, [userId, currentRecipientId]);
 
   const {
     data: jobseekerContacts,
@@ -85,15 +126,18 @@ export function JobseekerMessages() {
     enabled: !!userId,
   });
 
-  const openChatWithContact = (contact) => {
-    setCurrentRecipientId(contact.recruiterAppUserId);
-    setCurrentContact(contact);
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setCurrentContact(null);
+  const closeModal = async () => {
     setIsOpen(false);
+    try {
+      await connectionRef.current.invoke(
+        "LeaveGroup",
+        userId,
+        currentRecipientId
+      );
+      console.log("Left group.");
+    } catch (err) {
+      console.error("Error leaving group: ", err);
+    }
   };
 
   const handleSendMessage = async () => {
@@ -108,6 +152,16 @@ export function JobseekerMessages() {
       return;
     }
 
+    const newMessage = {
+      senderId: userId,
+      receiverId: currentRecipientId,
+      content: inputMessage,
+      isRead: false,
+      messageType: "Text",
+    };
+
+    console.log("New Message to be sent: ", newMessage);
+
     try {
       await connectionRef.current.invoke(
         "SendMessageAsync",
@@ -115,14 +169,6 @@ export function JobseekerMessages() {
         currentRecipientId,
         inputMessage
       );
-
-      const newMessage = {
-        senderId: userId,
-        receiverId: currentRecipientId,
-        content: inputMessage,
-        isRead: false,
-        messageType: "Text",
-      };
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {
         method: "POST",
@@ -145,12 +191,13 @@ export function JobseekerMessages() {
       } else {
         throw new Error(data.Message);
       }
-      setMessages([...messages, newMessage]);
-      setInputMessage("");
     } catch (err) {
-      console.error(err);
+      console.error("Error in sending message: ", err);
     }
+    setRecipientMessages(currentRecipientId, newMessage);
+    setInputMessage("");
   };
+
   if (isLoading) return <Spinner />;
   if (isError) {
     toast({
@@ -267,7 +314,7 @@ export function JobseekerMessages() {
               maxHeight="600px"
               overflowY="auto"
             >
-              {messages.map((message, index) => (
+              {messages[currentRecipientId]?.map((message, index) => (
                 <Flex
                   key={index}
                   p={2}

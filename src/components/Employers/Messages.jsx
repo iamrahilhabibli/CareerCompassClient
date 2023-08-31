@@ -79,11 +79,9 @@ export function Messages() {
   };
 
   useEffect(() => {
-    console.log("Current Recipient ID:", currentRecipientId);
     const startConnection = async () => {
       try {
         await connectionRef.current.start();
-        console.log("SignalR Connected.");
       } catch (err) {
         console.error("Error establishing connection: ", err);
       }
