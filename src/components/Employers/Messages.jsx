@@ -36,27 +36,84 @@ export function Messages() {
   const connectionRef = useRef(null);
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
 
-  useEffect(() => {
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7013/chat")
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
+  const openChatWithApplicant = async (applicant) => {
+    setCurrentRecipientId(applicant.applicantAppUserId);
+    setCurrentApplicant(applicant);
+    try {
+      await connectionRef.current.invoke(
+        "JoinGroup",
+        userId,
+        applicant.applicantAppUserId
+      );
+      console.log("Joined group.");
+    } catch (err) {
+      console.error("Error joining group: ", err);
+    }
+    setIsOpen(true);
+  };
 
-    connectionRef.current = connection;
+  const setRecipientMessages = (recipientId, message) => {
+    const standardizedMessage = {
+      senderId: message.senderId,
+      receiverId: recipientId,
+      content: message.content,
+      isRead: message.isRead,
+      messageType: message.messageType,
+    };
 
-    connection.on("ReceiveMessage", (user, message) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: user, text: message },
-      ]);
+    setMessages((prevMessages) => {
+      const updatedMessages = { ...prevMessages };
+
+      if (!updatedMessages[recipientId]) {
+        updatedMessages[recipientId] = [];
+      }
+
+      updatedMessages[recipientId].push(standardizedMessage);
+      console.log(
+        "Updated Messages State in setRecipientMessages: ",
+        updatedMessages
+      );
+
+      return updatedMessages;
     });
+  };
 
-    connection.start().catch((err) => console.error(err));
+  useEffect(() => {
+    console.log("Current Recipient ID:", currentRecipientId);
+    const startConnection = async () => {
+      try {
+        await connectionRef.current.start();
+        console.log("SignalR Connected.");
+      } catch (err) {
+        console.error("Error establishing connection: ", err);
+      }
+    };
+
+    if (userId) {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7013/chat")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+      connectionRef.current = connection;
+
+      connection.on("ReceiveMessage", (user, message) => {
+        setRecipientMessages(currentRecipientId, {
+          senderId: user,
+          content: message,
+        });
+        console.log("Received SignalR Message:", user, message);
+      });
+
+      startConnection();
+    }
 
     return () => {
-      connection.stop();
+      if (connectionRef.current) {
+        connectionRef.current.stop();
+      }
     };
-  }, []);
+  }, [userId, currentRecipientId]);
 
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
@@ -87,6 +144,16 @@ export function Messages() {
       return;
     }
 
+    const newMessage = {
+      senderId: userId,
+      receiverId: currentRecipientId,
+      content: inputMessage,
+      isRead: false,
+      messageType: "Text",
+    };
+
+    console.log("New Message to be sent: ", newMessage);
+
     try {
       await connectionRef.current.invoke(
         "SendMessageAsync",
@@ -94,14 +161,6 @@ export function Messages() {
         currentRecipientId,
         inputMessage
       );
-
-      const newMessage = {
-        senderId: userId,
-        receiverId: currentRecipientId,
-        content: inputMessage,
-        isRead: false,
-        messageType: "Text",
-      };
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {
         method: "POST",
@@ -124,22 +183,25 @@ export function Messages() {
       } else {
         throw new Error(data.Message);
       }
-      setMessages([...messages, newMessage]);
-      setInputMessage("");
     } catch (err) {
-      console.error(err);
+      console.error("Error in sending message: ", err);
     }
+    setRecipientMessages(currentRecipientId, newMessage);
+    setInputMessage("");
   };
 
-  const openChatWithApplicant = (applicant) => {
-    setCurrentRecipientId(applicant.applicantAppUserId);
-    setCurrentApplicant(applicant);
-    setIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setCurrentApplicant(null);
+  const closeModal = async () => {
     setIsOpen(false);
+    try {
+      await connectionRef.current.invoke(
+        "LeaveGroup",
+        userId,
+        currentRecipientId
+      );
+      console.log("Left group.");
+    } catch (err) {
+      console.error("Error leaving group: ", err);
+    }
   };
 
   if (isLoading) return <Spinner />;
@@ -257,7 +319,7 @@ export function Messages() {
               maxHeight="600px"
               overflowY="auto"
             >
-              {messages.map((message, index) => (
+              {messages[currentRecipientId]?.map((message, index) => (
                 <Flex
                   key={index}
                   p={2}

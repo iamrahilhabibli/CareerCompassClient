@@ -37,6 +37,24 @@ export function JobseekerMessages() {
     );
     return data;
   };
+  const setRecipientMessages = (recipientId, message) => {
+    setMessages((prevMessages) => {
+      const newMessages = { ...prevMessages };
+      if (!newMessages[recipientId]) {
+        newMessages[recipientId] = [];
+      }
+      newMessages[recipientId].push(message);
+      return newMessages;
+    });
+  };
+  useEffect(() => {
+    if (connectionRef.current && userId) {
+      connectionRef.current.invoke("JoinGroup", userId);
+      return () => {
+        connectionRef.current.invoke("LeaveGroup", userId);
+      };
+    }
+  }, [userId]);
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
@@ -47,10 +65,7 @@ export function JobseekerMessages() {
     connectionRef.current = connection;
 
     connection.on("ReceiveMessage", (user, message) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: user, text: message },
-      ]);
+      setRecipientMessages(user, { sender: user, text: message });
     });
 
     connection.start().catch((err) => console.error(err));
