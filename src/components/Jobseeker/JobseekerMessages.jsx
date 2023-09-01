@@ -17,20 +17,26 @@ import {
   ModalFooter,
   Input,
 } from "@chakra-ui/react";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useQuery } from "react-query";
 import * as signalR from "@microsoft/signalr";
 import useUser from "../../customhooks/useUser";
 import inboxImg from "../../images/inbox.png";
+import { addMessage } from "../../reducers/messageSlice";
+import { store } from "../../reduxstores/storgeConfig";
 export function JobseekerMessages() {
   const toast = useToast();
+
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const connectionRef = useRef(null);
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
+  const dispatch = useDispatch();
+  const messages = useSelector((state) => state.messages);
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -46,31 +52,6 @@ export function JobseekerMessages() {
       console.error("Error joining group: ", err);
     }
     setIsOpen(true);
-  };
-
-  const setRecipientMessages = (recipientId, message) => {
-    const standardizedMessage = {
-      senderId: message.senderId,
-      receiverId: recipientId,
-      content: message.content,
-      isRead: message.isRead,
-      messageType: message.messageType,
-    };
-    setMessages((prevMessages) => {
-      const updatedMessages = { ...prevMessages };
-
-      if (!updatedMessages[recipientId]) {
-        updatedMessages[recipientId] = [];
-      }
-
-      updatedMessages[recipientId].push(standardizedMessage);
-      console.log(
-        "Updated Messages State in setRecipientMessages: ",
-        updatedMessages
-      );
-
-      return updatedMessages;
-    });
   };
 
   const fetchJobseekerContacts = async () => {
@@ -102,10 +83,12 @@ export function JobseekerMessages() {
 
       connection.on("ReceiveMessage", (senderId, recipientId, message) => {
         if (recipientId === currentRecipientId) {
-          setRecipientMessages(currentRecipientId, {
-            senderId,
-            content: message,
-          });
+          dispatch(
+            addMessage({
+              recipientId: currentRecipientId,
+              message: { senderId, content: message },
+            })
+          );
         }
         console.log(
           "Received SignalR Message:",
@@ -123,7 +106,7 @@ export function JobseekerMessages() {
         connectionRef.current.stop();
       }
     };
-  }, [userId, currentRecipientId]);
+  }, [userId, currentRecipientId, dispatch]);
 
   const {
     data: jobseekerContacts,
@@ -134,7 +117,7 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-
+  console.log(store.getState());
   const closeModal = async () => {
     setIsOpen(false);
     try {
@@ -202,10 +185,15 @@ export function JobseekerMessages() {
       } else {
         throw new Error(data.Message);
       }
+
+      // Update state using Redux
+      dispatch(
+        addMessage({ recipientId: currentRecipientId, message: newMessage })
+      );
     } catch (err) {
       console.error("Error in sending message: ", err);
     }
-    setRecipientMessages(currentRecipientId, newMessage);
+
     setInputMessage("");
   };
 

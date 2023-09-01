@@ -25,16 +25,20 @@ import inboxImg from "../../images/inbox.png";
 import axios from "axios";
 import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
+import { useDispatch, useSelector } from "react-redux";
+import { addMessage } from "../../reducers/messageSlice";
+import { store } from "../../reduxstores/storgeConfig";
 
 export function Messages() {
+  const dispatch = useDispatch();
   const toast = useToast();
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
-  const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const connectionRef = useRef(null);
+  const messages = useSelector((state) => state.messages);
 
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
@@ -51,33 +55,7 @@ export function Messages() {
     }
     setIsOpen(true);
   };
-
-  const setRecipientMessages = (recipientId, message) => {
-    const standardizedMessage = {
-      senderId: message.senderId,
-      receiverId: recipientId,
-      content: message.content,
-      isRead: message.isRead,
-      messageType: message.messageType,
-    };
-
-    setMessages((prevMessages) => {
-      const updatedMessages = { ...prevMessages };
-
-      if (!updatedMessages[recipientId]) {
-        updatedMessages[recipientId] = [];
-      }
-
-      updatedMessages[recipientId].push(standardizedMessage);
-      console.log(
-        "Updated Messages State in setRecipientMessages: ",
-        updatedMessages
-      );
-
-      return updatedMessages;
-    });
-  };
-
+  console.log(store.getState());
   useEffect(() => {
     const startConnection = async () => {
       try {
@@ -99,11 +77,21 @@ export function Messages() {
       connectionRef.current = connection;
 
       connection.on("ReceiveMessage", (senderId, recipientId, message) => {
-        if (recipientId === currentRecipientId) {
-          setRecipientMessages(currentRecipientId, {
-            senderId,
-            content: message,
-          });
+        if (
+          recipientId === currentRecipientId ||
+          senderId === currentRecipientId
+        ) {
+          dispatch(
+            addMessage({
+              recipientId: currentRecipientId,
+              message: {
+                senderId,
+                content: message,
+                isRead: false,
+                messageType: "Text",
+              },
+            })
+          );
         }
         console.log(
           "Received SignalR Message:",
@@ -121,7 +109,7 @@ export function Messages() {
         connectionRef.current.stop();
       }
     };
-  }, [userId, currentRecipientId]);
+  }, [userId, currentRecipientId, dispatch]);
 
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
@@ -139,7 +127,6 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-
   const handleSendMessage = async () => {
     if (!inputMessage || !userId || !currentRecipientId) {
       toast({
@@ -160,17 +147,13 @@ export function Messages() {
       messageType: "Text",
     };
 
-    console.log("New Message to be sent: ", newMessage);
-
     try {
-      console.log("About to invoke SignalR method...");
       await connectionRef.current.invoke(
         "SendMessageAsync",
         userId,
         currentRecipientId,
         inputMessage
       );
-      console.log("Invoked SignalR method.");
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {
         method: "POST",
@@ -190,13 +173,16 @@ export function Messages() {
           duration: 3000,
           isClosable: true,
         });
+
+        dispatch(
+          addMessage({ recipientId: currentRecipientId, message: newMessage })
+        );
       } else {
         throw new Error(data.Message);
       }
     } catch (err) {
       console.error("Error in sending message: ", err);
     }
-    setRecipientMessages(currentRecipientId, newMessage);
     setInputMessage("");
   };
 
