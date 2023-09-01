@@ -2,14 +2,18 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCIGAlCGiwjUhjYEvsnXqR1oLmbXbdkseA",
-  authDomain: "careercompass-cb73c.firebaseapp.com",
-  projectId: "careercompass-cb73c",
-  storageBucket: "careercompass-cb73c.appspot.com",
-  messagingSenderId: "1019418603880",
-  appId: "1:1019418603880:web:bb7e77d3c56837254126dd",
-  measurementId: "G-GPM4585T6S",
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
+  measurementId: process.env.REACT_APP_MEASUREMENT_ID,
 };
-
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const db = getFirestore(app);
+
+console.log(db);
+console.log("Is db.collection a function?:", typeof db.collection);
+
+export { db };

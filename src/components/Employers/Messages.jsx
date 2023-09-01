@@ -29,8 +29,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../reducers/messageSlice";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
-import { db } from "../../configurations/firebaseConfig";
 import useWebRTC from "../../customhooks/useWebRTC";
+import { VideoCall } from "./Videocall";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
@@ -39,8 +39,16 @@ export function Messages() {
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
-  const messages = useSelector((state) => state.messages);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
 
+  const messages = useSelector((state) => state.messages);
+  const CALL_STATUS = {
+    IDLE: "IDLE",
+    PROCESSING: "PROCESSING",
+    IN_CALL: "IN_CALL",
+    FAILED: "FAILED",
+  };
+  const [callStatus, setCallStatus] = useState(CALL_STATUS.IDLE);
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
@@ -88,15 +96,40 @@ export function Messages() {
   } = useWebRTC(userId, currentRecipientId);
 
   const startVideoCall = async () => {
+    setCallStatus(CALL_STATUS.PROCESSING);
     try {
+      // Create the WebRTC offer
       const offer = await createOffer();
-      const { callDoc, offerCandidates, answerCandidates } =
-        await createNewCall(offer);
-      // TODO: Implement more logic here...
+
+      // Use SignalR to notify the recipient about the new video call and pass along the 'offer'
+      await connectionRef.current.invoke(
+        "StartNewVideoCall",
+        userId,
+        currentRecipientId,
+        offer
+      );
+
+      // If everything went well, set the call status to 'IN_CALL'
+      setCallStatus(CALL_STATUS.IN_CALL);
+
+      // Open the video call window (modal)
+      setIsVideoCallOpen(true);
     } catch (error) {
       console.error("Failed to start video call", error);
+
+      // Display error toast
+      toast({
+        title: "An error occurred.",
+        description: "Failed to start a video call.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      setCallStatus(CALL_STATUS.FAILED);
     }
   };
+
   const closeModal = async () => {
     setIsOpen(false);
     try {
@@ -224,6 +257,7 @@ export function Messages() {
                 icon={<FaVideo />}
                 onClick={startVideoCall}
                 m={2}
+                isDisabled={callStatus === CALL_STATUS.IN_CALL}
               />
             </Flex>
             <Box
@@ -279,6 +313,12 @@ export function Messages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      {isVideoCallOpen && (
+        <VideoCall
+          setIsVideoCallOpen={setIsVideoCallOpen}
+          peerConnection={peerConnection}
+        />
+      )}
     </>
   );
 }

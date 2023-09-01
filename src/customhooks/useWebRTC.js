@@ -3,75 +3,117 @@ import { db } from "../configurations/firebaseConfig";
 
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    listenForRemoteSDP().catch((err) =>
+      console.error("An error occurred:", err)
+    );
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
     const pc = new RTCPeerConnection(configuration);
 
-    pc.onicecandidate = (event) => {
+    pc.onicecandidate = async (event) => {
       if (event.candidate) {
-        // TODO: Send this candidate to the other peer via Firebase
+        const callDoc = db
+          .collection("calls")
+          .doc(`${userId}-${applicantAppUserId}`);
+        const candidatesCollection = callDoc.collection("candidates");
+        await candidatesCollection.add(event.candidate.toJSON());
       }
     };
 
     pc.ontrack = (event) => {
-      // TODO: Handle remote media stream
+      // TODO: Handle remote media stream, you'll likely assign this to some React state.
     };
 
     setPeerConnection(pc);
-  }, []);
+  }, [userId, applicantAppUserId, db]);
 
   const createOffer = async () => {
     try {
-      if (!peerConnection) throw new Error("Peer Connection not initialized");
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      return offer;
-    } catch (error) {
-      console.error("Error creating offer: ", error);
+
+      const callDoc = db
+        .collection("calls")
+        .doc(`${userId}-${applicantAppUserId}`);
+      await callDoc.set({ offer: offer.toJSON() }, { merge: true });
+    } catch (e) {
+      setError(`Failed to create an offer: ${e.toString()}`);
     }
   };
 
   const createAnswer = async () => {
     try {
-      if (!peerConnection) throw new Error("Peer Connection not initialized");
+      const offer = peerConnection.remoteDescription;
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
-      return answer;
-    } catch (error) {
-      console.error("Error creating answer: ", error);
+
+      const callDoc = db
+        .collection("calls")
+        .doc(`${userId}-${applicantAppUserId}`);
+      await callDoc.update({ answer: answer.toJSON() });
+    } catch (e) {
+      setError(`Failed to create an answer: ${e.toString()}`);
     }
   };
 
-  const addIceCandidate = (candidate) => {
+  const addIceCandidate = async (candidate) => {
     try {
-      if (!peerConnection) throw new Error("Peer Connection not initialized");
-      peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    } catch (error) {
-      console.error("Error adding ICE candidate: ", error);
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (e) {
+      setError(`Failed to add ICE candidate: ${e.toString()}`);
     }
   };
 
-  const createNewCall = async (offer) => {
+  const createNewCall = async () => {
     try {
-      const callDoc = db.collection("calls").doc();
-      const offerCandidates = callDoc.collection("offerCandidates");
-      const answerCandidates = callDoc.collection("answerCandidates");
+      // You can add logic here to initialize a new call.
+      // Maybe creating a Firestore doc or something else.
+    } catch (e) {
+      setError(`Failed to create new call: ${e.toString()}`);
+    }
+  };
 
-      await callDoc.set({
-        offer,
-        userId,
-        applicantAppUserId,
+  const listenForRemoteICECandidate = () => {
+    const callDoc = db
+      .collection("calls")
+      .doc(`${userId}-${applicantAppUserId}`);
+    const candidatesCollection = callDoc.collection("candidates");
+
+    candidatesCollection.onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          let candidate = new RTCIceCandidate(change.doc.data());
+          peerConnection.addIceCandidate(candidate).catch((e) => {
+            setError(`Failed to add ICE candidate: ${e.toString()}`);
+          });
+        }
       });
-      // TODO: Listen for answer and candidates here
-
-      return { callDoc, offerCandidates, answerCandidates };
-    } catch (error) {
-      console.error("Error creating new call: ", error);
-    }
+    });
   };
+
+  const listenForRemoteSDP = async () => {
+    const callDoc = db
+      .collection("calls")
+      .doc(`${userId}-${applicantAppUserId}`);
+
+    callDoc.onSnapshot(async (snapshot) => {
+      const data = snapshot.data();
+      if (peerConnection.signalingState !== "stable" && data && data.answer) {
+        const remoteOffer = new RTCSessionDescription(data.answer);
+        await peerConnection.setRemoteDescription(remoteOffer);
+      }
+    });
+  };
+  useEffect(() => {
+    if (peerConnection) {
+      listenForRemoteICECandidate();
+      listenForRemoteSDP();
+    }
+  }, [peerConnection]);
 
   return {
     peerConnection,
@@ -79,6 +121,7 @@ const useWebRTC = (userId, applicantAppUserId) => {
     createAnswer,
     addIceCandidate,
     createNewCall,
+    error,
   };
 };
 
