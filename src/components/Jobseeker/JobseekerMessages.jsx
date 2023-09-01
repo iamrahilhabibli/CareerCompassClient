@@ -25,6 +25,8 @@ import useUser from "../../customhooks/useUser";
 import inboxImg from "../../images/inbox.png";
 import { addMessage } from "../../reducers/messageSlice";
 import { store } from "../../reduxstores/storgeConfig";
+import { useSendMessage } from "../../customhooks/useSendMessage";
+import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 export function JobseekerMessages() {
   const toast = useToast();
 
@@ -33,7 +35,6 @@ export function JobseekerMessages() {
   const [currentContact, setCurrentContact] = useState(null);
   // const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
-  const connectionRef = useRef(null);
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.messages);
@@ -60,62 +61,13 @@ export function JobseekerMessages() {
     );
     return data;
   };
-
-  useEffect(() => {
-    const startConnection = async () => {
-      try {
-        await connectionRef.current.start();
-        console.log("SignalR Connected.");
-      } catch (err) {
-        console.error("Error establishing connection: ", err);
-      }
-    };
-
-    if (userId) {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7013/chat")
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Information)
-        .configureLogging(signalR.LogLevel.Debug)
-        .build();
-
-      connectionRef.current = connection;
-
-      connection.on("ReceiveMessage", (senderId, recipientId, message) => {
-        if (
-          recipientId === currentRecipientId ||
-          senderId === currentRecipientId
-        ) {
-          dispatch(
-            addMessage({
-              recipientId: currentRecipientId,
-              message: {
-                senderId,
-                content: message,
-                isRead: false,
-                messageType: "Text",
-              },
-            })
-          );
-        }
-        console.log(
-          "Received SignalR Message:",
-          senderId,
-          recipientId,
-          message
-        );
-      });
-
-      startConnection();
-    }
-
-    return () => {
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-      }
-    };
-  }, [userId, currentRecipientId, dispatch]);
-
+  const connectionRef = useSignalRConnection(
+    userId,
+    currentRecipientId,
+    dispatch,
+    addMessage
+  );
+  const handleSendMessage = useSendMessage(toast);
   const {
     data: jobseekerContacts,
     isLoading,
@@ -125,7 +77,6 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  console.log(store.getState());
   const closeModal = async () => {
     setIsOpen(false);
     try {
@@ -138,69 +89,6 @@ export function JobseekerMessages() {
     } catch (err) {
       console.error("Error leaving group: ", err);
     }
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage || !userId || !currentRecipientId) {
-      toast({
-        title: "Incomplete information.",
-        description: "Make sure you're logged in and a recipient is selected.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const newMessage = {
-      senderId: userId,
-      receiverId: currentRecipientId,
-      content: inputMessage,
-      isRead: false,
-      messageType: "Text",
-    };
-
-    console.log("New Message to be sent: ", newMessage);
-
-    try {
-      console.log("About to invoke SignalR method...");
-      await connectionRef.current.invoke(
-        "SendMessageAsync",
-        userId,
-        currentRecipientId,
-        inputMessage
-      );
-      console.log("Invoked SignalR method.");
-
-      const response = await fetch("https://localhost:7013/api/Messages/Send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMessage),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "Message Sent",
-          description: data.Message,
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        throw new Error(data.Message);
-      }
-      dispatch(
-        addMessage({ recipientId: currentRecipientId, message: newMessage })
-      );
-    } catch (err) {
-      console.error("Error in sending message: ", err);
-    }
-
-    setInputMessage("");
   };
 
   if (isLoading) return <Spinner />;
@@ -349,7 +237,17 @@ export function JobseekerMessages() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
             />
-            <Button colorScheme="blue" onClick={handleSendMessage}>
+            <Button
+              colorScheme="blue"
+              onClick={() =>
+                handleSendMessage(
+                  inputMessage,
+                  userId,
+                  currentRecipientId,
+                  connectionRef
+                )
+              }
+            >
               Send
             </Button>
           </ModalFooter>

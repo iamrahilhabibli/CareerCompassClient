@@ -1,13 +1,22 @@
-import { Box, Input, Button, Text, List, ListItem } from "@chakra-ui/react";
+import {
+  Box,
+  Input,
+  Button,
+  Text,
+  List,
+  ListItem,
+  Flex,
+} from "@chakra-ui/react";
 import { useCombobox } from "downshift";
 import { useEffect, useState } from "react";
 import useGetByLocation from "../../services/getByLocation";
 import useGetByJobTitle from "../../services/getByJobTitle";
 import { useVacancies } from "../../services/getVacancies";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RecentSearches } from "./RecentSearches";
 import { useDispatch, useSelector } from "react-redux";
 import { addSearch } from "../../reducers/searchHistorySlice";
+import useUser from "../../customhooks/useUser";
 
 export function Searchbar() {
   const [searchResults, setSearchResults] = useState([]);
@@ -25,6 +34,7 @@ export function Searchbar() {
   const { data: jobTitles } = useGetByJobTitle(jobTitleInputValue);
   const jobTitleItems = jobTitles || [];
   const navigate = useNavigate();
+  const { userId } = useUser();
   const { data: vacancies } = useVacancies(
     jobTitleInputValue,
     selectedLocationId
@@ -221,12 +231,63 @@ export function Searchbar() {
           Search
         </Button>
       </Box>
-      <Box display="flex" flexDirection="column" alignItems="center" pt="75px">
-        <Button onClick={toggleRecentSearches}>
-          {showRecentSearches ? "Hide Recent Searches" : "Show Recent Searches"}
-        </Button>
-        {showRecentSearches && <RecentSearches searchHistory={searchHistory} />}
+      <Box mt={4} textAlign="center">
+        <Text>
+          <Link
+            to={`/resumebuild/${userId}`}
+            style={{
+              marginRight: "20px",
+              color: "#2557A7",
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
+          >
+            Build your resume
+          </Link>
+          - It only takes a few seconds
+        </Text>
+        <Text>
+          Employers:{" "}
+          <Link
+            to="/employerscareercompass"
+            style={{
+              color: "#2557A7",
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
+          >
+            Post a job
+          </Link>
+        </Text>
       </Box>
+
+      <Flex flexDirection="column" alignItems="center" pt="75px">
+        <Text
+          onClick={toggleRecentSearches}
+          mb={4}
+          cursor="pointer"
+          textDecoration={showRecentSearches ? "underline" : "none"}
+          color={showRecentSearches ? "blue.500" : "inherit"}
+          transition="textDecoration 0.3s ease-in-out"
+        >
+          {showRecentSearches ? "Hide Recent Searches" : "Show Recent Searches"}
+        </Text>
+
+        {showRecentSearches && (
+          <Box
+            width="80%"
+            p={4}
+            borderRadius="md"
+            boxShadow="md"
+            backgroundColor="gray.100"
+          >
+            <Text fontWeight="bold" mb={2}>
+              Recent Searches
+            </Text>
+            <RecentSearches searchHistory={searchHistory} />
+          </Box>
+        )}
+      </Flex>
     </>
   );
 }

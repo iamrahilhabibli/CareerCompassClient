@@ -1,9 +1,11 @@
 import React from "react";
-import WithSpeechBubbles from "../Testimonials/Testimonials";
 import { Box, Heading } from "@chakra-ui/react";
 import Slider from "react-slick";
 import styles from "../../Home.module.css";
-import useUser from "../../customhooks/useUser";
+import welcome1 from "../../images/business-people-having-discussion-dispute-disagreement-meeting-negotiations-ai-generative.jpg";
+import welcome2 from "../../images/successful-business-team-smiling-with-confidence-indoors-generated-by-ai.jpg";
+import welcome3 from "../../images/one-person-holding-jigsaw-puzzle-solution-success-generated-by-ai.jpg";
+
 export function WelcomePage() {
   const settings = {
     dots: true,
@@ -15,38 +17,42 @@ export function WelcomePage() {
     autoplaySpeed: 5000,
     swipeToSlide: true,
   };
+
   return (
     <>
       <Box width="100vw">
         <Slider {...settings}>
-          <Box p={4} className={styles.slide1}>
-            <Heading as="h3" size="md">
-              SLIDE 1
+          <Box
+            p={4}
+            bgImage={`url(${welcome1})`}
+            bgSize="cover"
+            bgRepeat="no-repeat"
+            className={styles.slide1}
+          >
+            <Heading as="h3" size="lg" color="white">
+              Connecting Talent With Opportunity
             </Heading>
           </Box>
-          <Box p={4} className={styles.slide2}>
+          <Box
+            p={4}
+            bgImage={`url(${welcome2})`}
+            bgSize="cover"
+            bgRepeat="no-repeat"
+            className={styles.slide2}
+          >
             <Heading as="h3" size="md">
-              SLIDE 2
+              Streamlining Recruitment, Empowering Growth
             </Heading>
           </Box>
-          <Box p={4} className={styles.slide3}>
+          <Box
+            p={4}
+            bgImage={`url(${welcome3})`}
+            bgSize="cover"
+            bgRepeat="no-repeat"
+            className={styles.slide3}
+          >
             <Heading as="h3" size="md">
-              SLIDE 3
-            </Heading>
-          </Box>
-          <Box p={4} className={styles.slide4}>
-            <Heading as="h3" size="md">
-              SLIDE 4
-            </Heading>
-          </Box>
-          <Box p={4} className={styles.slide5}>
-            <Heading as="h3" size="md">
-              SLIDE 5
-            </Heading>
-          </Box>
-          <Box p={4} className={styles.slide6}>
-            <Heading as="h3" size="md">
-              SLIDE 6
+              Find Your Perfect Fit, Faster Than Ever
             </Heading>
           </Box>
         </Slider>

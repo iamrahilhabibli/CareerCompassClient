@@ -4,11 +4,14 @@ import {
   Button,
   Flex,
   Heading,
+  IconButton,
   Spinner,
   Text,
   useToast,
 } from "@chakra-ui/react";
 import * as signalR from "@microsoft/signalr";
+import { FaVideo } from "react-icons/fa";
+
 import {
   Modal,
   ModalOverlay,
@@ -28,6 +31,8 @@ import useUser from "../../customhooks/useUser";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../reducers/messageSlice";
 import { store } from "../../reduxstores/storgeConfig";
+import { useSendMessage } from "../../customhooks/useSendMessage";
+import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 
 export function Messages() {
   const dispatch = useDispatch();
@@ -37,7 +42,6 @@ export function Messages() {
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
-  const connectionRef = useRef(null);
   const messages = useSelector((state) => state.messages);
 
   const openChatWithApplicant = async (applicant) => {
@@ -55,69 +59,20 @@ export function Messages() {
     }
     setIsOpen(true);
   };
-  console.log(store.getState());
-  useEffect(() => {
-    const startConnection = async () => {
-      try {
-        await connectionRef.current.start();
-        console.log("Success");
-      } catch (err) {
-        console.error("Error establishing connection: ", err);
-      }
-    };
 
-    if (userId) {
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7013/chat")
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Information)
-        .configureLogging(signalR.LogLevel.Debug)
-        .build();
-
-      connectionRef.current = connection;
-
-      connection.on("ReceiveMessage", (senderId, recipientId, message) => {
-        if (
-          recipientId === currentRecipientId ||
-          senderId === currentRecipientId
-        ) {
-          dispatch(
-            addMessage({
-              recipientId: currentRecipientId,
-              message: {
-                senderId,
-                content: message,
-                isRead: false,
-                messageType: "Text",
-              },
-            })
-          );
-        }
-        console.log(
-          "Received SignalR Message:",
-          senderId,
-          recipientId,
-          message
-        );
-      });
-
-      startConnection();
-    }
-
-    return () => {
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-      }
-    };
-  }, [userId, currentRecipientId, dispatch]);
-
+  const connectionRef = useSignalRConnection(
+    userId,
+    currentRecipientId,
+    dispatch,
+    addMessage
+  );
+  const handleSendMessage = useSendMessage(toast);
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedApplicants/${userId}`
     );
     return data;
   };
-
   const {
     data: approvedApplicants,
     isLoading,
@@ -127,68 +82,6 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  const handleSendMessage = async () => {
-    if (!inputMessage || !userId || !currentRecipientId) {
-      toast({
-        title: "Incomplete information.",
-        description: "Make sure you're logged in and a recipient is selected.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const newMessage = {
-      senderId: userId,
-      receiverId: currentRecipientId,
-      content: inputMessage,
-      isRead: false,
-      messageType: "Text",
-    };
-
-    console.log("New Message to be sent: ", newMessage);
-
-    try {
-      console.log("About to invoke SignalR method...");
-      await connectionRef.current.invoke(
-        "SendMessageAsync",
-        userId,
-        currentRecipientId,
-        inputMessage
-      );
-      console.log("Invoked SignalR method.");
-
-      const response = await fetch("https://localhost:7013/api/Messages/Send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMessage),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "Message Sent",
-          description: data.Message,
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        throw new Error(data.Message);
-      }
-      dispatch(
-        addMessage({ recipientId: currentRecipientId, message: newMessage })
-      );
-    } catch (err) {
-      console.error("Error in sending message: ", err);
-    }
-
-    setInputMessage("");
-  };
 
   const closeModal = async () => {
     setIsOpen(false);
@@ -203,7 +96,6 @@ export function Messages() {
       console.error("Error leaving group: ", err);
     }
   };
-
   if (isLoading) return <Spinner />;
   if (isError) {
     toast({
@@ -304,7 +196,7 @@ export function Messages() {
       </Box>
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
-        <ModalContent width="600px">
+        <ModalContent>
           <ModalHeader>
             {currentApplicant
               ? `${currentApplicant.firstName} ${currentApplicant.lastName}`
@@ -312,6 +204,14 @@ export function Messages() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>
+            <Flex justifyContent="flex-end">
+              <IconButton
+                aria-label="Start video call"
+                icon={<FaVideo />}
+                // onClick={startVideoCall}
+                m={2}
+              />
+            </Flex>
             <Box
               flex="1"
               bg="gray.100"
@@ -349,7 +249,17 @@ export function Messages() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
             />
-            <Button colorScheme="blue" onClick={handleSendMessage}>
+            <Button
+              colorScheme="blue"
+              onClick={() =>
+                handleSendMessage(
+                  inputMessage,
+                  userId,
+                  currentRecipientId,
+                  connectionRef
+                )
+              }
+            >
               Send
             </Button>
           </ModalFooter>
