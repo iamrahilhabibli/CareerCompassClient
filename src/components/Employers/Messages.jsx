@@ -33,8 +33,8 @@ export function Messages() {
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
-  const connectionRef = useRef(null);
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
+  const connectionRef = useRef(null);
 
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
@@ -82,6 +82,7 @@ export function Messages() {
     const startConnection = async () => {
       try {
         await connectionRef.current.start();
+        console.log("Success");
       } catch (err) {
         console.error("Error establishing connection: ", err);
       }
@@ -90,17 +91,26 @@ export function Messages() {
     if (userId) {
       const connection = new signalR.HubConnectionBuilder()
         .withUrl("https://localhost:7013/chat")
+        .withAutomaticReconnect()
         .configureLogging(signalR.LogLevel.Information)
+        .configureLogging(signalR.LogLevel.Debug)
         .build();
 
       connectionRef.current = connection;
 
-      connection.on("ReceiveMessage", (user, message) => {
-        setRecipientMessages(currentRecipientId, {
-          senderId: user,
-          content: message,
-        });
-        console.log("Received SignalR Message:", user, message);
+      connection.on("ReceiveMessage", (senderId, recipientId, message) => {
+        if (recipientId === currentRecipientId) {
+          setRecipientMessages(currentRecipientId, {
+            senderId,
+            content: message,
+          });
+        }
+        console.log(
+          "Received SignalR Message:",
+          senderId,
+          recipientId,
+          message
+        );
       });
 
       startConnection();
@@ -153,12 +163,14 @@ export function Messages() {
     console.log("New Message to be sent: ", newMessage);
 
     try {
+      console.log("About to invoke SignalR method...");
       await connectionRef.current.invoke(
         "SendMessageAsync",
         userId,
         currentRecipientId,
         inputMessage
       );
+      console.log("Invoked SignalR method.");
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {
         method: "POST",
