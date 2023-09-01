@@ -28,7 +28,6 @@ export const useSignalRConnection = (
         .build();
 
       connectionRef.current = connection;
-
       connection.on("ReceiveMessage", (senderId, recipientId, message) => {
         if (
           recipientId === currentRecipientId ||
@@ -47,10 +46,8 @@ export const useSignalRConnection = (
           );
         }
       });
-
       startConnection();
     }
-
     return () => {
       if (connectionRef.current) {
         connectionRef.current.stop();

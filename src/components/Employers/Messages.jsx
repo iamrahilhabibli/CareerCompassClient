@@ -9,9 +9,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import * as signalR from "@microsoft/signalr";
 import { FaVideo } from "react-icons/fa";
-
 import {
   Modal,
   ModalOverlay,
@@ -22,18 +20,17 @@ import {
   ModalFooter,
   Input,
 } from "@chakra-ui/react";
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import inboxImg from "../../images/inbox.png";
 import axios from "axios";
 import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../reducers/messageSlice";
-import { store } from "../../reduxstores/storgeConfig";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
-
+import { db } from "../../configurations/firebaseConfig";
+import useWebRTC from "../../customhooks/useWebRTC";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
@@ -59,7 +56,6 @@ export function Messages() {
     }
     setIsOpen(true);
   };
-
   const connectionRef = useSignalRConnection(
     userId,
     currentRecipientId,
@@ -83,6 +79,24 @@ export function Messages() {
     enabled: !!userId,
   });
 
+  const {
+    peerConnection,
+    createOffer,
+    createAnswer,
+    addIceCandidate,
+    createNewCall,
+  } = useWebRTC(userId, currentRecipientId);
+
+  const startVideoCall = async () => {
+    try {
+      const offer = await createOffer();
+      const { callDoc, offerCandidates, answerCandidates } =
+        await createNewCall(offer);
+      // TODO: Implement more logic here...
+    } catch (error) {
+      console.error("Failed to start video call", error);
+    }
+  };
   const closeModal = async () => {
     setIsOpen(false);
     try {
@@ -208,7 +222,7 @@ export function Messages() {
               <IconButton
                 aria-label="Start video call"
                 icon={<FaVideo />}
-                // onClick={startVideoCall}
+                onClick={startVideoCall}
                 m={2}
               />
             </Flex>

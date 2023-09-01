@@ -28,9 +28,7 @@ export const useSendMessage = (toast) => {
       isRead: false,
       messageType: "Text",
     };
-
     console.log("New Message to be sent: ", newMessage);
-
     try {
       console.log("About to invoke SignalR method...");
       await connectionRef.current.invoke(
@@ -39,6 +37,7 @@ export const useSendMessage = (toast) => {
         currentRecipientId,
         inputMessage
       );
+
       console.log("Invoked SignalR method.");
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {

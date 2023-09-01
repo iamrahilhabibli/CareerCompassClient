@@ -20,6 +20,7 @@
     "chakra-ui-carousel": "^1.0.14",
     "date-fns": "^2.30.0",
     "downshift": "^8.1.0",
+    "firebase": "^10.3.1",
     "formik": "^2.4.3",
     "framer-motion": "^10.15.1",
     "html2pdf.js": "^0.10.1",
