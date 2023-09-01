@@ -147,13 +147,17 @@ export function Messages() {
       messageType: "Text",
     };
 
+    console.log("New Message to be sent: ", newMessage);
+
     try {
+      console.log("About to invoke SignalR method...");
       await connectionRef.current.invoke(
         "SendMessageAsync",
         userId,
         currentRecipientId,
         inputMessage
       );
+      console.log("Invoked SignalR method.");
 
       const response = await fetch("https://localhost:7013/api/Messages/Send", {
         method: "POST",
@@ -173,16 +177,16 @@ export function Messages() {
           duration: 3000,
           isClosable: true,
         });
-
-        dispatch(
-          addMessage({ recipientId: currentRecipientId, message: newMessage })
-        );
       } else {
         throw new Error(data.Message);
       }
+      dispatch(
+        addMessage({ recipientId: currentRecipientId, message: newMessage })
+      );
     } catch (err) {
       console.error("Error in sending message: ", err);
     }
+
     setInputMessage("");
   };
 

@@ -82,11 +82,19 @@ export function JobseekerMessages() {
       connectionRef.current = connection;
 
       connection.on("ReceiveMessage", (senderId, recipientId, message) => {
-        if (recipientId === currentRecipientId) {
+        if (
+          recipientId === currentRecipientId ||
+          senderId === currentRecipientId
+        ) {
           dispatch(
             addMessage({
               recipientId: currentRecipientId,
-              message: { senderId, content: message },
+              message: {
+                senderId,
+                content: message,
+                isRead: false,
+                messageType: "Text",
+              },
             })
           );
         }
@@ -185,8 +193,6 @@ export function JobseekerMessages() {
       } else {
         throw new Error(data.Message);
       }
-
-      // Update state using Redux
       dispatch(
         addMessage({ recipientId: currentRecipientId, message: newMessage })
       );
