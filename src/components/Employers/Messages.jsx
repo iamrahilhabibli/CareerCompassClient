@@ -34,7 +34,7 @@ import { VideoCall } from "./Videocall";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
-  const { userId } = useUser();
+  const { userId, userRole } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -87,17 +87,21 @@ export function Messages() {
     addIceCandidate,
     createNewCall,
   } = useWebRTC(userId, currentRecipientId);
+
   const startVideoCall = async (recipientId) => {
     setCurrentRecipientId(recipientId);
     console.log("recipient id in startvideocal", recipientId);
+
     try {
       const offer = await createOffer();
+
       await connectionRef.current.invoke(
-        "StartNewVideoCall",
+        "StartDirectCallAsync",
         userId,
         recipientId,
         offer
       );
+
       setIsVideoCallOpen(true);
     } catch (error) {
       console.error("Failed to start video call", error);
@@ -111,7 +115,7 @@ export function Messages() {
       });
     }
   };
-
+  console.log(userId);
   const closeModal = async () => {
     setIsOpen(false);
     try {

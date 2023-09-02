@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import * as signalR from "@microsoft/signalr";
+
 export const useSignalRVideo = (userId, handleReceiveCallOffer) => {
+  console.log("useSignalRVideo", userId);
   useEffect(() => {
-    // Initialize SignalR connection
     const connection = new HubConnectionBuilder()
       .withUrl("https://localhost:7013/chat")
       .withAutomaticReconnect()
@@ -15,45 +16,46 @@ export const useSignalRVideo = (userId, handleReceiveCallOffer) => {
       .then(() => {
         console.log("Connection started");
       })
-      .catch((err) => {
-        console.error("Error while establishing connection:", err);
-      });
-
-    connection.on("ReceiveCallOffer", (callerId, recipientId, offer) => {
-      console.log("ReceiveCallOffer event received", {
-        callerId,
+      .catch((err) => console.error("Initial connection error:", err));
+    connection.on("ReceiveDirectCall", (userId, recipientId, offer) => {
+      console.log("ReceiveDirectCall event received", {
+        userId,
         recipientId,
         offer,
       });
-      handleReceiveCallOffer(callerId, recipientId, offer);
+      if (userId === recipientId) {
+        handleReceiveCallOffer(userId, recipientId, offer);
+      }
     });
 
     connection.onclose((error) => {
-      console.error("SignalR Connection Closed:", error);
-    });
-
-    connection.onreconnecting((error) => {
-      console.log("Connection is being reestablished:", error);
-    });
-
-    connection.onreconnected((connectionId) => {
-      console.log(
-        "Connection successfully reestablished, connectionId:",
-        connectionId
+      console.error(
+        "SignalR Connection Closed:",
+        error || "Connection closed without error."
       );
     });
 
-    connection.onclose((error) => {
-      console.error("SignalR Connection Closed:", error);
-    });
+    connection.onreconnecting((error) =>
+      console.log("Connection is being reestablished:", error)
+    );
+    connection.onreconnected((connectionId) =>
+      console.log(
+        "Connection successfully reestablished, connectionId:",
+        connectionId
+      )
+    );
 
     return () => {
-      connection
-        .stop()
-        .then(() => console.log("Connection stopped"))
-        .catch((err) =>
-          console.error("Error while stopping the connection:", err)
-        );
+      if (connection.state === HubConnectionState.Connected) {
+        connection
+          .stop()
+          .then(() => console.log("Connection stopped"))
+          .catch((err) =>
+            console.error("Error while stopping the connection:", err)
+          );
+      }
     };
   }, [userId, handleReceiveCallOffer]);
+
+  return;
 };

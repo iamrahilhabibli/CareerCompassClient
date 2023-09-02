@@ -51,17 +51,6 @@ export function JobseekerMessages() {
   const [callerId, setCallerId] = useState(null);
   const cancelRef = useRef();
 
-  const handleReceiveCallOffer = (callerId, recipientId, offer) => {
-    console.log("handleReceiveCallOffer called with:", {
-      callerId,
-      recipientId,
-      offer,
-    });
-    setIsCallDialogOpen(true);
-    setCallerId(callerId);
-  };
-  useSignalRVideo(userId, handleReceiveCallOffer);
-
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
     setCurrentContact(contact);
@@ -91,6 +80,16 @@ export function JobseekerMessages() {
     addMessage
   );
   const handleSendMessage = useSendMessage(toast);
+  const handleReceiveCallOffer = (recruiterAppUserId, userId, offer) => {
+    console.log("handleReceiveCallOffer called with:", {
+      recruiterAppUserId,
+      userId,
+      offer,
+    });
+    setIsCallDialogOpen(true);
+    setCallerId(recruiterAppUserId);
+  };
+  useSignalRVideo(userId, handleReceiveCallOffer);
   const {
     data: jobseekerContacts,
     isLoading,
