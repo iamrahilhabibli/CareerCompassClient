@@ -2,32 +2,58 @@ import { useEffect } from "react";
 import { HubConnectionBuilder } from "@microsoft/signalr";
 import * as signalR from "@microsoft/signalr";
 export const useSignalRVideo = (userId, handleReceiveCallOffer) => {
-  console.log("useSignalRVideo hook executed", userId);
   useEffect(() => {
     // Initialize SignalR connection
     const connection = new HubConnectionBuilder()
       .withUrl("https://localhost:7013/chat")
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
-      .configureLogging(signalR.LogLevel.Debug)
       .build();
 
-    // Start SignalR connection
     connection
       .start()
-      .then(() => console.log("Connection started VIDEOCALL"))
+      .then(() => {
+        console.log("Connection started");
+      })
       .catch((err) => {
-        console.error("Error establishing connection: ", err);
-        // Add some UI friendly error message if needed
+        console.error("Error while establishing connection:", err);
       });
 
-    // Handle receiving call offer
     connection.on("ReceiveCallOffer", (callerId, recipientId, offer) => {
+      console.log("ReceiveCallOffer event received", {
+        callerId,
+        recipientId,
+        offer,
+      });
       handleReceiveCallOffer(callerId, recipientId, offer);
     });
 
+    connection.onclose((error) => {
+      console.error("SignalR Connection Closed:", error);
+    });
+
+    connection.onreconnecting((error) => {
+      console.log("Connection is being reestablished:", error);
+    });
+
+    connection.onreconnected((connectionId) => {
+      console.log(
+        "Connection successfully reestablished, connectionId:",
+        connectionId
+      );
+    });
+
+    connection.onclose((error) => {
+      console.error("SignalR Connection Closed:", error);
+    });
+
     return () => {
-      connection.stop();
+      connection
+        .stop()
+        .then(() => console.log("Connection stopped"))
+        .catch((err) =>
+          console.error("Error while stopping the connection:", err)
+        );
     };
   }, [userId, handleReceiveCallOffer]);
 };

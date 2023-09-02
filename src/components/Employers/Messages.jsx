@@ -87,16 +87,15 @@ export function Messages() {
     addIceCandidate,
     createNewCall,
   } = useWebRTC(userId, currentRecipientId);
-
-  const startVideoCall = async () => {
-    console.log("Startvideocall invodked");
+  const startVideoCall = async (recipientId) => {
+    setCurrentRecipientId(recipientId);
+    console.log("recipient id in startvideocal", recipientId);
     try {
       const offer = await createOffer();
-      console.log("Offer Created");
       await connectionRef.current.invoke(
         "StartNewVideoCall",
         userId,
-        currentRecipientId,
+        recipientId,
         offer
       );
       setIsVideoCallOpen(true);
@@ -200,10 +199,11 @@ export function Messages() {
                     icon={<FaVideo />}
                     onClick={(e) => {
                       e.stopPropagation();
-                      startVideoCall();
+                      startVideoCall(applicant.applicantAppUserId);
                     }}
                     m={2}
                   />
+
                   <Button
                     colorScheme="red"
                     size="sm"
