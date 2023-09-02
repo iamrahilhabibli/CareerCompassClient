@@ -44,7 +44,7 @@ const useWebRTC = (userId, applicantAppUserId) => {
     };
 
     pc.ontrack = (event) => {
-      // TODO: Handle remote media stream, you'll likely assign this to some React state.
+      // TODO: Handle remote media stream.
     };
 
     listenForRemoteSDP().catch((err) => {
@@ -54,22 +54,36 @@ const useWebRTC = (userId, applicantAppUserId) => {
     setPeerConnection(pc);
 
     return () => {
-      isMounted = false; // Component will unmount
+      isMounted = false;
       if (pc) {
-        pc.close(); // Close the peer connection when the component unmounts
+        pc.close();
       }
     };
   }, [userId, applicantAppUserId]);
 
   const createOffer = async () => {
+    setError(null);
+
+    if (!peerConnection) {
+      console.error("Peer connection is not initialized.");
+      return;
+    }
+
+    console.log("Creating offer...");
+
     try {
+      console.log("About to create offer");
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
+      console.log("PeerConnection State:", peerConnection.signalingState);
 
       const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
       await setDoc(callDoc, { offer: offer.toJSON() }, { merge: true });
+
+      console.log("Offer created and set.");
     } catch (e) {
       setError(`Failed to create an offer: ${e.toString()}`);
+      console.error(`Failed to create an offer: ${e.toString()}`);
     }
   };
 

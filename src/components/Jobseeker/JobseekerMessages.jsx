@@ -27,17 +27,40 @@ import { addMessage } from "../../reducers/messageSlice";
 import { store } from "../../reduxstores/storgeConfig";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+} from "@chakra-ui/react";
+import { useSignalRVideo } from "../../customhooks/useSignalRVideo";
+
 export function JobseekerMessages() {
   const toast = useToast();
 
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
-  // const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.messages);
+  const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
+  const [callerId, setCallerId] = useState(null);
+  const cancelRef = useRef();
+
+  const handleReceiveCallOffer = (callerId, recipientId, offer) => {
+    console.log("handleReceiveCallOffer called with:", {
+      callerId,
+      recipientId,
+      offer,
+    });
+    setIsCallDialogOpen(true);
+    setCallerId(callerId);
+  };
+  useSignalRVideo(userId, handleReceiveCallOffer);
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -253,6 +276,36 @@ export function JobseekerMessages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AlertDialog
+        isOpen={isCallDialogOpen}
+        onClose={() => setIsCallDialogOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Incoming Call
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              {`You have an incoming call from ${callerId}. Do you want to accept?`}
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button onClick={() => setIsCallDialogOpen(false)}>
+                Decline
+              </Button>
+              <Button
+                colorScheme="green"
+                onClick={() => {
+                  setIsCallDialogOpen(false);
+                }}
+              >
+                Accept
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </>
   );
 }

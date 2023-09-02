@@ -79,43 +79,38 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  // const {
-  //   peerConnection,
-  //   createOffer,
-  //   createAnswer,
-  //   addIceCandidate,
-  //   createNewCall,
-  // } = useWebRTC(userId, currentRecipientId);
 
-  // const startVideoCall = async () => {
-  //   setCallStatus(CALL_STATUS.PROCESSING);
-  //   try {
-  //     const offer = await createOffer();
-  //     await connectionRef.current.invoke(
-  //       "StartNewVideoCall",
-  //       userId,
-  //       currentRecipientId,
-  //       offer
-  //     );
+  const {
+    peerConnection,
+    createOffer,
+    createAnswer,
+    addIceCandidate,
+    createNewCall,
+  } = useWebRTC(userId, currentRecipientId);
 
-  //     setCallStatus(CALL_STATUS.IN_CALL);
-  //     setIsVideoCallOpen(true);
-  //   } catch (error) {
-  //     console.error("Failed to start video call", error);
+  const startVideoCall = async () => {
+    console.log("Startvideocall invodked");
+    try {
+      const offer = await createOffer();
+      console.log("Offer Created");
+      await connectionRef.current.invoke(
+        "StartNewVideoCall",
+        userId,
+        currentRecipientId,
+        offer
+      );
+      setIsVideoCallOpen(true);
+    } catch (error) {
+      console.error("Failed to start video call", error);
 
-  //     toast({
-  //       title: "An error occurred.",
-  //       description: "Failed to start a video call.",
-  //       status: "error",
-  //       duration: 5000,
-  //       isClosable: true,
-  //     });
-
-  //     setCallStatus(CALL_STATUS.FAILED);
-  //   }
-  // };
-  const startVideoCall = () => {
-    setIsVideoCallOpen(true);
+      toast({
+        title: "An error occurred.",
+        description: "Failed to start a video call.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   const closeModal = async () => {
@@ -300,7 +295,7 @@ export function Messages() {
           <ModalHeader>Video Call</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <VideoCall />
+            <VideoCall peerConnection={peerConnection} />
           </ModalBody>
         </ModalContent>
       </Modal>
