@@ -1,31 +1,29 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import useUserMedia from "../../customhooks/useUserMedia";
 
-export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
+export function VideoCall({ setIsVideoCallOpen }) {
   console.log("VideoCall component is rendering");
 
   const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  // const remoteVideoRef = useRef(null);
 
-  const { mediaStream, error: mediaError } = useUserMedia({
-    video: true,
-    audio: true,
-  });
+  const constraints = useMemo(() => {
+    return { video: true, audio: true };
+  }, []);
+
+  const { mediaStream, error: mediaError } = useUserMedia(constraints);
 
   useEffect(() => {
-    console.log("First useEffect for mediaStream and mediaError triggered"); // Log useEffect runs
     if (mediaStream && localVideoRef.current) {
-      console.log("Setting up local video stream"); // Log the setting of the local video stream
       localVideoRef.current.srcObject = mediaStream;
     }
 
     if (mediaError) {
-      console.log("Media error:", mediaError); // Log any media errors
+      console.log("Media error:", mediaError);
     }
 
     return () => {
-      console.log("Cleaning up local video stream"); // Log clean-up steps
       mediaStream?.getTracks().forEach((track) => track.stop());
     };
   }, [mediaStream, mediaError]);
@@ -62,12 +60,12 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
         Close
       </button>
       <video ref={localVideoRef} autoPlay muted className="local-video"></video>
-      <video ref={remoteVideoRef} autoPlay className="remote-video"></video>
+      {/* <video ref={remoteVideoRef} autoPlay className="remote-video"></video> */}
     </div>
   );
 }
 
-VideoCall.propTypes = {
-  setIsVideoCallOpen: PropTypes.func.isRequired,
-  peerConnection: PropTypes.object,
-};
+// VideoCall.propTypes = {
+//   setIsVideoCallOpen: PropTypes.func.isRequired,
+//   peerConnection: PropTypes.object,
+// };

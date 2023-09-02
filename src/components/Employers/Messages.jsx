@@ -32,7 +32,6 @@ import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import useWebRTC from "../../customhooks/useWebRTC";
 import { VideoCall } from "./Videocall";
 export function Messages() {
-  console.log("Message Rendered");
   const dispatch = useDispatch();
   const toast = useToast();
   const { userId } = useUser();
@@ -42,13 +41,7 @@ export function Messages() {
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const messages = useSelector((state) => state.messages);
-  const CALL_STATUS = {
-    IDLE: "IDLE",
-    PROCESSING: "PROCESSING",
-    IN_CALL: "IN_CALL",
-    FAILED: "FAILED",
-  };
-  const [callStatus, setCallStatus] = useState(CALL_STATUS.IDLE);
+
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
@@ -86,13 +79,13 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  const {
-    peerConnection,
-    createOffer,
-    createAnswer,
-    addIceCandidate,
-    createNewCall,
-  } = useWebRTC(userId, currentRecipientId);
+  // const {
+  //   peerConnection,
+  //   createOffer,
+  //   createAnswer,
+  //   addIceCandidate,
+  //   createNewCall,
+  // } = useWebRTC(userId, currentRecipientId);
 
   // const startVideoCall = async () => {
   //   setCallStatus(CALL_STATUS.PROCESSING);
@@ -307,7 +300,7 @@ export function Messages() {
           <ModalHeader>Video Call</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <VideoCall peerConnection={peerConnection} />
+            <VideoCall />
           </ModalBody>
         </ModalContent>
       </Modal>
