@@ -1,14 +1,36 @@
 import { useState, useEffect } from "react";
-import { db } from "../configurations/firebaseConfig";
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  collection,
+  addDoc,
+  onSnapshot,
+} from "firebase/firestore";
+import { getDb } from "../configurations/firebaseConfig";
+
+const db = getDb();
 
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const listenForRemoteSDP = async () => {
+      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+      onSnapshot(callDoc, async (snapshot) => {
+        const data = snapshot.data();
+        if (peerConnection.signalingState !== "stable" && data?.answer) {
+          const remoteOffer = new RTCSessionDescription(data.answer);
+          await peerConnection.setRemoteDescription(remoteOffer);
+        }
+      });
+    };
+
     listenForRemoteSDP().catch((err) =>
       console.error("An error occurred:", err)
     );
+
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
@@ -16,11 +38,9 @@ const useWebRTC = (userId, applicantAppUserId) => {
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
-        const callDoc = db
-          .collection("calls")
-          .doc(`${userId}-${applicantAppUserId}`);
-        const candidatesCollection = callDoc.collection("candidates");
-        await candidatesCollection.add(event.candidate.toJSON());
+        const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+        const candidatesCollection = collection(callDoc, "candidates");
+        await addDoc(candidatesCollection, event.candidate.toJSON());
       }
     };
 
@@ -29,17 +49,15 @@ const useWebRTC = (userId, applicantAppUserId) => {
     };
 
     setPeerConnection(pc);
-  }, [userId, applicantAppUserId, db]);
+  }, [userId, applicantAppUserId]);
 
   const createOffer = async () => {
     try {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
 
-      const callDoc = db
-        .collection("calls")
-        .doc(`${userId}-${applicantAppUserId}`);
-      await callDoc.set({ offer: offer.toJSON() }, { merge: true });
+      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+      await setDoc(callDoc, { offer: offer.toJSON() }, { merge: true });
     } catch (e) {
       setError(`Failed to create an offer: ${e.toString()}`);
     }
@@ -51,10 +69,8 @@ const useWebRTC = (userId, applicantAppUserId) => {
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
-      const callDoc = db
-        .collection("calls")
-        .doc(`${userId}-${applicantAppUserId}`);
-      await callDoc.update({ answer: answer.toJSON() });
+      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+      await updateDoc(callDoc, { answer: answer.toJSON() });
     } catch (e) {
       setError(`Failed to create an answer: ${e.toString()}`);
     }
@@ -68,22 +84,11 @@ const useWebRTC = (userId, applicantAppUserId) => {
     }
   };
 
-  const createNewCall = async () => {
-    try {
-      // You can add logic here to initialize a new call.
-      // Maybe creating a Firestore doc or something else.
-    } catch (e) {
-      setError(`Failed to create new call: ${e.toString()}`);
-    }
-  };
-
   const listenForRemoteICECandidate = () => {
-    const callDoc = db
-      .collection("calls")
-      .doc(`${userId}-${applicantAppUserId}`);
-    const candidatesCollection = callDoc.collection("candidates");
+    const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+    const candidatesCollection = collection(callDoc, "candidates");
 
-    candidatesCollection.onSnapshot((snapshot) => {
+    onSnapshot(candidatesCollection, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           let candidate = new RTCIceCandidate(change.doc.data());
@@ -95,23 +100,9 @@ const useWebRTC = (userId, applicantAppUserId) => {
     });
   };
 
-  const listenForRemoteSDP = async () => {
-    const callDoc = db
-      .collection("calls")
-      .doc(`${userId}-${applicantAppUserId}`);
-
-    callDoc.onSnapshot(async (snapshot) => {
-      const data = snapshot.data();
-      if (peerConnection.signalingState !== "stable" && data && data.answer) {
-        const remoteOffer = new RTCSessionDescription(data.answer);
-        await peerConnection.setRemoteDescription(remoteOffer);
-      }
-    });
-  };
   useEffect(() => {
     if (peerConnection) {
       listenForRemoteICECandidate();
-      listenForRemoteSDP();
     }
   }, [peerConnection]);
 
@@ -120,7 +111,6 @@ const useWebRTC = (userId, applicantAppUserId) => {
     createOffer,
     createAnswer,
     addIceCandidate,
-    createNewCall,
     error,
   };
 };
