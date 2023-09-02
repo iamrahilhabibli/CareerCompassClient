@@ -16,25 +16,24 @@ const useWebRTC = (userId, applicantAppUserId) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const listenForRemoteSDP = async () => {
-      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
-      onSnapshot(callDoc, async (snapshot) => {
-        const data = snapshot.data();
-        if (peerConnection.signalingState !== "stable" && data?.answer) {
-          const remoteOffer = new RTCSessionDescription(data.answer);
-          await peerConnection.setRemoteDescription(remoteOffer);
-        }
-      });
-    };
-
-    listenForRemoteSDP().catch((err) =>
-      console.error("An error occurred:", err)
-    );
+    let isMounted = true;
 
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
     const pc = new RTCPeerConnection(configuration);
+
+    const listenForRemoteSDP = async () => {
+      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+      onSnapshot(callDoc, async (snapshot) => {
+        const data = snapshot.data();
+        if (isMounted && pc && pc.signalingState !== "stable" && data?.answer) {
+          console.log("Setting remote description");
+          const remoteOffer = new RTCSessionDescription(data.answer);
+          await pc.setRemoteDescription(remoteOffer);
+        }
+      });
+    };
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
@@ -48,7 +47,18 @@ const useWebRTC = (userId, applicantAppUserId) => {
       // TODO: Handle remote media stream, you'll likely assign this to some React state.
     };
 
+    listenForRemoteSDP().catch((err) => {
+      console.error("An error occurred:", err);
+    });
+
     setPeerConnection(pc);
+
+    return () => {
+      isMounted = false; // Component will unmount
+      if (pc) {
+        pc.close(); // Close the peer connection when the component unmounts
+      }
+    };
   }, [userId, applicantAppUserId]);
 
   const createOffer = async () => {

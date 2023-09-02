@@ -32,6 +32,7 @@ import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import useWebRTC from "../../customhooks/useWebRTC";
 import { VideoCall } from "./Videocall";
 export function Messages() {
+  console.log("Message Rendered");
   const dispatch = useDispatch();
   const toast = useToast();
   const { userId } = useUser();
@@ -40,7 +41,6 @@ export function Messages() {
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-
   const messages = useSelector((state) => state.messages);
   const CALL_STATUS = {
     IDLE: "IDLE",
@@ -86,7 +86,6 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-
   const {
     peerConnection,
     createOffer,
@@ -95,39 +94,35 @@ export function Messages() {
     createNewCall,
   } = useWebRTC(userId, currentRecipientId);
 
-  const startVideoCall = async () => {
-    setCallStatus(CALL_STATUS.PROCESSING);
-    try {
-      // Create the WebRTC offer
-      const offer = await createOffer();
+  // const startVideoCall = async () => {
+  //   setCallStatus(CALL_STATUS.PROCESSING);
+  //   try {
+  //     const offer = await createOffer();
+  //     await connectionRef.current.invoke(
+  //       "StartNewVideoCall",
+  //       userId,
+  //       currentRecipientId,
+  //       offer
+  //     );
 
-      // Use SignalR to notify the recipient about the new video call and pass along the 'offer'
-      await connectionRef.current.invoke(
-        "StartNewVideoCall",
-        userId,
-        currentRecipientId,
-        offer
-      );
+  //     setCallStatus(CALL_STATUS.IN_CALL);
+  //     setIsVideoCallOpen(true);
+  //   } catch (error) {
+  //     console.error("Failed to start video call", error);
 
-      // If everything went well, set the call status to 'IN_CALL'
-      setCallStatus(CALL_STATUS.IN_CALL);
+  //     toast({
+  //       title: "An error occurred.",
+  //       description: "Failed to start a video call.",
+  //       status: "error",
+  //       duration: 5000,
+  //       isClosable: true,
+  //     });
 
-      // Open the video call window (modal)
-      setIsVideoCallOpen(true);
-    } catch (error) {
-      console.error("Failed to start video call", error);
-
-      // Display error toast
-      toast({
-        title: "An error occurred.",
-        description: "Failed to start a video call.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      setCallStatus(CALL_STATUS.FAILED);
-    }
+  //     setCallStatus(CALL_STATUS.FAILED);
+  //   }
+  // };
+  const startVideoCall = () => {
+    setIsVideoCallOpen(true);
   };
 
   const closeModal = async () => {
@@ -189,17 +184,7 @@ export function Messages() {
 
         <Box my={4} />
 
-        <Box
-          my={4}
-          borderWidth={"1px"}
-          rounded={"lg"}
-          height={"200px"}
-          bg={"white"}
-          bgRepeat="no-repeat"
-          bgSize="auto 100%"
-          bgPosition="right"
-          shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        >
+        <Box my={4}>
           {approvedApplicants?.length > 0 ? (
             approvedApplicants.map((applicant) => (
               <Flex
@@ -221,15 +206,26 @@ export function Messages() {
                     <Text fontSize="sm">Click to chat</Text>
                   </Box>
                 </Flex>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  Delete
-                </Button>
+                <Flex>
+                  <IconButton
+                    aria-label="Start video call"
+                    icon={<FaVideo />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startVideoCall();
+                    }}
+                    m={2}
+                  />
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Flex>
               </Flex>
             ))
           ) : (
@@ -241,6 +237,7 @@ export function Messages() {
           )}
         </Box>
       </Box>
+
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>
@@ -251,15 +248,6 @@ export function Messages() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>
-            <Flex justifyContent="flex-end">
-              <IconButton
-                aria-label="Start video call"
-                icon={<FaVideo />}
-                onClick={startVideoCall}
-                m={2}
-                isDisabled={callStatus === CALL_STATUS.IN_CALL}
-              />
-            </Flex>
             <Box
               flex="1"
               bg="gray.100"
@@ -313,12 +301,16 @@ export function Messages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {isVideoCallOpen && (
-        <VideoCall
-          setIsVideoCallOpen={setIsVideoCallOpen}
-          peerConnection={peerConnection}
-        />
-      )}
+      <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Video Call</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VideoCall peerConnection={peerConnection} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

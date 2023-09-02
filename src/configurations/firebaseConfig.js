@@ -14,10 +14,8 @@ export const getDb = () => {
       appId: process.env.REACT_APP_APP_ID,
       measurementId: process.env.REACT_APP_MEASUREMENT_ID,
     };
-
     const app = initializeApp(firebaseConfig);
     dbInstance = getFirestore(app);
   }
-
   return dbInstance;
 };

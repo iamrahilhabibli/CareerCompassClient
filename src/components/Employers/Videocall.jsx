@@ -1,48 +1,73 @@
 import React, { useRef, useEffect } from "react";
 import PropTypes from "prop-types";
+import useUserMedia from "../../customhooks/useUserMedia";
 
 export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
+  console.log("VideoCall component is rendering");
+
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
 
+  const { mediaStream, error: mediaError } = useUserMedia({
+    video: true,
+    audio: true,
+  });
+
   useEffect(() => {
-    // Assuming you handle peer connections elsewhere and are passing them down as props.
-    if (peerConnection) {
-      // Attach your local and remote video streams to the video tags
-      // This would generally be done where you handle your WebRTC logic
-      // Here's a skeleton code to give you an idea
-      peerConnection.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
+    console.log("First useEffect for mediaStream and mediaError triggered"); // Log useEffect runs
+    if (mediaStream && localVideoRef.current) {
+      console.log("Setting up local video stream"); // Log the setting of the local video stream
+      localVideoRef.current.srcObject = mediaStream;
     }
-  }, [peerConnection]);
+
+    if (mediaError) {
+      console.log("Media error:", mediaError); // Log any media errors
+    }
+
+    return () => {
+      console.log("Cleaning up local video stream"); // Log clean-up steps
+      mediaStream?.getTracks().forEach((track) => track.stop());
+    };
+  }, [mediaStream, mediaError]);
+
+  // useEffect(() => {
+  //   console.log("Second useEffect for peerConnection triggered"); // Log useEffect runs
+  //   if (peerConnection) {
+  //     console.log("Setting up peer connection"); // Log the setting of the peer connection
+
+  //     const handleTrackEvent = (event) => {
+  //       console.log("Handling track event"); // Log when track events are being handled
+  //       if (remoteVideoRef.current) {
+  //         remoteVideoRef.current.srcObject = event.streams[0];
+  //       }
+  //     };
+
+  //     peerConnection.ontrack = handleTrackEvent;
+
+  //     return () => {
+  //       console.log("Cleaning up peer connection"); // Log clean-up steps
+  //       peerConnection.ontrack = null;
+  //     };
+  //   }
+  // }, [peerConnection]);
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        zIndex: 9999,
-      }}
-    >
-      <button onClick={() => setIsVideoCallOpen(false)}>Close</button>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        style={{ width: "50%", height: "50%" }}
-      ></video>
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        style={{ width: "50%", height: "50%" }}
-      ></video>
+    <div className="video-call-wrapper">
+      <button
+        onClick={() => {
+          console.log("Close button clicked");
+          setIsVideoCallOpen(false);
+        }}
+      >
+        Close
+      </button>
+      <video ref={localVideoRef} autoPlay muted className="local-video"></video>
+      <video ref={remoteVideoRef} autoPlay className="remote-video"></video>
     </div>
   );
 }
+
+VideoCall.propTypes = {
+  setIsVideoCallOpen: PropTypes.func.isRequired,
+  peerConnection: PropTypes.object,
+};
