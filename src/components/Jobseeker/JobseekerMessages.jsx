@@ -90,6 +90,7 @@ export function JobseekerMessages() {
     setCallerId(recruiterAppUserId);
   };
   useSignalRVideo(userId, handleReceiveCallOffer);
+  console.log("Userid", userId);
   const {
     data: jobseekerContacts,
     isLoading,

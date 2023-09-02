@@ -65,25 +65,26 @@ const useWebRTC = (userId, applicantAppUserId) => {
     setError(null);
 
     if (!peerConnection) {
-      console.error("Peer connection is not initialized.");
-      return;
+      setError("Peer connection is not initialized.");
+      return null;
     }
 
-    console.log("Creating offer...");
-
     try {
-      console.log("About to create offer");
       const offer = await peerConnection.createOffer();
+      if (!offer) {
+        setError("Offer is null or undefined.");
+        return null; // Return null to indicate that the function didn't succeed
+      }
+
       await peerConnection.setLocalDescription(offer);
-      console.log("PeerConnection State:", peerConnection.signalingState);
 
       const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
       await setDoc(callDoc, { offer: offer.toJSON() }, { merge: true });
 
-      console.log("Offer created and set.");
+      return offer; // Return the offer
     } catch (e) {
-      setError(`Failed to create an offer: ${e.toString()}`);
-      console.error(`Failed to create an offer: ${e.toString()}`);
+      setError(`Failed to create an offer: ${e}`);
+      return null; // Return null to indicate that the function didn't succeed
     }
   };
 

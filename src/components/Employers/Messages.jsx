@@ -34,7 +34,7 @@ import { VideoCall } from "./Videocall";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
-  const { userId, userRole } = useUser();
+  const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -90,17 +90,21 @@ export function Messages() {
 
   const startVideoCall = async (recipientId) => {
     setCurrentRecipientId(recipientId);
-    console.log("recipient id in startvideocal", recipientId);
 
     try {
       const offer = await createOffer();
+      if (!offer) {
+        throw new Error("Offer is null or undefined.");
+      }
 
-      await connectionRef.current.invoke(
-        "StartDirectCallAsync",
-        userId,
-        recipientId,
-        offer
-      );
+      await connectionRef.current
+        .invoke(
+          "StartDirectCallAsync",
+          userId,
+          recipientId,
+          JSON.stringify(offer)
+        )
+        .catch((err) => console.error(err));
 
       setIsVideoCallOpen(true);
     } catch (error) {
@@ -115,7 +119,7 @@ export function Messages() {
       });
     }
   };
-  console.log(userId);
+
   const closeModal = async () => {
     setIsOpen(false);
     try {

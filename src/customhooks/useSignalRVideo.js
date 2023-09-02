@@ -1,61 +1,74 @@
 import { useEffect } from "react";
-import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
-import * as signalR from "@microsoft/signalr";
+import {
+  HubConnectionBuilder,
+  HubConnectionState,
+  LogLevel,
+} from "@microsoft/signalr";
 
 export const useSignalRVideo = (userId, handleReceiveCallOffer) => {
-  console.log("useSignalRVideo", userId);
+  console.log("Initializing useSignalRVideo with userId:", userId);
+
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl("https://localhost:7013/chat")
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
+      .withAutomaticReconnect([0, 1000, 5000, 10000]) // You can configure this
+      .configureLogging(LogLevel.Information)
       .build();
 
-    connection
-      .start()
-      .then(() => {
-        console.log("Connection started");
-      })
-      .catch((err) => console.error("Initial connection error:", err));
-    connection.on("ReceiveDirectCall", (userId, recipientId, offer) => {
-      console.log("ReceiveDirectCall event received", {
-        userId,
-        recipientId,
-        offer,
-      });
+    const startConnection = async () => {
+      try {
+        await connection.start();
+        console.log("SignalR Connection successfully started");
+      } catch (error) {
+        console.error("Error while establishing the connection:", error);
+      }
+    };
+
+    startConnection();
+
+    connection.on("ReceiveDirectCall", (callerId, recipientId, offer) => {
+      console.log("Debug: Inside ReceiveDirectCall event handler");
+      console.log("Debug: Received userId:", recipientId);
+      console.log("Debug: Expected userId:", userId);
+
       if (userId === recipientId) {
-        handleReceiveCallOffer(userId, recipientId, offer);
+        console.log(
+          "Debug: userId match found, invoking handleReceiveCallOffer"
+        );
+        handleReceiveCallOffer(callerId, recipientId, offer);
+      } else {
+        console.log("Debug: userId match not found, ignoring");
       }
     });
 
     connection.onclose((error) => {
       console.error(
-        "SignalR Connection Closed:",
-        error || "Connection closed without error."
+        "SignalR Connection closed:",
+        error ?? "Connection closed without error"
       );
     });
 
-    connection.onreconnecting((error) =>
-      console.log("Connection is being reestablished:", error)
-    );
-    connection.onreconnected((connectionId) =>
-      console.log(
-        "Connection successfully reestablished, connectionId:",
-        connectionId
-      )
-    );
+    connection.onreconnecting((error) => {
+      console.log("Attempting to reconnect:", error);
+    });
+
+    connection.onreconnected((connectionId) => {
+      console.log("Successfully reconnected. Connection ID:", connectionId);
+    });
 
     return () => {
       if (connection.state === HubConnectionState.Connected) {
         connection
           .stop()
-          .then(() => console.log("Connection stopped"))
-          .catch((err) =>
-            console.error("Error while stopping the connection:", err)
-          );
+          .then(() => {
+            console.log("SignalR Connection successfully stopped");
+          })
+          .catch((err) => {
+            console.error("Error while stopping the connection:", err);
+          });
       }
     };
   }, [userId, handleReceiveCallOffer]);
 
-  return;
+  return; // Explicitly returning undefined; you can return some value if needed in the future.
 };
