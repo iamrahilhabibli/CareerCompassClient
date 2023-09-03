@@ -34,8 +34,6 @@ export const useSignalRVideo = (
               handleReceiveCallOffer(callerId, recipientId, offer);
             }
           });
-
-          // Join all relevant groups for this user based on the jobseekerContacts
           if (jobseekerContacts) {
             jobseekerContacts.forEach((contact) => {
               if (connection.state === HubConnectionState.Connected) {

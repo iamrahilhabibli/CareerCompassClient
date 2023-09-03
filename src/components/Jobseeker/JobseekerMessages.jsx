@@ -36,6 +36,8 @@ import {
   AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { useSignalRVideo } from "../../customhooks/useSignalRVideo";
+import { VideoCall } from "../Employers/Videocall";
+import useWebRTC from "../../customhooks/useWebRTC";
 
 export function JobseekerMessages() {
   const toast = useToast();
@@ -50,6 +52,7 @@ export function JobseekerMessages() {
   const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
   const [callerId, setCallerId] = useState(null);
   const cancelRef = useRef();
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -89,6 +92,9 @@ export function JobseekerMessages() {
     setIsCallDialogOpen(true);
     setCallerId(recruiterAppUserId);
   };
+  const { peerConnection, createOffer, createAnswer, addIceCandidate, error } =
+    useWebRTC(userId, callerId);
+
   const {
     data: jobseekerContacts,
     isLoading,
@@ -297,6 +303,7 @@ export function JobseekerMessages() {
                 colorScheme="green"
                 onClick={() => {
                   setIsCallDialogOpen(false);
+                  setIsVideoCallOpen(true);
                 }}
               >
                 Accept
@@ -305,6 +312,13 @@ export function JobseekerMessages() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+      {isVideoCallOpen && (
+        <VideoCall
+          setIsVideoCallOpen={setIsVideoCallOpen}
+          peerConnection={peerConnection}
+        />
+      )}
     </>
   );
 }

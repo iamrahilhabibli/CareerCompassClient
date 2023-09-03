@@ -11,7 +11,7 @@ import { getDb } from "../configurations/firebaseConfig";
 
 const db = getDb();
 
-const useWebRTC = (userId, applicantAppUserId) => {
+const useWebRTC = (userId, applicantAppUserId, callerId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
 
@@ -59,7 +59,7 @@ const useWebRTC = (userId, applicantAppUserId) => {
         pc.close();
       }
     };
-  }, [userId, applicantAppUserId]);
+  }, [userId, applicantAppUserId, callerId]);
 
   const createOffer = async () => {
     setError(null);
@@ -94,7 +94,7 @@ const useWebRTC = (userId, applicantAppUserId) => {
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
-      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
+      const callDoc = doc(db, "calls", `${callerId}-${userId}`); // Use callerId and userId
       await updateDoc(callDoc, { answer: answer.toJSON() });
     } catch (e) {
       setError(`Failed to create an answer: ${e.toString()}`);
