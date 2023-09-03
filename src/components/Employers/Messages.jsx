@@ -129,7 +129,7 @@ export function Messages() {
     createAnswer,
     addIceCandidate,
     createNewCall,
-  } = useWebRTC(userId, currentRecipientId);
+  } = useWebRTC(userId, currentRecipientId, videoConnectionRef);
 
   const startVideoCall = async (recipientId, mediaStream) => {
     setCurrentRecipientId(recipientId);
@@ -147,6 +147,29 @@ export function Messages() {
       if (!offer) {
         throw new Error("Offer is null or undefined.");
       }
+      peerConnection.onicecandidate = async (event) => {
+        if (event.candidate) {
+          console.log("ICE candidate generated:", event.candidate);
+
+          if (
+            videoConnectionRef.current.state === HubConnectionState.Connected
+          ) {
+            await videoConnectionRef.current
+              .invoke(
+                "SendIceCandidate",
+                recipientId,
+                JSON.stringify(event.candidate)
+              )
+              .then(() => {
+                console.log("ICE candidate successfully sent to the server.");
+              })
+              .catch((error) => {
+                console.log("Error sending ICE candidate:", error);
+              });
+          }
+        }
+      };
+
       if (videoConnectionRef.current.state === HubConnectionState.Connected) {
         await videoConnectionRef.current
           .invoke("JoinGroup", userId, recipientId)

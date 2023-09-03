@@ -38,7 +38,12 @@ const listenForRemoteSDP = async (pc, callDocRef, isMounted) => {
   });
 };
 
-const useWebRTC = (userId, applicantAppUserId, callerId) => {
+const useWebRTC = (
+  userId,
+  applicantAppUserId,
+  callerId,
+  videoConnectionRef
+) => {
   const [localAnswer, setLocalAnswer] = useState(null);
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
@@ -53,8 +58,11 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
-        const candidatesCollection = collection(callDocRef, "candidates");
-        await addDoc(candidatesCollection, event.candidate.toJSON());
+        await videoConnectionRef.current.invoke(
+          "SendIceCandidate",
+          applicantAppUserId,
+          JSON.stringify(event.candidate)
+        );
       }
     };
 
