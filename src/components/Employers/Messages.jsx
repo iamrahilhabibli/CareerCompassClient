@@ -20,8 +20,13 @@ import {
   ModalFooter,
   Input,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import inboxImg from "../../images/inbox.png";
+import {
+  HubConnectionBuilder,
+  HubConnectionState,
+  LogLevel,
+} from "@microsoft/signalr";
 import axios from "axios";
 import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
@@ -41,7 +46,7 @@ export function Messages() {
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const messages = useSelector((state) => state.messages);
-
+  const videoConnectionRef = useRef(null);
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
@@ -79,6 +84,35 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
+  useEffect(() => {
+    videoConnectionRef.current = new HubConnectionBuilder()
+      .withUrl("https://localhost:7013/video")
+      .withAutomaticReconnect([0, 1000, 5000, 10000])
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    videoConnectionRef.current
+      .start()
+      .then(() => console.log("VideoHub connected"))
+      .catch((err) =>
+        console.log("Error while establishing VideoHub connection: ", err)
+      );
+
+    videoConnectionRef.current.on(
+      "ReceiveDirectCallAnswer",
+      (callerId, answerJson) => {
+        console.log("Received answer:", answerJson);
+      }
+    );
+
+    return () => {
+      videoConnectionRef.current
+        .stop()
+        .catch((err) =>
+          console.log("Error stopping VideoHub connection:", err)
+        );
+    };
+  }, []);
 
   const {
     peerConnection,
@@ -97,14 +131,26 @@ export function Messages() {
         throw new Error("Offer is null or undefined.");
       }
 
-      await connectionRef.current
-        .invoke(
-          "StartDirectCallAsync",
-          userId,
-          recipientId,
-          JSON.stringify(offer)
-        )
-        .catch((err) => console.error(err));
+      if (videoConnectionRef.current.state === HubConnectionState.Connected) {
+        await videoConnectionRef.current
+          .invoke("JoinGroup", userId, recipientId)
+          .catch((err) => console.error("Error invoking JoinGroup:", err));
+
+        await videoConnectionRef.current
+          .invoke(
+            "StartDirectCallAsync",
+            userId,
+            recipientId,
+            JSON.stringify(offer)
+          )
+          .catch((err) =>
+            console.error("Error invoking StartDirectCallAsync:", err)
+          );
+      } else {
+        throw new Error(
+          "VideoHub Connection is not available or not connected"
+        );
+      }
 
       setIsVideoCallOpen(true);
     } catch (error) {

@@ -89,8 +89,6 @@ export function JobseekerMessages() {
     setIsCallDialogOpen(true);
     setCallerId(recruiterAppUserId);
   };
-  useSignalRVideo(userId, handleReceiveCallOffer);
-  console.log("Userid", userId);
   const {
     data: jobseekerContacts,
     isLoading,
@@ -100,6 +98,7 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
+  useSignalRVideo(userId, handleReceiveCallOffer, jobseekerContacts);
   const closeModal = async () => {
     setIsOpen(false);
     try {
