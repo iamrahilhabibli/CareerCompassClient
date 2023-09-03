@@ -5,6 +5,7 @@ import downloadReducer from "../reducers/downloadSlice";
 import jobVacancyReducer from "../reducers/jobVacancySlice";
 import applicantReducer from "../reducers/applicantSlice";
 import messageReducer from "../reducers/messageSlice";
+import callReducer from "../reducers/callSlice";
 export const store = configureStore({
   reducer: {
     searchHistory: searchHistorySlice,
@@ -13,6 +14,7 @@ export const store = configureStore({
     jobVacancy: jobVacancyReducer,
     applicant: applicantReducer,
     messages: messageReducer,
+    call: callReducer,
   },
   devTools: process.env.NODE_ENV !== "production",
 });

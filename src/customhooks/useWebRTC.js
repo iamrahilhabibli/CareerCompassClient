@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   doc,
   setDoc,
@@ -11,34 +11,49 @@ import { getDb } from "../configurations/firebaseConfig";
 
 const db = getDb();
 
-const useWebRTC = (userId, applicantAppUserId, callerId) => {
-  const [peerConnection, setPeerConnection] = useState(null);
-  const [error, setError] = useState(null);
+const useIsMounted = () => {
+  const isMounted = useRef(true);
 
   useEffect(() => {
-    let isMounted = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
+  return isMounted;
+};
+
+const listenForRemoteSDP = async (pc, callDocRef, isMounted) => {
+  onSnapshot(callDocRef, async (snapshot) => {
+    const data = snapshot.data();
+    if (isMounted.current && pc && data?.answer) {
+      console.log("Setting remote description: ", data.answer);
+      try {
+        const remoteOffer = new RTCSessionDescription(data.answer);
+        await pc.setRemoteDescription(remoteOffer);
+      } catch (error) {
+        console.error("Failed to set remote description: ", error);
+      }
+    }
+  });
+};
+
+const useWebRTC = (userId, applicantAppUserId, callerId) => {
+  const [localAnswer, setLocalAnswer] = useState(null);
+  const [peerConnection, setPeerConnection] = useState(null);
+  const [error, setError] = useState(null);
+  const isMounted = useIsMounted();
+
+  useEffect(() => {
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
     const pc = new RTCPeerConnection(configuration);
-
-    const listenForRemoteSDP = async () => {
-      const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
-      onSnapshot(callDoc, async (snapshot) => {
-        const data = snapshot.data();
-        if (isMounted && pc && pc.signalingState !== "stable" && data?.answer) {
-          console.log("Setting remote description");
-          const remoteOffer = new RTCSessionDescription(data.answer);
-          await pc.setRemoteDescription(remoteOffer);
-        }
-      });
-    };
+    const callDocRef = doc(db, "calls", `${userId}-${applicantAppUserId}`);
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
-        const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
-        const candidatesCollection = collection(callDoc, "candidates");
+        const candidatesCollection = collection(callDocRef, "candidates");
         await addDoc(candidatesCollection, event.candidate.toJSON());
       }
     };
@@ -47,14 +62,14 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
       // TODO: Handle remote media stream.
     };
 
-    listenForRemoteSDP().catch((err) => {
+    listenForRemoteSDP(pc, callDocRef, isMounted).catch((err) => {
       console.error("An error occurred:", err);
     });
 
     setPeerConnection(pc);
 
     return () => {
-      isMounted = false;
+      isMounted.current = false;
       if (pc) {
         pc.close();
       }
@@ -89,13 +104,25 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
   };
 
   const createAnswer = async () => {
+    console.log("Inside createAnswer...");
+    if (!peerConnection) {
+      console.log("Peer connection is not initialized.");
+      return;
+    }
     try {
       const offer = peerConnection.remoteDescription;
+      if (!offer) {
+        console.log("Remote description is not set.");
+        return;
+      }
       const answer = await peerConnection.createAnswer();
+      console.log("Answer created: ", answer);
       await peerConnection.setLocalDescription(answer);
 
-      const callDoc = doc(db, "calls", `${callerId}-${userId}`); // Use callerId and userId
+      const callDoc = doc(db, "calls", `${callerId}-${userId}`);
       await updateDoc(callDoc, { answer: answer.toJSON() });
+
+      setLocalAnswer(answer);
     } catch (e) {
       setError(`Failed to create an answer: ${e.toString()}`);
     }
@@ -136,6 +163,7 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
     createOffer,
     createAnswer,
     addIceCandidate,
+    localAnswer,
     error,
   };
 };

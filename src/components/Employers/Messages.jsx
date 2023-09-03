@@ -122,20 +122,40 @@ export function Messages() {
     createNewCall,
   } = useWebRTC(userId, currentRecipientId);
 
-  const startVideoCall = async (recipientId) => {
+  const startVideoCall = async (recipientId, mediaStream) => {
     setCurrentRecipientId(recipientId);
+    console.log(
+      "Attempting to start a video call with recipientId:",
+      recipientId
+    );
+
+    // Add media tracks to the peer connection
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => {
+        peerConnection.current.addTrack(track, mediaStream);
+      });
+    } else {
+      console.warn(
+        "MediaStream not available, continuing without adding tracks."
+      );
+    }
 
     try {
+      console.log("Creating an offer...");
       const offer = await createOffer();
+      console.log("Offer created:", offer);
+
       if (!offer) {
         throw new Error("Offer is null or undefined.");
       }
 
       if (videoConnectionRef.current.state === HubConnectionState.Connected) {
+        console.log("VideoHub Connection is connected. Joining the group...");
         await videoConnectionRef.current
           .invoke("JoinGroup", userId, recipientId)
           .catch((err) => console.error("Error invoking JoinGroup:", err));
 
+        console.log("Invoking StartDirectCallAsync...");
         await videoConnectionRef.current
           .invoke(
             "StartDirectCallAsync",
@@ -152,6 +172,7 @@ export function Messages() {
         );
       }
 
+      console.log("Video call has been initiated.");
       setIsVideoCallOpen(true);
     } catch (error) {
       console.error("Failed to start video call", error);

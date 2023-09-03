@@ -38,6 +38,11 @@ import {
 import { useSignalRVideo } from "../../customhooks/useSignalRVideo";
 import { VideoCall } from "../Employers/Videocall";
 import useWebRTC from "../../customhooks/useWebRTC";
+import {
+  setAcceptedCall,
+  setDeclinedCall,
+  setIdle,
+} from "../../reducers/callSlice";
 
 export function JobseekerMessages() {
   const toast = useToast();
@@ -52,6 +57,7 @@ export function JobseekerMessages() {
   const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
   const [callerId, setCallerId] = useState(null);
   const cancelRef = useRef();
+  const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
 
   const openChatWithContact = async (contact) => {
@@ -69,7 +75,6 @@ export function JobseekerMessages() {
     }
     setIsOpen(true);
   };
-
   const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
@@ -83,17 +88,22 @@ export function JobseekerMessages() {
     addMessage
   );
   const handleSendMessage = useSendMessage(toast);
-  const handleReceiveCallOffer = (recruiterAppUserId, userId, offer) => {
-    console.log("handleReceiveCallOffer called with:", {
-      recruiterAppUserId,
-      userId,
-      offer,
-    });
+  const handleReceiveCallOffer = async (recruiterAppUserId, userId, offer) => {
     setIsCallDialogOpen(true);
     setCallerId(recruiterAppUserId);
+    if (!peerConnection) {
+      console.error("PeerConnection is not yet initialized.");
+      return;
+    }
+    console.log("HANDLE OFFER", offer);
+    try {
+      const remoteOffer = new RTCSessionDescription(offer);
+      await peerConnection.setRemoteDescription(remoteOffer);
+      await createAnswer();
+    } catch (err) {
+      console.error("Error in handleReceiveCallOffer: ", err);
+    }
   };
-  const { peerConnection, createOffer, createAnswer, addIceCandidate, error } =
-    useWebRTC(userId, callerId);
 
   const {
     data: jobseekerContacts,
@@ -104,7 +114,58 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  useSignalRVideo(userId, handleReceiveCallOffer, jobseekerContacts);
+  const { peerConnection, localAnswer, createAnswer, addIceCandidate, error } =
+    useWebRTC(userId, callerId);
+
+  const { connection } = useSignalRVideo(
+    userId,
+    handleReceiveCallOffer,
+    jobseekerContacts,
+    createAnswer
+  );
+
+  const handleAccept = async () => {
+    setIsCallDialogOpen(false);
+    setIsVideoCallOpen(true);
+
+    try {
+      if (!peerConnection) {
+        console.error("WebRTC peer connection is not properly initialized.");
+        return;
+      }
+
+      // Create an answer if not already created
+      if (!peerConnection.currentLocalDescription) {
+        await createAnswer();
+      }
+
+      const localAnswer = peerConnection.localDescription;
+      if (!localAnswer) {
+        console.error("WebRTC answer is not available.");
+        return;
+      }
+
+      console.log("Using WebRTC Answer: ", JSON.stringify(localAnswer));
+
+      if (
+        connection &&
+        connection.state === signalR.HubConnectionState.Connected
+      ) {
+        console.log("Sending WebRTC answer to recruiter...");
+        await connection.invoke(
+          "AnswerDirectCallAsync",
+          callerId,
+          JSON.stringify(localAnswer)
+        );
+        console.log("WebRTC answer sent to recruiter.");
+      } else {
+        console.error("SignalR connection is not available.");
+      }
+    } catch (error) {
+      console.error("Error in handleAccept: ", error);
+    }
+  };
+
   const closeModal = async () => {
     setIsOpen(false);
     try {
@@ -290,22 +351,19 @@ export function JobseekerMessages() {
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Incoming Call
             </AlertDialogHeader>
-
             <AlertDialogBody>
               {`You have an incoming call from ${callerId}. Do you want to accept?`}
             </AlertDialogBody>
-
             <AlertDialogFooter>
-              <Button onClick={() => setIsCallDialogOpen(false)}>
-                Decline
-              </Button>
               <Button
-                colorScheme="green"
                 onClick={() => {
                   setIsCallDialogOpen(false);
-                  setIsVideoCallOpen(true);
+                  dispatch(setDeclinedCall());
                 }}
               >
+                Decline
+              </Button>
+              <Button colorScheme="green" onClick={handleAccept}>
                 Accept
               </Button>
             </AlertDialogFooter>
@@ -313,12 +371,21 @@ export function JobseekerMessages() {
         </AlertDialogOverlay>
       </AlertDialog>
 
-      {isVideoCallOpen && (
-        <VideoCall
-          setIsVideoCallOpen={setIsVideoCallOpen}
-          peerConnection={peerConnection}
-        />
-      )}
+      <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Video Call</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {isVideoCallOpen && (
+              <VideoCall
+                setIsVideoCallOpen={setIsVideoCallOpen}
+                peerConnection={peerConnection}
+              />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

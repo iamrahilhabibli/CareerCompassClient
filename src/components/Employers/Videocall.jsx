@@ -1,12 +1,11 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useRef, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import useUserMedia from "../../customhooks/useUserMedia";
 
 export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
-  console.log("VideoCall component is rendering");
-
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const [error, setError] = useState(null);
 
   const constraints = useMemo(() => {
     return { video: true, audio: true };
@@ -20,7 +19,8 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
     }
 
     if (mediaError) {
-      console.log("Media error:", mediaError);
+      console.error("Media error:", mediaError);
+      setError(mediaError);
     }
 
     return () => {
@@ -29,13 +29,19 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
   }, [mediaStream, mediaError]);
 
   useEffect(() => {
-    console.log("Second useEffect for peerConnection triggered"); // Log useEffect runs
-    if (peerConnection) {
-      console.log("Setting up peer connection"); // Log the setting of the peer connection
+    if (peerConnection && mediaStream) {
+      if (
+        ["stable", "have-local-offer", "have-remote-offer"].includes(
+          peerConnection.signalingState
+        )
+      ) {
+        mediaStream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, mediaStream);
+        });
+      }
 
       const handleTrackEvent = (event) => {
-        console.log("Handling track event"); // Log when track events are being handled
-        if (remoteVideoRef.current) {
+        if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
@@ -43,17 +49,20 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
       peerConnection.ontrack = handleTrackEvent;
 
       return () => {
-        console.log("Cleaning up peer connection"); // Log clean-up steps
         peerConnection.ontrack = null;
+
+        // Stopping tracks and closing the peer connection may not be ideal here depending on your use-case
+        // peerConnection.getSenders().forEach((sender) => sender.track.stop());
+        // peerConnection.close();
       };
     }
-  }, [peerConnection]);
+  }, [peerConnection, mediaStream]);
 
   return (
     <div className="video-call-wrapper">
+      {error && <div className="error">{error}</div>}
       <button
         onClick={() => {
-          console.log("Close button clicked");
           setIsVideoCallOpen(false);
         }}
       >
@@ -65,7 +74,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection }) {
   );
 }
 
-// VideoCall.propTypes = {
-//   setIsVideoCallOpen: PropTypes.func.isRequired,
-//   peerConnection: PropTypes.object,
-// };
+VideoCall.propTypes = {
+  setIsVideoCallOpen: PropTypes.func.isRequired,
+  peerConnection: PropTypes.object,
+};
