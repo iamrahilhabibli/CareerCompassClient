@@ -88,7 +88,7 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
       const offer = await peerConnection.createOffer();
       if (!offer) {
         setError("Offer is null or undefined.");
-        return null; // Return null to indicate that the function didn't succeed
+        return null;
       }
 
       await peerConnection.setLocalDescription(offer);
@@ -96,10 +96,10 @@ const useWebRTC = (userId, applicantAppUserId, callerId) => {
       const callDoc = doc(db, "calls", `${userId}-${applicantAppUserId}`);
       await setDoc(callDoc, { offer: offer.toJSON() }, { merge: true });
 
-      return offer; // Return the offer
+      return offer;
     } catch (e) {
       setError(`Failed to create an offer: ${e}`);
-      return null; // Return null to indicate that the function didn't succeed
+      return null;
     }
   };
 

@@ -36,6 +36,7 @@ import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import useWebRTC from "../../customhooks/useWebRTC";
 import { VideoCall } from "./Videocall";
+import useUserMedia from "../../customhooks/useUserMedia";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
@@ -45,6 +46,14 @@ export function Messages() {
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const {
+    mediaStream,
+    error: mediaError,
+    startMedia,
+  } = useUserMedia({
+    video: true,
+    audio: true,
+  });
   const messages = useSelector((state) => state.messages);
   const videoConnectionRef = useRef(null);
   const openChatWithApplicant = async (applicant) => {
@@ -124,38 +133,24 @@ export function Messages() {
 
   const startVideoCall = async (recipientId, mediaStream) => {
     setCurrentRecipientId(recipientId);
-    console.log(
-      "Attempting to start a video call with recipientId:",
-      recipientId
-    );
-
-    // Add media tracks to the peer connection
+    await startMedia();
     if (mediaStream) {
       mediaStream.getTracks().forEach((track) => {
-        peerConnection.current.addTrack(track, mediaStream);
+        peerConnection.addTrack(track, mediaStream);
       });
     } else {
-      console.warn(
-        "MediaStream not available, continuing without adding tracks."
-      );
+      console.log("No MediaStream available.");
     }
 
     try {
-      console.log("Creating an offer...");
       const offer = await createOffer();
-      console.log("Offer created:", offer);
-
       if (!offer) {
         throw new Error("Offer is null or undefined.");
       }
-
       if (videoConnectionRef.current.state === HubConnectionState.Connected) {
-        console.log("VideoHub Connection is connected. Joining the group...");
         await videoConnectionRef.current
           .invoke("JoinGroup", userId, recipientId)
           .catch((err) => console.error("Error invoking JoinGroup:", err));
-
-        console.log("Invoking StartDirectCallAsync...");
         await videoConnectionRef.current
           .invoke(
             "StartDirectCallAsync",
@@ -172,7 +167,6 @@ export function Messages() {
         );
       }
 
-      console.log("Video call has been initiated.");
       setIsVideoCallOpen(true);
     } catch (error) {
       console.error("Failed to start video call", error);
@@ -274,7 +268,7 @@ export function Messages() {
                     icon={<FaVideo />}
                     onClick={(e) => {
                       e.stopPropagation();
-                      startVideoCall(applicant.applicantAppUserId);
+                      startVideoCall(applicant.applicantAppUserId, mediaStream);
                     }}
                     m={2}
                   />
@@ -370,7 +364,10 @@ export function Messages() {
           <ModalHeader>Video Call</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <VideoCall peerConnection={peerConnection} />
+            <VideoCall
+              peerConnection={peerConnection}
+              mediaStream={mediaStream}
+            />
           </ModalBody>
         </ModalContent>
       </Modal>
