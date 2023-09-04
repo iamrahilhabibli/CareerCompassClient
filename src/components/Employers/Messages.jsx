@@ -104,7 +104,7 @@ export function Messages() {
       .build();
 
     videoConnectionRef.current
-      .start() // Use start() here to establish the connection
+      .start()
       .then(() => {
         console.log("VideoHub connected");
       })
@@ -131,6 +131,7 @@ export function Messages() {
     currentRecipientId,
     videoConnectionRef
   );
+
   const handleStartVideoCall = async (recipientId) => {
     const stream = await startMedia();
     if (stream) {
@@ -234,7 +235,6 @@ export function Messages() {
         recipientId,
         JSON.stringify(candidate)
       );
-      console.log("ICE candidate successfully sent to the server.");
     } catch (error) {
       console.log("Error sending ICE candidate:", error);
     }
@@ -243,7 +243,6 @@ export function Messages() {
   const joinAndStartCall = async (userId, recipientId, offer) => {
     console.log("Invoking JoinGroup...");
     await videoConnectionRef.current.invoke("JoinGroup", userId, recipientId);
-
     console.log("Invoking StartDirectCallAsync...");
     await videoConnectionRef.current.invoke(
       "StartDirectCallAsync",
