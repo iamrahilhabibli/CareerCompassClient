@@ -30,9 +30,6 @@ const setupCallReception = (
     async (callerId, recipientId, offerJson) => {
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
-        console.log("Offer received:", offer);
-        console.log("CallerID:", callerId);
-        console.log("RecipientID:", recipientId);
         handleReceiveCallOffer(callerId, recipientId, offer);
       }
     }
@@ -41,10 +38,7 @@ const setupCallReception = (
   connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
     try {
       const iceCandidate = JSON.parse(iceCandidateJson);
-      console.log("ICE Candidate received:", iceCandidate);
-
       addIceCandidate(new RTCIceCandidate(iceCandidate));
-      console.log("ICE Candidate added:", iceCandidate);
     } catch (error) {
       console.error("Error handling received ICE candidate:", error);
     }
@@ -83,21 +77,10 @@ export const useSignalRVideo = (
   useEffect(() => {
     if (connection) {
       startConnection(connection)
-        .then(() => {
-          setupCallReception(
-            connection,
-            userId,
-            handleReceiveCallOffer,
-            createAnswer,
-            addIceCandidate
-          );
-          joinGroups(connection, userId, jobseekerContacts);
-        })
+        .then(() => joinGroups(connection, userId, jobseekerContacts))
         .catch((err) => console.error(err));
 
       return () => {
-        connection.off("ReceiveDirectCall");
-        connection.off("ReceiveIceCandidate"); // Don't forget to remove this listener
         if (connection.state === HubConnectionState.Connected) {
           connection
             .stop()
@@ -108,14 +91,23 @@ export const useSignalRVideo = (
         }
       };
     }
-  }, [
-    connection,
-    userId,
-    handleReceiveCallOffer,
-    jobseekerContacts,
-    createAnswer,
-    addIceCandidate,
-  ]);
+  }, [connection, userId, jobseekerContacts]);
+
+  useEffect(() => {
+    if (connection) {
+      setupCallReception(
+        connection,
+        userId,
+        handleReceiveCallOffer,
+        addIceCandidate
+      );
+
+      return () => {
+        connection.off("ReceiveDirectCall");
+        connection.off("ReceiveIceCandidate");
+      };
+    }
+  }, [connection, userId, handleReceiveCallOffer, addIceCandidate]);
 
   return { connection };
 };

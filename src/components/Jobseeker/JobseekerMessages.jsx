@@ -66,6 +66,7 @@ export function JobseekerMessages() {
     video: true,
     audio: true,
   });
+  console.log("mediaStream after useUserMedia:", mediaStream);
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -113,15 +114,16 @@ export function JobseekerMessages() {
     }
 
     try {
-      if (peerConnection.signalingState === "stable") {
-        const remoteOffer = new RTCSessionDescription(offer);
-        await peerConnection.setRemoteDescription(remoteOffer);
-        console.log("Remote offer set successfully.");
-      } else {
-        console.log(
-          "PeerConnection is not in a suitable state for setting remote description."
+      if (peerConnection.signalingState !== "stable") {
+        console.warn(
+          `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
         );
+        return;
       }
+
+      const remoteOffer = new RTCSessionDescription(offer);
+      await peerConnection.setRemoteDescription(remoteOffer);
+      console.log("Remote offer set successfully.");
     } catch (err) {
       console.error("Error in handleReceiveCallOffer: ", err);
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
@@ -162,45 +164,61 @@ export function JobseekerMessages() {
     setIsVideoCallOpen(true);
 
     if (!peerConnection) {
-      console.error("WebRTC peer connection is not properly initialized.");
-      showToastError("WebRTC peer connection is not properly initialized.");
+      console.error("WebRTC peer connection is not initialized.");
+      showToastError("WebRTC peer connection is not initialized.");
+      return;
+    }
+
+    console.log(
+      "PeerConnection signaling state:",
+      peerConnection.signalingState
+    );
+
+    if (peerConnection.signalingState !== "have-remote-offer") {
+      console.error("PeerConnection is not in 'have-remote-offer' state.");
+      showToastError("PeerConnection is not in 'have-remote-offer' state.");
+      return;
+    }
+
+    if (!peerConnection.remoteDescription) {
+      console.error("Remote description is not set. Cannot create answer.");
+      showToastError("Remote description is not set. Cannot create answer.");
+      return;
+    }
+
+    let localStream;
+    try {
+      localStream = await startMedia();
+      if (localStream) {
+        localStream
+          .getTracks()
+          .forEach((track) => peerConnection.addTrack(track, localStream));
+      } else {
+        console.warn("Local media stream is not available.");
+        return;
+      }
+    } catch (error) {
+      console.error("Error in obtaining local media: ", error);
+      showToastError("Error in obtaining local media.");
       return;
     }
 
     try {
-      if (!mediaStream) {
-        await startMedia();
-      }
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
 
-      if (!mediaStream) {
-        console.warn("Local media stream is not available.");
-        if (mediaError) {
-          console.error("Media Error: ", mediaError);
-        }
+      if (
+        connection &&
+        connection.state === signalR.HubConnectionState.Connected
+      ) {
+        await connection.invoke(
+          "AnswerDirectCallAsync",
+          callerId,
+          JSON.stringify(answer)
+        );
       } else {
-        mediaStream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, mediaStream);
-        });
-
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        console.log("Local SDP: ", JSON.stringify(answer));
-
-        if (
-          connection &&
-          connection.state === signalR.HubConnectionState.Connected
-        ) {
-          console.log("Sending WebRTC answer to recruiter...");
-          await connection.invoke(
-            "AnswerDirectCallAsync",
-            callerId,
-            JSON.stringify(answer)
-          );
-          console.log("WebRTC answer sent to recruiter.");
-        } else {
-          console.error("SignalR connection is not available.");
-          showToastError("SignalR connection is not available.");
-        }
+        console.error("SignalR connection is not available.");
+        showToastError("SignalR connection is not available.");
       }
     } catch (error) {
       console.error("Error in handleAccept: ", error);
@@ -405,7 +423,13 @@ export function JobseekerMessages() {
               >
                 Decline
               </Button>
-              <Button colorScheme="green" onClick={handleAccept}>
+              <Button
+                colorScheme="green"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAccept();
+                }}
+              >
                 Accept
               </Button>
             </AlertDialogFooter>

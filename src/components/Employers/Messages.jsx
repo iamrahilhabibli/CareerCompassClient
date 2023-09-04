@@ -55,6 +55,7 @@ export function Messages() {
     video: true,
     audio: true,
   });
+
   const messages = useSelector((state) => state.messages);
   const videoConnectionRef = useRef(null);
   const openChatWithApplicant = async (applicant) => {
