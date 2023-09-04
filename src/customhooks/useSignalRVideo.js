@@ -23,24 +23,32 @@ const setupCallReception = (
   connection,
   userId,
   handleReceiveCallOffer,
-  createAnswer
+  addIceCandidate
 ) => {
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
-        const answer = await createAnswer(offer);
-        console.log(offer);
-        await connection.invoke(
-          "AnswerDirectCallAsync",
-          callerId,
-          JSON.stringify(answer)
-        );
+        console.log("Offer received:", offer);
+        console.log("CallerID:", callerId);
+        console.log("RecipientID:", recipientId);
         handleReceiveCallOffer(callerId, recipientId, offer);
       }
     }
   );
+
+  connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
+    try {
+      const iceCandidate = JSON.parse(iceCandidateJson);
+      console.log("ICE Candidate received:", iceCandidate);
+
+      addIceCandidate(new RTCIceCandidate(iceCandidate));
+      console.log("ICE Candidate added:", iceCandidate);
+    } catch (error) {
+      console.error("Error handling received ICE candidate:", error);
+    }
+  });
 };
 
 const joinGroups = (connection, userId, jobseekerContacts) => {
@@ -57,7 +65,8 @@ export const useSignalRVideo = (
   userId,
   handleReceiveCallOffer,
   jobseekerContacts,
-  createAnswer
+  createAnswer,
+  addIceCandidate
 ) => {
   const [connection, setConnection] = useState(null);
 
@@ -79,7 +88,8 @@ export const useSignalRVideo = (
             connection,
             userId,
             handleReceiveCallOffer,
-            createAnswer
+            createAnswer,
+            addIceCandidate
           );
           joinGroups(connection, userId, jobseekerContacts);
         })
@@ -87,6 +97,7 @@ export const useSignalRVideo = (
 
       return () => {
         connection.off("ReceiveDirectCall");
+        connection.off("ReceiveIceCandidate"); // Don't forget to remove this listener
         if (connection.state === HubConnectionState.Connected) {
           connection
             .stop()
@@ -103,6 +114,7 @@ export const useSignalRVideo = (
     handleReceiveCallOffer,
     jobseekerContacts,
     createAnswer,
+    addIceCandidate,
   ]);
 
   return { connection };

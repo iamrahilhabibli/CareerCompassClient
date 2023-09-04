@@ -24,7 +24,6 @@ import * as signalR from "@microsoft/signalr";
 import useUser from "../../customhooks/useUser";
 import inboxImg from "../../images/inbox.png";
 import { addMessage } from "../../reducers/messageSlice";
-import { store } from "../../reduxstores/storgeConfig";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import {
@@ -43,10 +42,10 @@ import {
   setDeclinedCall,
   setIdle,
 } from "../../reducers/callSlice";
+import useUserMedia from "../../customhooks/useUserMedia";
 
 export function JobseekerMessages() {
   const toast = useToast();
-
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
@@ -59,6 +58,14 @@ export function JobseekerMessages() {
   const cancelRef = useRef();
   const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const {
+    mediaStream,
+    error: mediaError,
+    startMedia,
+  } = useUserMedia({
+    video: true,
+    audio: true,
+  });
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -88,21 +95,47 @@ export function JobseekerMessages() {
     addMessage
   );
   const handleSendMessage = useSendMessage(toast);
-  const handleReceiveCallOffer = async (recruiterAppUserId, userId, offer) => {
+
+  const handleReceiveCallOffer = async (callerId, recipientId, offer) => {
     setIsCallDialogOpen(true);
-    setCallerId(recruiterAppUserId);
+    setCallerId(callerId);
+
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
+      showToastError("PeerConnection is not yet initialized.");
       return;
     }
-    console.log("HANDLE OFFER", offer);
+
+    if (peerConnection.signalingState === "closed") {
+      console.error("PeerConnection signalingState is closed.");
+      showToastError("PeerConnection signalingState is closed.");
+      return;
+    }
+
     try {
-      const remoteOffer = new RTCSessionDescription(offer);
-      await peerConnection.setRemoteDescription(remoteOffer);
-      await createAnswer();
+      if (peerConnection.signalingState === "stable") {
+        const remoteOffer = new RTCSessionDescription(offer);
+        await peerConnection.setRemoteDescription(remoteOffer);
+        console.log("Remote offer set successfully.");
+      } else {
+        console.log(
+          "PeerConnection is not in a suitable state for setting remote description."
+        );
+      }
     } catch (err) {
       console.error("Error in handleReceiveCallOffer: ", err);
+      showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
     }
+  };
+
+  const showToastError = (errorMessage) => {
+    toast({
+      title: "An error occurred.",
+      description: errorMessage,
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
   };
 
   const {
@@ -128,41 +161,50 @@ export function JobseekerMessages() {
     setIsCallDialogOpen(false);
     setIsVideoCallOpen(true);
 
+    if (!peerConnection) {
+      console.error("WebRTC peer connection is not properly initialized.");
+      showToastError("WebRTC peer connection is not properly initialized.");
+      return;
+    }
+
     try {
-      if (!peerConnection) {
-        console.error("WebRTC peer connection is not properly initialized.");
-        return;
+      if (!mediaStream) {
+        await startMedia();
       }
 
-      // Create an answer if not already created
-      if (!peerConnection.currentLocalDescription) {
-        await createAnswer();
-      }
-
-      const localAnswer = peerConnection.localDescription;
-      if (!localAnswer) {
-        console.error("WebRTC answer is not available.");
-        return;
-      }
-
-      console.log("Using WebRTC Answer: ", JSON.stringify(localAnswer));
-
-      if (
-        connection &&
-        connection.state === signalR.HubConnectionState.Connected
-      ) {
-        console.log("Sending WebRTC answer to recruiter...");
-        await connection.invoke(
-          "AnswerDirectCallAsync",
-          callerId,
-          JSON.stringify(localAnswer)
-        );
-        console.log("WebRTC answer sent to recruiter.");
+      if (!mediaStream) {
+        console.warn("Local media stream is not available.");
+        if (mediaError) {
+          console.error("Media Error: ", mediaError);
+        }
       } else {
-        console.error("SignalR connection is not available.");
+        mediaStream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, mediaStream);
+        });
+
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        console.log("Local SDP: ", JSON.stringify(answer));
+
+        if (
+          connection &&
+          connection.state === signalR.HubConnectionState.Connected
+        ) {
+          console.log("Sending WebRTC answer to recruiter...");
+          await connection.invoke(
+            "AnswerDirectCallAsync",
+            callerId,
+            JSON.stringify(answer)
+          );
+          console.log("WebRTC answer sent to recruiter.");
+        } else {
+          console.error("SignalR connection is not available.");
+          showToastError("SignalR connection is not available.");
+        }
       }
     } catch (error) {
       console.error("Error in handleAccept: ", error);
+      showToastError(`Error in handleAccept: ${error.message}`);
     }
   };
 

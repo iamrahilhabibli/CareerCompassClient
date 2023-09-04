@@ -46,6 +46,7 @@ export function Messages() {
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const addedTrackIds = new Set();
   const {
     mediaStream,
     error: mediaError,
@@ -136,7 +137,19 @@ export function Messages() {
     await startMedia();
     if (mediaStream) {
       mediaStream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, mediaStream);
+        if (!addedTrackIds.has(track.id)) {
+          peerConnection.addTrack(track, mediaStream);
+          addedTrackIds.add(track.id);
+        } else {
+          toast({
+            title: "Call already in progress",
+            description:
+              "You have already started a call. Please end the current call before starting a new one.",
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
       });
     } else {
       console.log("No MediaStream available.");
@@ -145,12 +158,18 @@ export function Messages() {
     try {
       const offer = await createOffer();
       if (!offer) {
-        throw new Error("Offer is null or undefined.");
+        toast({
+          title: "Something went wrong!",
+          description: "Please try again.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
       }
       peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
           console.log("ICE candidate generated:", event.candidate);
-
           if (
             videoConnectionRef.current.state === HubConnectionState.Connected
           ) {

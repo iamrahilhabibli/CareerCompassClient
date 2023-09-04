@@ -57,18 +57,26 @@ const useWebRTC = (
     const callDocRef = doc(db, "calls", `${userId}-${applicantAppUserId}`);
 
     pc.onicecandidate = async (event) => {
-      if (event.candidate) {
-        await videoConnectionRef.current.invoke(
-          "SendIceCandidate",
-          applicantAppUserId,
-          JSON.stringify(event.candidate)
+      if (videoConnectionRef && event.candidate && videoConnectionRef.current) {
+        try {
+          await videoConnectionRef.current.invoke(
+            "SendIceCandidate",
+            applicantAppUserId,
+            JSON.stringify(event.candidate)
+          );
+        } catch (error) {
+          console.error("Error sending ICE candidate: ", error);
+        }
+      } else {
+        console.warn(
+          "Either event.candidate is null, or videoConnectionRef.current is not initialized"
         );
       }
     };
 
-    pc.ontrack = (event) => {
-      // TODO: Handle remote media stream.
-    };
+    // pc.ontrack = (event) => {
+
+    // };
 
     listenForRemoteSDP(pc, callDocRef, isMounted).catch((err) => {
       console.error("An error occurred:", err);
