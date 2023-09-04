@@ -66,7 +66,7 @@ export function JobseekerMessages() {
     video: true,
     audio: true,
   });
-
+  const { peerConnection, createAnswer } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
     setCurrentContact(contact);
@@ -99,7 +99,7 @@ export function JobseekerMessages() {
   const handleReceiveCallOffer = async (callerId, recipientId, offer) => {
     setIsCallDialogOpen(true);
     setCallerId(callerId);
-
+    console.log("Reference in handleReceiveCallOffer: ", peerConnection);
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
       showToastError("PeerConnection is not yet initialized.");
@@ -121,8 +121,8 @@ export function JobseekerMessages() {
       }
 
       const remoteOffer = new RTCSessionDescription(offer);
+      console.log("Debug: About to set remote description");
       await peerConnection.setRemoteDescription(remoteOffer);
-      console.log("Remote offer set successfully.");
     } catch (err) {
       console.error("Error in handleReceiveCallOffer: ", err);
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
@@ -148,8 +148,6 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  const { peerConnection, localAnswer, createAnswer, addIceCandidate, error } =
-    useWebRTC(userId, callerId);
 
   const { connection } = useSignalRVideo(
     userId,
@@ -159,50 +157,49 @@ export function JobseekerMessages() {
   );
 
   const handleAccept = async () => {
+    console.log("Reference in handleAccept: ", peerConnection);
     setIsCallDialogOpen(false);
     setIsVideoCallOpen(true);
 
+    const handleError = (message, error) => {
+      console.error(message, error);
+      showToastError(message);
+    };
+    console.log(
+      "Debug: PeerConnection signaling state before check:",
+      peerConnection.signalingState
+    );
+    console.log(
+      "Debug: PeerConnection remote description before check:",
+      peerConnection.remoteDescription
+    );
+
     if (!peerConnection) {
-      console.error("WebRTC peer connection is not initialized.");
-      showToastError("WebRTC peer connection is not initialized.");
+      handleError("WebRTC peer connection is not initialized.", null);
       return;
     }
 
-    console.log(
-      "PeerConnection signaling state:",
-      peerConnection.signalingState
-    );
-
     if (peerConnection.signalingState !== "have-remote-offer") {
-      console.error("PeerConnection is not in 'have-remote-offer' state.");
-      showToastError("PeerConnection is not in 'have-remote-offer' state.");
+      handleError("PeerConnection is not in 'have-remote-offer' state.", null);
       return;
     }
 
     if (!peerConnection.remoteDescription) {
-      console.error("Remote description is not set. Cannot create answer.");
-      showToastError("Remote description is not set. Cannot create answer.");
+      handleError("Remote description is not set. Cannot create answer.", null);
       return;
     }
 
-    let localStream;
     try {
-      localStream = await startMedia();
-      if (localStream) {
-        localStream
-          .getTracks()
-          .forEach((track) => peerConnection.addTrack(track, localStream));
-      } else {
+      const localStream = await startMedia();
+      if (!localStream) {
         console.warn("Local media stream is not available.");
         return;
       }
-    } catch (error) {
-      console.error("Error in obtaining local media: ", error);
-      showToastError("Error in obtaining local media.");
-      return;
-    }
 
-    try {
+      localStream
+        .getTracks()
+        .forEach((track) => peerConnection.addTrack(track, localStream));
+
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
@@ -216,12 +213,10 @@ export function JobseekerMessages() {
           JSON.stringify(answer)
         );
       } else {
-        console.error("SignalR connection is not available.");
-        showToastError("SignalR connection is not available.");
+        handleError("SignalR connection is not available.", null);
       }
     } catch (error) {
-      console.error("Error in handleAccept: ", error);
-      showToastError(`Error in handleAccept: ${error.message}`);
+      handleError(`Error in handleAccept: ${error.message}`, error);
     }
   };
 
