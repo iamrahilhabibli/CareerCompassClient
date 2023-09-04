@@ -46,7 +46,8 @@ export function Messages() {
   const [inputMessage, setInputMessage] = useState("");
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-  const addedTrackIds = new Set();
+  const [addedTrackIds, setAddedTrackIds] = useState(new Set());
+
   const {
     mediaStream,
     error: mediaError,
@@ -151,10 +152,7 @@ export function Messages() {
   const startVideoCall = async (recipientId, mediaStream) => {
     try {
       console.log("Starting video call...");
-
       setCurrentRecipientId(recipientId);
-
-      await startMedia();
       console.log("MediaStream started:", mediaStream);
 
       if (!videoConnectionRef.current) {
@@ -162,11 +160,12 @@ export function Messages() {
         return;
       }
 
-      const addedTrackIds = new Set();
       mediaStream.getTracks().forEach((track) => {
         if (!addedTrackIds.has(track.id)) {
           peerConnection.addTrack(track, mediaStream);
-          addedTrackIds.add(track.id);
+          const newSet = new Set(addedTrackIds);
+          newSet.add(track.id);
+          setAddedTrackIds(newSet);
         } else {
           console.log("Call already in progress");
           toast({
@@ -228,10 +227,6 @@ export function Messages() {
     }
   };
 
-  useEffect(() => {
-    // You could log mediaStream when the component mounts or updates
-    console.log("Current mediaStream: ", mediaStream);
-  }, [mediaStream]);
   const sendIceCandidate = async (recipientId, candidate) => {
     try {
       console.log("Invoking SendIceCandidate in sendIceCandidate");
