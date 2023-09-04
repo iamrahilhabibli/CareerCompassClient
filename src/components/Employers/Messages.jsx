@@ -228,8 +228,13 @@ export function Messages() {
     }
   };
 
+  useEffect(() => {
+    // You could log mediaStream when the component mounts or updates
+    console.log("Current mediaStream: ", mediaStream);
+  }, [mediaStream]);
   const sendIceCandidate = async (recipientId, candidate) => {
     try {
+      console.log("Invoking SendIceCandidate in sendIceCandidate");
       await videoConnectionRef.current.invoke(
         "SendIceCandidate",
         recipientId,
@@ -276,6 +281,7 @@ export function Messages() {
     });
     return null;
   }
+  console.log("Rendering with mediaStream: ", mediaStream); // Logging right before rendering VideoCall component
   return (
     <>
       <Box

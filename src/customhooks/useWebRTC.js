@@ -20,6 +20,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
             videoConnectionRef.current
           );
           try {
+            console.log("Invoking SendIceCanditate in useWebRTC");
             await videoConnectionRef.current.invoke(
               "SendIceCandidate",
               applicantAppUserId,

@@ -7,39 +7,40 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Effect for handling mediaStream is running.");
-    if (mediaStream && localVideoRef.current) {
+    console.log("Media Stream in useEffect: ", mediaStream);
+
+    if (!mediaStream) {
+      setError("No media stream available.");
+    } else if (localVideoRef.current) {
+      console.log("Assigning local media stream.");
       localVideoRef.current.srcObject = mediaStream;
     }
 
     return () => {
+      console.log("Cleaning up media stream.");
       mediaStream?.getTracks().forEach((track) => track.stop());
     };
   }, [mediaStream]);
 
   useEffect(() => {
-    console.log("Effect for handling peerConnection is running.");
-    if (peerConnection && mediaStream) {
+    if (peerConnection) {
       const handleTrackEvent = (event) => {
-        console.log("handleTrackEvent is being called.");
         if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+          console.log("Assigning remote media stream.");
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
 
-      // This should ensure tracks are added only when the connection is ready.
-      if (peerConnection.signalingState === "stable") {
-        mediaStream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, mediaStream);
-        });
-      }
       peerConnection.ontrack = handleTrackEvent;
 
       return () => {
+        console.log("Cleaning up ontrack event.");
         peerConnection.ontrack = null;
       };
+    } else {
+      setError("No peer connection available.");
     }
-  }, [peerConnection, mediaStream]);
+  }, [peerConnection]);
 
   return (
     <div className="video-call-wrapper">
