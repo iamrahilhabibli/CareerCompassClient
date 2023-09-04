@@ -55,9 +55,8 @@ export function Messages() {
     video: true,
     audio: true,
   });
-
   const messages = useSelector((state) => state.messages);
-  const videoConnectionRef = useRef(null);
+
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
@@ -95,6 +94,8 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
+  const videoConnectionRef = useRef(null);
+
   useEffect(() => {
     videoConnectionRef.current = new HubConnectionBuilder()
       .withUrl("https://localhost:7013/video")
@@ -103,11 +104,13 @@ export function Messages() {
       .build();
 
     videoConnectionRef.current
-      .start()
-      .then(() => console.log("VideoHub connected"))
-      .catch((err) =>
-        console.log("Error while establishing VideoHub connection: ", err)
-      );
+      .start() // Use start() here to establish the connection
+      .then(() => {
+        console.log("VideoHub connected");
+      })
+      .catch((err) => {
+        console.log("Error while establishing VideoHub connection: ", err);
+      });
 
     videoConnectionRef.current.on(
       "ReceiveDirectCallAnswer",
@@ -117,31 +120,54 @@ export function Messages() {
     );
 
     return () => {
-      videoConnectionRef.current
-        .stop()
-        .catch((err) =>
-          console.log("Error stopping VideoHub connection:", err)
-        );
+      videoConnectionRef.current.stop().catch((err) => {
+        console.log("Error stopping VideoHub connection:", err);
+      });
     };
   }, []);
 
-  const {
-    peerConnection,
-    createOffer,
-    createAnswer,
-    addIceCandidate,
-    createNewCall,
-  } = useWebRTC(userId, currentRecipientId, videoConnectionRef);
-
+  const { peerConnection, createOffer } = useWebRTC(
+    userId,
+    currentRecipientId,
+    videoConnectionRef
+  );
+  const handleStartVideoCall = async (recipientId) => {
+    const stream = await startMedia();
+    if (stream) {
+      startVideoCall(recipientId, stream);
+    } else {
+      console.log("No MediaStream available.");
+      toast({
+        title: "No MediaStream available",
+        description:
+          "Please grant permission to access your camera and microphone.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
   const startVideoCall = async (recipientId, mediaStream) => {
-    setCurrentRecipientId(recipientId);
-    await startMedia();
-    if (mediaStream) {
+    try {
+      console.log("Starting video call...");
+
+      setCurrentRecipientId(recipientId);
+
+      await startMedia();
+      console.log("MediaStream started:", mediaStream);
+
+      if (!videoConnectionRef.current) {
+        console.log("VideoHub Connection is not available.");
+        return;
+      }
+
+      const addedTrackIds = new Set();
       mediaStream.getTracks().forEach((track) => {
         if (!addedTrackIds.has(track.id)) {
           peerConnection.addTrack(track, mediaStream);
           addedTrackIds.add(track.id);
         } else {
+          console.log("Call already in progress");
           toast({
             title: "Call already in progress",
             description:
@@ -152,12 +178,10 @@ export function Messages() {
           });
         }
       });
-    } else {
-      console.log("No MediaStream available.");
-    }
 
-    try {
       const offer = await createOffer();
+      console.log("Offer created:", offer);
+
       if (!offer) {
         toast({
           title: "Something went wrong!",
@@ -168,42 +192,21 @@ export function Messages() {
         });
         return;
       }
+
       peerConnection.onicecandidate = async (event) => {
         if (event.candidate) {
           console.log("ICE candidate generated:", event.candidate);
+
           if (
             videoConnectionRef.current.state === HubConnectionState.Connected
           ) {
-            await videoConnectionRef.current
-              .invoke(
-                "SendIceCandidate",
-                recipientId,
-                JSON.stringify(event.candidate)
-              )
-              .then(() => {
-                console.log("ICE candidate successfully sent to the server.");
-              })
-              .catch((error) => {
-                console.log("Error sending ICE candidate:", error);
-              });
+            await sendIceCandidate(recipientId, event.candidate);
           }
         }
       };
 
       if (videoConnectionRef.current.state === HubConnectionState.Connected) {
-        await videoConnectionRef.current
-          .invoke("JoinGroup", userId, recipientId)
-          .catch((err) => console.error("Error invoking JoinGroup:", err));
-        await videoConnectionRef.current
-          .invoke(
-            "StartDirectCallAsync",
-            userId,
-            recipientId,
-            JSON.stringify(offer)
-          )
-          .catch((err) =>
-            console.error("Error invoking StartDirectCallAsync:", err)
-          );
+        await joinAndStartCall(userId, recipientId, offer);
       } else {
         throw new Error(
           "VideoHub Connection is not available or not connected"
@@ -222,6 +225,32 @@ export function Messages() {
         isClosable: true,
       });
     }
+  };
+
+  const sendIceCandidate = async (recipientId, candidate) => {
+    try {
+      await videoConnectionRef.current.invoke(
+        "SendIceCandidate",
+        recipientId,
+        JSON.stringify(candidate)
+      );
+      console.log("ICE candidate successfully sent to the server.");
+    } catch (error) {
+      console.log("Error sending ICE candidate:", error);
+    }
+  };
+
+  const joinAndStartCall = async (userId, recipientId, offer) => {
+    console.log("Invoking JoinGroup...");
+    await videoConnectionRef.current.invoke("JoinGroup", userId, recipientId);
+
+    console.log("Invoking StartDirectCallAsync...");
+    await videoConnectionRef.current.invoke(
+      "StartDirectCallAsync",
+      userId,
+      recipientId,
+      JSON.stringify(offer)
+    );
   };
 
   const closeModal = async () => {
@@ -311,7 +340,7 @@ export function Messages() {
                     icon={<FaVideo />}
                     onClick={(e) => {
                       e.stopPropagation();
-                      startVideoCall(applicant.applicantAppUserId, mediaStream);
+                      handleStartVideoCall(applicant.applicantAppUserId);
                     }}
                     m={2}
                   />

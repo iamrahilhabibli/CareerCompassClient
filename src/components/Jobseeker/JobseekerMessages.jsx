@@ -66,7 +66,6 @@ export function JobseekerMessages() {
     video: true,
     audio: true,
   });
-  console.log("mediaStream after useUserMedia:", mediaStream);
 
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);

@@ -32,7 +32,7 @@ const useUserMedia = (initialConstraints) => {
     return () => {
       mediaStream?.getTracks().forEach((track) => track.stop());
     };
-  }, [mediaStream]);
+  });
 
   return { mediaStream, error, startMedia };
 };

@@ -57,20 +57,30 @@ const useWebRTC = (
     const callDocRef = doc(db, "calls", `${userId}-${applicantAppUserId}`);
 
     pc.onicecandidate = async (event) => {
-      if (videoConnectionRef && event.candidate && videoConnectionRef.current) {
-        try {
-          await videoConnectionRef.current.invoke(
-            "SendIceCandidate",
-            applicantAppUserId,
-            JSON.stringify(event.candidate)
+      if (event.candidate) {
+        console.log("event.candidate is available:", event.candidate);
+        if (videoConnectionRef && videoConnectionRef.current) {
+          console.log(
+            "videoConnectionRef.current is available:",
+            videoConnectionRef.current
           );
-        } catch (error) {
-          console.error("Error sending ICE candidate: ", error);
+          try {
+            await videoConnectionRef.current.invoke(
+              "SendIceCandidate",
+              applicantAppUserId,
+              JSON.stringify(event.candidate)
+            );
+            console.log("ICE candidate successfully sent to the server.");
+          } catch (error) {
+            console.error("Error sending ICE candidate: ", error);
+          }
+        } else {
+          console.warn(
+            "videoConnectionRef.current is not available or is null"
+          );
         }
       } else {
-        console.warn(
-          "Either event.candidate is null, or videoConnectionRef.current is not initialized"
-        );
+        console.warn("event.candidate is null");
       }
     };
 
@@ -177,9 +187,6 @@ const useWebRTC = (
   return {
     peerConnection,
     createOffer,
-    createAnswer,
-    addIceCandidate,
-    localAnswer,
     error,
   };
 };
