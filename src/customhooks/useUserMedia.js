@@ -6,8 +6,6 @@ const useUserMedia = (initialConstraints) => {
 
   const startMedia = useCallback(() => {
     return new Promise(async (resolve, reject) => {
-      console.log("startMedia is called");
-
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         const error = new Error("Media Devices API not supported");
         setError(error);

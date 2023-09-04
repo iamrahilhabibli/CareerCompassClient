@@ -7,17 +7,13 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Media Stream in useEffect: ", mediaStream);
-
     if (!mediaStream) {
       setError("No media stream available.");
     } else if (localVideoRef.current) {
-      console.log("Assigning local media stream.");
       localVideoRef.current.srcObject = mediaStream;
     }
 
     return () => {
-      console.log("Cleaning up media stream.");
       mediaStream?.getTracks().forEach((track) => track.stop());
     };
   }, [mediaStream]);
@@ -26,7 +22,6 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
     if (peerConnection) {
       const handleTrackEvent = (event) => {
         if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
-          console.log("Assigning remote media stream.");
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
@@ -34,7 +29,6 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
       peerConnection.ontrack = handleTrackEvent;
 
       return () => {
-        console.log("Cleaning up ontrack event.");
         peerConnection.ontrack = null;
       };
     } else {

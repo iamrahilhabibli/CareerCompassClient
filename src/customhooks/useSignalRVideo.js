@@ -28,6 +28,7 @@ const setupCallReception = (
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
+      console.log("RECEIVEDIRECT CALL!");
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
         handleReceiveCallOffer(callerId, recipientId, offer);
@@ -46,12 +47,36 @@ const setupCallReception = (
 };
 
 const joinGroups = (connection, userId, jobseekerContacts) => {
-  if (jobseekerContacts && connection.state === HubConnectionState.Connected) {
-    jobseekerContacts.forEach((contact) => {
-      connection
-        .invoke("JoinGroup", userId, contact.recruiterAppUserId)
-        .catch((err) => console.error("Error joining the group:", err));
-    });
+  console.log("Attempting to join groups...");
+  console.log(`Connection State: ${connection.state}`);
+  console.log(jobseekerContacts);
+
+  if (jobseekerContacts && jobseekerContacts.length > 0) {
+    if (connection.state === HubConnectionState.Connected) {
+      console.log("Connecting to groups");
+
+      jobseekerContacts.forEach((contact) => {
+        console.log(
+          `Attempting to join group with contact: ${contact.recruiterAppUserId}`
+        );
+
+        connection
+          .invoke("JoinGroup", userId, contact.recruiterAppUserId)
+          .then(() => {
+            console.log(
+              `Successfully joined group with ${contact.recruiterAppUserId}`
+            );
+          })
+          .catch((err) => {
+            console.error(
+              `Error joining the group with ${contact.recruiterAppUserId}:`,
+              err
+            );
+          });
+      });
+    } else {
+      console.warn("SignalR Connection is not ready for joining groups.");
+    }
   }
 };
 
@@ -63,6 +88,7 @@ export const useSignalRVideo = (
   addIceCandidate
 ) => {
   const [connection, setConnection] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
@@ -77,21 +103,18 @@ export const useSignalRVideo = (
   useEffect(() => {
     if (connection) {
       startConnection(connection)
-        .then(() => joinGroups(connection, userId, jobseekerContacts))
+        .then(() => {
+          setIsConnected(true);
+        })
         .catch((err) => console.error(err));
-
-      return () => {
-        if (connection.state === HubConnectionState.Connected) {
-          connection
-            .stop()
-            .then(() => console.log("SignalR Connection successfully stopped"))
-            .catch((err) =>
-              console.error("Error while stopping the connection:", err)
-            );
-        }
-      };
     }
-  }, [connection, userId, jobseekerContacts]);
+  }, [connection]);
+
+  useEffect(() => {
+    if (isConnected && jobseekerContacts && jobseekerContacts.length > 0) {
+      joinGroups(connection, userId, jobseekerContacts);
+    }
+  }, [isConnected, jobseekerContacts]);
 
   useEffect(() => {
     if (connection) {
