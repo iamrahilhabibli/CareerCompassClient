@@ -47,6 +47,7 @@ import useUserMedia from "../../customhooks/useUserMedia";
 export function JobseekerMessages() {
   const toast = useToast();
   const { userId, token } = useUser();
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -55,7 +56,6 @@ export function JobseekerMessages() {
   const messages = useSelector((state) => state.messages);
   const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
   const [callerId, setCallerId] = useState(null);
-
   const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const {
@@ -147,12 +147,11 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-
+  console.log("Token before calling useSignalRVideo", token);
   const { connection } = useSignalRVideo(
     userId,
     handleReceiveCallOffer,
     jobseekerContacts,
-    createAnswer,
     token
   );
 

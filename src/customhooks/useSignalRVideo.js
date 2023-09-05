@@ -6,17 +6,21 @@ import {
 } from "@microsoft/signalr";
 
 const startConnection = async (connection) => {
-  if (connection.state === HubConnectionState.Connected) {
-    console.log("SignalR Connection is already connected.");
-    return;
-  }
+  try {
+    if (connection.state === HubConnectionState.Connected) {
+      console.log("SignalR Connection is already connected.");
+      return;
+    }
 
-  if (connection.state !== HubConnectionState.Disconnected) {
-    throw new Error("Connection is not in a 'Disconnected' state");
-  }
+    if (connection.state !== HubConnectionState.Disconnected) {
+      throw new Error("Connection is not in a 'Disconnected' state");
+    }
 
-  await connection.start();
-  console.log("SignalR Connection successfully started for VIDEO");
+    await connection.start();
+    console.log("SignalR Connection successfully started for VIDEO");
+  } catch (error) {
+    console.error("Failed to start SignalR Connection:", error);
+  }
 };
 
 const setupCallReception = (
@@ -84,24 +88,23 @@ export const useSignalRVideo = (
   userId,
   handleReceiveCallOffer,
   jobseekerContacts,
-  createAnswer,
-  addIceCandidate,
   token
 ) => {
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-
   useEffect(() => {
-    const newConnection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7013/video", {
-        accessTokenFactory: () => token,
-      })
-      .withAutomaticReconnect([0, 1000, 5000, 10000])
-      .configureLogging(LogLevel.Information)
-      .build();
+    if (token) {
+      const newConnection = new HubConnectionBuilder()
+        .withUrl(`https://localhost:7013/video?access_token=${token}`, {
+          accessTokenFactory: () => token,
+        })
+        .withAutomaticReconnect([0, 1000, 5000, 10000])
+        .configureLogging(LogLevel.Information)
+        .build();
 
-    setConnection(newConnection);
-  }, []);
+      setConnection(newConnection);
+    }
+  }, [token]);
 
   useEffect(() => {
     if (connection) {
@@ -114,6 +117,7 @@ export const useSignalRVideo = (
   }, [connection]);
 
   useEffect(() => {
+    console.log("Joining ");
     if (isConnected && jobseekerContacts && jobseekerContacts.length > 0) {
       joinGroups(connection, userId, jobseekerContacts);
     }
@@ -121,19 +125,14 @@ export const useSignalRVideo = (
 
   useEffect(() => {
     if (connection) {
-      setupCallReception(
-        connection,
-        userId,
-        handleReceiveCallOffer,
-        addIceCandidate
-      );
+      setupCallReception(connection, userId, handleReceiveCallOffer);
 
       return () => {
         connection.off("ReceiveDirectCall");
         connection.off("ReceiveIceCandidate");
       };
     }
-  }, [connection, userId, handleReceiveCallOffer, addIceCandidate]);
+  }, [connection, userId, handleReceiveCallOffer]);
 
   return { connection };
 };

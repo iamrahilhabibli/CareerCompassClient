@@ -97,7 +97,7 @@ export function Messages() {
 
   useEffect(() => {
     videoConnectionRef.current = new HubConnectionBuilder()
-      .withUrl("https://localhost:7013/video", {
+      .withUrl(`https://localhost:7013/video?access_token=${token}`, {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect([0, 1000, 5000, 10000])
