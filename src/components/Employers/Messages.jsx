@@ -262,6 +262,7 @@ export function Messages() {
       });
     };
   }, []);
+
   const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
     console.log("Received answer from callerId: ", callerId);
     if (!peerConnection || peerConnection.signalingState === "closed") {
