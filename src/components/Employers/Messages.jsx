@@ -41,7 +41,7 @@ export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
   const [isLoadingPeerConnection, setIsLoadingPeerConnection] = useState(true);
-  const { userId } = useUser();
+  const { userId, token } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -56,7 +56,6 @@ export function Messages() {
     stopMedia,
   } = useUserMedia({ video: true, audio: true });
   const messages = useSelector((state) => state.messages);
-
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
@@ -98,7 +97,9 @@ export function Messages() {
 
   useEffect(() => {
     videoConnectionRef.current = new HubConnectionBuilder()
-      .withUrl("https://localhost:7013/video")
+      .withUrl("https://localhost:7013/video", {
+        accessTokenFactory: () => token,
+      })
       .withAutomaticReconnect([0, 1000, 5000, 10000])
       .configureLogging(LogLevel.Information)
       .build();

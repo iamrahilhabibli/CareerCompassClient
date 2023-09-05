@@ -85,14 +85,17 @@ export const useSignalRVideo = (
   handleReceiveCallOffer,
   jobseekerContacts,
   createAnswer,
-  addIceCandidate
+  addIceCandidate,
+  token
 ) => {
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7013/video")
+      .withUrl("https://localhost:7013/video", {
+        accessTokenFactory: () => token,
+      })
       .withAutomaticReconnect([0, 1000, 5000, 10000])
       .configureLogging(LogLevel.Information)
       .build();

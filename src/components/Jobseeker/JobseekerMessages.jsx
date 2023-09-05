@@ -46,7 +46,7 @@ import useUserMedia from "../../customhooks/useUserMedia";
 
 export function JobseekerMessages() {
   const toast = useToast();
-  const { userId } = useUser();
+  const { userId, token } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -55,7 +55,7 @@ export function JobseekerMessages() {
   const messages = useSelector((state) => state.messages);
   const [isCallDialogOpen, setIsCallDialogOpen] = useState(false);
   const [callerId, setCallerId] = useState(null);
-  const cancelRef = useRef();
+
   const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const {
@@ -138,7 +138,6 @@ export function JobseekerMessages() {
       isClosable: true,
     });
   };
-
   const {
     data: jobseekerContacts,
     isLoading,
@@ -153,7 +152,8 @@ export function JobseekerMessages() {
     userId,
     handleReceiveCallOffer,
     jobseekerContacts,
-    createAnswer
+    createAnswer,
+    token
   );
 
   const handleAccept = async () => {
