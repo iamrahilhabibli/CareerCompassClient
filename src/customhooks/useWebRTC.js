@@ -4,6 +4,19 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
 
+  const addIceCandidate = (candidateJson) => {
+    if (!peerConnection) {
+      console.error(
+        "PeerConnection is not initialized, can't add ICE candidate"
+      );
+      return;
+    }
+    const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
+    peerConnection.addIceCandidate(candidate).catch((e) => {
+      console.error(`Failed to add ICE candidate: ${e.toString()}`);
+    });
+  };
+
   const initializePeerConnection = () => {
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -107,6 +120,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
     endConnection,
     error,
     initializePeerConnection,
+    addIceCandidate,
   };
 };
 

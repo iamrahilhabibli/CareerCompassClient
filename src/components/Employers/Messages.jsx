@@ -108,6 +108,7 @@ export function Messages() {
     createOffer,
     endConnection,
     initializePeerConnection,
+    addIceCandidate,
   } = useWebRTC(userId, currentRecipientId, videoConnectionRef);
   useEffect(() => {
     if (peerConnection) {
@@ -296,6 +297,40 @@ export function Messages() {
 
     return () => {
       videoConnectionRef.current.off("ReceiveDirectCallAnswer");
+    };
+  }, [peerConnection]);
+
+  const handleReceiveIceCandidate = async (
+    iceCandidateJson,
+    peerConnection
+  ) => {
+    if (!peerConnection || peerConnection.signalingState === "closed") {
+      console.error("PeerConnection is not yet initialized or is closed.");
+      return;
+    }
+    try {
+      const iceCandidate = new RTCIceCandidate(JSON.parse(iceCandidateJson));
+      await peerConnection.addIceCandidate(iceCandidate);
+      console.log("ICE candidate added successfully.");
+    } catch (err) {
+      console.error("Error in handleReceiveIceCandidate: ", err);
+    }
+  };
+
+  useEffect(() => {
+    const handleReceiveEvent = (iceCandidateJson) => {
+      if (peerConnection) {
+        handleReceiveIceCandidate(iceCandidateJson, peerConnection);
+      } else {
+        console.error("PeerConnection is not initialized");
+      }
+    };
+
+    videoConnectionRef.current.off("ReceiveIceCandidate");
+    videoConnectionRef.current.on("ReceiveIceCandidate", handleReceiveEvent);
+
+    return () => {
+      videoConnectionRef.current.off("ReceiveIceCandidate");
     };
   }, [peerConnection]);
 
