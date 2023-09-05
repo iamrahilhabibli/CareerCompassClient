@@ -238,13 +238,7 @@ export function Messages() {
       JSON.stringify(offer)
     );
   };
-
   useEffect(() => {
-    // const configuration = {
-    //   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    // };
-    // const peerConnection = new RTCPeerConnection(configuration);
-
     videoConnectionRef.current = new HubConnectionBuilder()
       .withUrl(`https://localhost:7013/video?access_token=${token}`, {
         accessTokenFactory: () => token,
@@ -262,58 +256,48 @@ export function Messages() {
         console.log("Error while establishing VideoHub connection: ", err);
       });
 
-    videoConnectionRef.current.on(
-      "ReceiveDirectCallAnswer",
-      (callerId, answerJson) => {
-        console.log("Received answer:", answerJson);
-        if (peerConnection) {
-          handleReceiveCallAnswer(callerId, answerJson, peerConnection);
-        } else {
-          console.error("PeerConnection is not initialized");
-        }
-      }
-    );
-
     return () => {
       videoConnectionRef.current.stop().catch((err) => {
         console.log("Error stopping VideoHub connection:", err);
       });
     };
   }, []);
-
   const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
     console.log("Received answer from callerId: ", callerId);
-    console.log("Reference in handleReceiveCallAnswer: ", peerConnection);
-
-    if (!peerConnection) {
-      console.error("PeerConnection is not yet initialized.");
-      showToastError("PeerConnection is not yet initialized.");
+    if (!peerConnection || peerConnection.signalingState === "closed") {
+      console.error("PeerConnection is not yet initialized or is closed.");
       return;
     }
-
-    if (peerConnection.signalingState === "closed") {
-      console.error("PeerConnection signalingState is closed.");
-      showToastError("PeerConnection signalingState is closed.");
-      return;
-    }
-
     try {
-      if (peerConnection.signalingState !== "have-local-offer") {
-        console.warn(
-          `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
-        );
-        return;
-      }
-
-      const remoteAnswer = new RTCSessionDescription(answer);
-      console.log("Debug: About to set remote description");
+      const remoteAnswer = new RTCSessionDescription(JSON.parse(answer));
+      console.log("Remote answer", remoteAnswer);
       await peerConnection.setRemoteDescription(remoteAnswer);
       console.log("Remote description set successfully for the answer.");
     } catch (err) {
       console.error("Error in handleReceiveCallAnswer: ", err);
-      showToastError(`Error in handleReceiveCallAnswer: ${err.message}`);
     }
   };
+  useEffect(() => {
+    const handleReceiveDirectCallAnswer = (callerId, answerJson) => {
+      console.log("Received answer:", answerJson);
+      if (peerConnection) {
+        handleReceiveCallAnswer(callerId, answerJson, peerConnection);
+      } else {
+        console.error("PeerConnection is not initialized");
+      }
+    };
+
+    videoConnectionRef.current.off("ReceiveDirectCallAnswer");
+    videoConnectionRef.current.on(
+      "ReceiveDirectCallAnswer",
+      handleReceiveDirectCallAnswer
+    );
+
+    return () => {
+      videoConnectionRef.current.off("ReceiveDirectCallAnswer");
+    };
+  }, [peerConnection]);
+
   const endCall = () => {
     console.log("Ending call");
     endConnection();
