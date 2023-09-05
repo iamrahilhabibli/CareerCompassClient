@@ -48,7 +48,15 @@ export function Messages() {
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [addedTrackIds, setAddedTrackIds] = useState(new Set());
-
+  const showToastError = (errorMessage) => {
+    toast({
+      title: "An error occurred.",
+      description: errorMessage,
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  };
   const {
     mediaStream,
     error: mediaError,
@@ -95,37 +103,6 @@ export function Messages() {
   });
   const videoConnectionRef = useRef(null);
 
-  useEffect(() => {
-    videoConnectionRef.current = new HubConnectionBuilder()
-      .withUrl(`https://localhost:7013/video?access_token=${token}`, {
-        accessTokenFactory: () => token,
-      })
-      .withAutomaticReconnect([0, 1000, 5000, 10000])
-      .configureLogging(LogLevel.Information)
-      .build();
-
-    videoConnectionRef.current
-      .start()
-      .then(() => {
-        console.log("VideoHub connected");
-      })
-      .catch((err) => {
-        console.log("Error while establishing VideoHub connection: ", err);
-      });
-
-    videoConnectionRef.current.on(
-      "ReceiveDirectCallAnswer",
-      (callerId, answerJson) => {
-        console.log("Received answer:", answerJson);
-      }
-    );
-
-    return () => {
-      videoConnectionRef.current.stop().catch((err) => {
-        console.log("Error stopping VideoHub connection:", err);
-      });
-    };
-  }, []);
   const {
     peerConnection,
     createOffer,
@@ -260,6 +237,82 @@ export function Messages() {
       recipientId,
       JSON.stringify(offer)
     );
+  };
+
+  useEffect(() => {
+    // const configuration = {
+    //   iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    // };
+    // const peerConnection = new RTCPeerConnection(configuration);
+
+    videoConnectionRef.current = new HubConnectionBuilder()
+      .withUrl(`https://localhost:7013/video?access_token=${token}`, {
+        accessTokenFactory: () => token,
+      })
+      .withAutomaticReconnect([0, 1000, 5000, 10000])
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    videoConnectionRef.current
+      .start()
+      .then(() => {
+        console.log("VideoHub connected");
+      })
+      .catch((err) => {
+        console.log("Error while establishing VideoHub connection: ", err);
+      });
+
+    videoConnectionRef.current.on(
+      "ReceiveDirectCallAnswer",
+      (callerId, answerJson) => {
+        console.log("Received answer:", answerJson);
+        if (peerConnection) {
+          handleReceiveCallAnswer(callerId, answerJson, peerConnection);
+        } else {
+          console.error("PeerConnection is not initialized");
+        }
+      }
+    );
+
+    return () => {
+      videoConnectionRef.current.stop().catch((err) => {
+        console.log("Error stopping VideoHub connection:", err);
+      });
+    };
+  }, []);
+
+  const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
+    console.log("Received answer from callerId: ", callerId);
+    console.log("Reference in handleReceiveCallAnswer: ", peerConnection);
+
+    if (!peerConnection) {
+      console.error("PeerConnection is not yet initialized.");
+      showToastError("PeerConnection is not yet initialized.");
+      return;
+    }
+
+    if (peerConnection.signalingState === "closed") {
+      console.error("PeerConnection signalingState is closed.");
+      showToastError("PeerConnection signalingState is closed.");
+      return;
+    }
+
+    try {
+      if (peerConnection.signalingState !== "have-local-offer") {
+        console.warn(
+          `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
+        );
+        return;
+      }
+
+      const remoteAnswer = new RTCSessionDescription(answer);
+      console.log("Debug: About to set remote description");
+      await peerConnection.setRemoteDescription(remoteAnswer);
+      console.log("Remote description set successfully for the answer.");
+    } catch (err) {
+      console.error("Error in handleReceiveCallAnswer: ", err);
+      showToastError(`Error in handleReceiveCallAnswer: ${err.message}`);
+    }
   };
   const endCall = () => {
     console.log("Ending call");

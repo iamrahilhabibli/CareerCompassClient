@@ -147,7 +147,6 @@ export function JobseekerMessages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-  console.log("Token before calling useSignalRVideo", token);
   const { connection } = useSignalRVideo(
     userId,
     handleReceiveCallOffer,
