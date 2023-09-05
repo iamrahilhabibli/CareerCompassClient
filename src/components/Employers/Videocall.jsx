@@ -39,7 +39,6 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   return (
     <div className="video-call-wrapper">
       {error && <div className="error">{error}</div>}
-      <button onClick={() => setIsVideoCallOpen(false)}>Close</button>
       <video ref={localVideoRef} autoPlay muted className="local-video"></video>
       <video ref={remoteVideoRef} autoPlay className="remote-video"></video>
     </div>

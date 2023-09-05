@@ -4,60 +4,47 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    let pc = null;
+  const initializePeerConnection = () => {
+    const configuration = {
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    };
+    const pc = new RTCPeerConnection(configuration);
+    pc.debugId = Math.random().toString();
+    console.log(`New PeerConnection created with debugId: ${pc.debugId}`);
 
-    if (userId !== null && applicantAppUserId !== null) {
-      const configuration = {
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      };
-      console.log(`Hook dependencies: ${userId}, ${applicantAppUserId}`);
-
-      pc = new RTCPeerConnection(configuration);
-      pc.debugId = Math.random().toString();
-      console.log(`New PeerConnection created with debugId: ${pc.debugId}`);
-
-      pc.onicecandidate = async (event) => {
-        if (event.candidate) {
-          console.log("event.candidate is available:", event.candidate);
-          if (videoConnectionRef && videoConnectionRef.current) {
-            console.log(
-              "videoConnectionRef.current is available:",
-              videoConnectionRef.current
+    pc.onicecandidate = async (event) => {
+      if (event.candidate) {
+        console.log("ICE candidate generated:", event.candidate);
+        if (videoConnectionRef && videoConnectionRef.current) {
+          try {
+            await videoConnectionRef.current.invoke(
+              "SendIceCandidate",
+              applicantAppUserId,
+              JSON.stringify(event.candidate)
             );
-            try {
-              console.log("Invoking SendIceCanditate in useWebRTC");
-              await videoConnectionRef.current.invoke(
-                "SendIceCandidate",
-                applicantAppUserId,
-                JSON.stringify(event.candidate)
-              );
-              console.log("ICE candidate successfully sent to the server.");
-            } catch (error) {
-              console.error("Error sending ICE candidate: ", error);
-            }
-          } else {
-            console.warn(
-              "videoConnectionRef.current is not available or is null"
-            );
+            console.log("ICE candidate successfully sent to the server.");
+          } catch (error) {
+            console.error("Error sending ICE candidate: ", error);
           }
         } else {
-          console.warn("event.candidate is null");
+          console.warn(
+            "videoConnectionRef.current is not available or is null"
+          );
         }
-      };
+      } else {
+        console.warn("event.candidate is null");
+      }
+    };
 
-      setPeerConnection(pc);
-    } else {
-      console.log(
-        "One or both necessary values are null. Skipping PeerConnection initialization."
-      );
-    }
+    setPeerConnection(pc);
+  };
+
+  useEffect(() => {
+    initializePeerConnection();
 
     return () => {
-      isMounted = false;
-      if (pc) {
-        pc.close();
+      if (peerConnection) {
+        peerConnection.close();
       }
     };
   }, [userId, applicantAppUserId, videoConnectionRef]);
@@ -72,10 +59,6 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
 
     try {
       const offer = await peerConnection.createOffer();
-      if (!offer) {
-        setError("Offer is null or undefined.");
-        return null;
-      }
       await peerConnection.setLocalDescription(offer);
       return offer;
     } catch (e) {
@@ -83,6 +66,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
       return null;
     }
   };
+
   const createAnswer = async (offer) => {
     setError(null);
 
@@ -96,13 +80,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
         new RTCSessionDescription(offer)
       );
       const answer = await peerConnection.createAnswer();
-
-      if (!answer) {
-        setError("Answer is null or undefined.");
-        return null;
-      }
       await peerConnection.setLocalDescription(answer);
-
       return answer;
     } catch (e) {
       setError(`Failed to create an answer: ${e}`);
@@ -110,11 +88,25 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
     }
   };
 
+  const endConnection = () => {
+    if (peerConnection) {
+      peerConnection.getSenders().forEach((sender) => {
+        if (sender.track) {
+          sender.track.stop();
+        }
+      });
+      peerConnection.close();
+    }
+    setPeerConnection(null);
+  };
+
   return {
     peerConnection,
     createOffer,
     createAnswer,
+    endConnection,
     error,
+    initializePeerConnection,
   };
 };
 

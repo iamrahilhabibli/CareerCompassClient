@@ -40,6 +40,7 @@ import useUserMedia from "../../customhooks/useUserMedia";
 export function Messages() {
   const dispatch = useDispatch();
   const toast = useToast();
+  const [isLoadingPeerConnection, setIsLoadingPeerConnection] = useState(true);
   const { userId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
@@ -52,10 +53,8 @@ export function Messages() {
     mediaStream,
     error: mediaError,
     startMedia,
-  } = useUserMedia({
-    video: true,
-    audio: true,
-  });
+    stopMedia,
+  } = useUserMedia({ video: true, audio: true });
   const messages = useSelector((state) => state.messages);
 
   const openChatWithApplicant = async (applicant) => {
@@ -126,12 +125,19 @@ export function Messages() {
       });
     };
   }, []);
-
-  const { peerConnection, createOffer } = useWebRTC(
-    userId,
-    currentRecipientId,
-    videoConnectionRef
-  );
+  const {
+    peerConnection,
+    createOffer,
+    endConnection,
+    initializePeerConnection,
+  } = useWebRTC(userId, currentRecipientId, videoConnectionRef);
+  useEffect(() => {
+    if (peerConnection) {
+      setIsLoadingPeerConnection(false);
+    } else {
+      setIsLoadingPeerConnection(true);
+    }
+  }, [peerConnection]);
 
   const handleStartVideoCall = async (recipientId) => {
     const stream = await startMedia();
@@ -151,15 +157,16 @@ export function Messages() {
   };
   const startVideoCall = async (recipientId, mediaStream) => {
     try {
-      console.log("Starting video call...");
       setCurrentRecipientId(recipientId);
-      console.log("MediaStream started:", mediaStream);
 
       if (!videoConnectionRef.current) {
         console.log("VideoHub Connection is not available.");
         return;
       }
-
+      if (!peerConnection) {
+        console.error("Peer connection is null or undefined. Aborting.");
+        return;
+      }
       mediaStream.getTracks().forEach((track) => {
         if (!addedTrackIds.has(track.id)) {
           peerConnection.addTrack(track, mediaStream);
@@ -216,7 +223,9 @@ export function Messages() {
       setIsVideoCallOpen(true);
     } catch (error) {
       console.error("Failed to start video call", error);
-
+      if (error.stack) {
+        console.error("Error Stack:", error.stack);
+      }
       toast({
         title: "An error occurred.",
         description: "Failed to start a video call.",
@@ -251,6 +260,12 @@ export function Messages() {
       JSON.stringify(offer)
     );
   };
+  const endCall = () => {
+    console.log("Ending call");
+    endConnection();
+    setIsVideoCallOpen(false);
+    initializePeerConnection();
+  };
 
   const closeModal = async () => {
     setIsOpen(false);
@@ -276,7 +291,7 @@ export function Messages() {
     });
     return null;
   }
-  console.log("Rendering with mediaStream: ", mediaStream); // Logging right before rendering VideoCall component
+
   return (
     <>
       <Box
@@ -338,13 +353,14 @@ export function Messages() {
                   <IconButton
                     aria-label="Start video call"
                     icon={<FaVideo />}
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      handleStartVideoCall(applicant.applicantAppUserId);
+                      setIsLoadingPeerConnection(true); // Show spinner while initializing
+                      await handleStartVideoCall(applicant.applicantAppUserId);
+                      setIsLoadingPeerConnection(false); // Hide spinner
                     }}
                     m={2}
                   />
-
                   <Button
                     colorScheme="red"
                     size="sm"
@@ -430,17 +446,21 @@ export function Messages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
+      <Modal isOpen={isVideoCallOpen}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Video Call</ModalHeader>
-          <ModalCloseButton />
           <ModalBody>
             <VideoCall
               peerConnection={peerConnection}
               mediaStream={mediaStream}
             />
           </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" onClick={endCall}>
+              Decline Call
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
