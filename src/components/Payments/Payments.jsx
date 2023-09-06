@@ -5,13 +5,42 @@ import {
   Table,
   TableCaption,
   TableContainer,
+  Tbody,
+  Td,
   Th,
   Thead,
   Tr,
+  Text,
 } from "@chakra-ui/react";
 import React from "react";
 import paymentsImg from "../../images/paymentsImg.png";
+import useUser from "../../customhooks/useUser";
+import axios from "axios";
+import { useEffect } from "react";
+import { useState } from "react";
 export function Payments() {
+  const [payments, setPayments] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const { userId } = useUser();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+
+      try {
+        const response = await axios.get(
+          `https://localhost:7013/api/Payments/GetPayments/${userId}`
+        );
+        setPayments(response.data);
+      } catch (error) {
+        setIsError(true);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [userId]);
   return (
     <>
       <Box
@@ -65,85 +94,34 @@ export function Payments() {
                   <Th>Date</Th>
                 </Tr>
               </Thead>
-              {/* <Tbody>
-              {isLoading ? (
-                <Tr>
-                  <Td colSpan="6">
-                    <Flex
-                      justify="center"
-                      align="center"
-                      height="100px"
-                      width="100%"
-                    >
-                      <Spinner />
-                    </Flex>
-                  </Td>
-                </Tr>
-              ) : isError ? (
-                <Tr>
-                  <Td colSpan="6">An error occurred</Td>
-                </Tr>
-              ) : (
-                applicants?.map((applicant, index) => (
-                  <Tr key={index}>
-                    <Td isNumeric>{index + 1}</Td>
-                    <Td>{applicant.firstName}</Td>
-                    <Td>{applicant.lastName}</Td>
-                    <Td>{applicant.jobTitle}</Td>
+              <Tbody>
+                {isLoading ? (
+                  <Tr>
                     <Td>
-                      <a href={applicant.Resume} download>
-                        <FaDownload
-                          size={"24px"}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </a>
-                    </Td>
-                    <Td>
-                      <Flex>
-                        {applicant.status === 1 ? (
-                          <>
-                            <IoCheckmarkSharp
-                              color="green"
-                              size={"24px"}
-                              style={{ cursor: "pointer", marginRight: "10px" }}
-                              onClick={() => {
-                                setSelectedApplicationId(
-                                  applicant.applicationid
-                                );
-                                onOpenCheck();
-                              }}
-                            />
-                            <AcceptApplicantAlert
-                              isOpen={isOpenCheck}
-                              onClose={onCloseCheck}
-                              applicationId={selectedApplicationId}
-                            />
-                            <IoCloseSharp
-                              size={"24px"}
-                              color="red"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => {
-                                setSelectedApplicationId(
-                                  applicant.applicationid
-                                );
-                                onOpenClose();
-                              }}
-                            />
-                            <RejectApplicantAlert
-                              isOpen={isOpenClose}
-                              onClose={onCloseClose}
-                              applicationId={selectedApplicationId}
-                            />
-                          </>
-                        ) : (
-                          <span>{mapEnumToString(applicant.status)}</span>
-                        )}
+                      <Flex justify="center" align="center">
+                        <Text>Loading...</Text>
                       </Flex>
                     </Td>
                   </Tr>
-                ))
-              )}
-            </Tbody> */}
+                ) : isError ? (
+                  <Tr>
+                    <Td>
+                      <Flex justify="center" align="center">
+                        <Text color="red.500">Error fetching payments</Text>
+                      </Flex>
+                    </Td>
+                  </Tr>
+                ) : (
+                  payments?.map((payment, index) => (
+                    <Tr key={index}>
+                      <Td>{index + 1}</Td>
+                      <Td>{payment.amount}</Td>
+                      <Td>{payment.paymentType}</Td>
+                      <Td>{payment.date}</Td>
+                    </Tr>
+                  ))
+                )}
+              </Tbody>
             </Table>
           </TableContainer>
         </Box>

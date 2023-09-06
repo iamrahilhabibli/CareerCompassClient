@@ -71,8 +71,9 @@ export function Menu() {
               Company Details
             </MenuItem>
           )}
-
-          <MenuItem onClick={() => navigate("/payments")}>Payments </MenuItem>
+          <MenuItem onClick={() => navigate(`/payments/${userId}`)}>
+            Payments{" "}
+          </MenuItem>
         </MenuGroup>
         <MenuDivider />
         <MenuGroup title="Help">

@@ -75,7 +75,7 @@ export function App() {
               <Route path="/forgotpassword" element={<ForgotPass />} />
               <Route path="/passwordreset" element={<PasswordReset />} />
               <Route path="/pricing" element={<ThreeTierPricing />} />
-              <Route path="/payments" element={<Payments />} />
+              <Route path="/payments/:userId" element={<Payments />} />
               <Route path="/paymentsuccess" element={<SuccessPayment />} />
               <Route path="/paymenterror" element={<ErrorPayment />} />
               <Route path="/jsmessages" element={<JobseekerMessages />} />
