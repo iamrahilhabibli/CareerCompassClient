@@ -72,7 +72,7 @@ export function Menu() {
             </MenuItem>
           )}
 
-          <MenuItem>Payments </MenuItem>
+          <MenuItem onClick={() => navigate("/payments")}>Payments </MenuItem>
         </MenuGroup>
         <MenuDivider />
         <MenuGroup title="Help">

@@ -33,6 +33,7 @@ import { DownloadProvider } from "./components/DownloadContext/DownloadProvider"
 import { Applicants } from "./components/Employers/Applicants";
 import { Messages } from "./components/Employers/Messages";
 import { JobseekerMessages } from "./components/Jobseeker/JobseekerMessages";
+import { Payments } from "./components/Payments/Payments";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -74,6 +75,7 @@ export function App() {
               <Route path="/forgotpassword" element={<ForgotPass />} />
               <Route path="/passwordreset" element={<PasswordReset />} />
               <Route path="/pricing" element={<ThreeTierPricing />} />
+              <Route path="/payments" element={<Payments />} />
               <Route path="/paymentsuccess" element={<SuccessPayment />} />
               <Route path="/paymenterror" element={<ErrorPayment />} />
               <Route path="/jsmessages" element={<JobseekerMessages />} />

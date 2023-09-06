@@ -3,7 +3,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { Text, Spinner, Box } from "@chakra-ui/react";
 
 export function JobDescriptionForm({ formik }) {
-  const [isLoading, setIsLoading] = useState(true); // State to control spinner visibility
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <>
