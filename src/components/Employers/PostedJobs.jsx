@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import jobPosts from "../../images/jobposts.png";
 import axios from "axios";
@@ -18,24 +18,29 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
-
-const fetchVacancies = async (id, token) => {
-  const url = `https://localhost:7013/api/Vacancies/GetVacanciesById?id=${id}`;
-
-  return axios
-    .get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((response) => {
-      return response.data;
-    });
-};
 
 export function PostedJobs() {
   const { userId, token, isAuthenticated } = useUser();
+  const [vacanciesList, setVacanciesList] = useState([]);
+  const toast = useToast();
+  const fetchVacancies = async (id, token) => {
+    const url = `https://localhost:7013/api/Vacancies/GetVacanciesById?id=${id}`;
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        setVacanciesList(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching vacancies:", error);
+    }
+  };
 
   const { data: recruiterDetails } = useQuery(
     ["recruiterDetails", userId],
@@ -56,11 +61,40 @@ export function PostedJobs() {
       enabled: Boolean(recruiterDetails?.id) && isAuthenticated,
     }
   );
-
   if (vacanciesError) {
     console.error("Error fetching vacancies:", vacanciesError);
   }
-  console.log(vacancies);
+  const handleDelete = async (vacancyId) => {
+    console.log("Trying to delete vacancy with ID:", vacancyId);
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Vacancies/${vacancyId}`
+      );
+      if (response.status === 204) {
+        // Remove the deleted vacancy from the list
+        setVacanciesList((prevVacanciesList) =>
+          prevVacanciesList.filter((vacancy) => vacancy.id !== vacancyId)
+        );
+        toast({
+          title: "Success!",
+          description: "Successfully deleted the vacancy.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.log("Error deleting vacancy:", error);
+      toast({
+        title: "An error occurred.",
+        description: "Failed to delete the vacancy.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <Spinner
@@ -132,12 +166,12 @@ export function PostedJobs() {
                     </Flex>
                   </Td>
                 </Tr>
-              ) : vacanciesError ? (
+              ) : vacanciesList.length === 0 ? (
                 <Tr>
-                  <Td colSpan="6">An error occurred</Td>
+                  <Td colSpan="6">No vacancies available</Td>
                 </Tr>
               ) : (
-                vacancies?.map((vacancy, index) => (
+                vacanciesList.map((vacancy, index) => (
                   <Tr key={index}>
                     <Td isNumeric>{index + 1}</Td>
                     <Td>{vacancy.companyName}</Td>
@@ -154,7 +188,7 @@ export function PostedJobs() {
                         <IoTrashOutline
                           size={24}
                           style={{ cursor: "pointer", color: "red" }}
-                          // onClick={() => handleDelete(vacancy.id)}
+                          onClick={() => handleDelete(vacancy.id)}
                         />
                       </Flex>
                     </Td>
