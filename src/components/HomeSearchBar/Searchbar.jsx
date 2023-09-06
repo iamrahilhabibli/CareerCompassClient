@@ -34,7 +34,11 @@ export function Searchbar() {
   const { data: jobTitles } = useGetByJobTitle(jobTitleInputValue);
   const jobTitleItems = jobTitles || [];
   const navigate = useNavigate();
-  const { userId } = useUser();
+  const { userId, isAuthenticated, userRole } = useUser();
+  const linkTo =
+    isAuthenticated && userRole === "JobSeeker"
+      ? `/resumebuild/${userId}`
+      : "/signin";
   const { data: vacancies } = useVacancies(
     jobTitleInputValue,
     selectedLocationId
@@ -234,7 +238,7 @@ export function Searchbar() {
       <Box mt={4} textAlign="center">
         <Text>
           <Link
-            to={`/resumebuild/${userId}`}
+            to={linkTo}
             style={{
               marginRight: "20px",
               color: "#2557A7",

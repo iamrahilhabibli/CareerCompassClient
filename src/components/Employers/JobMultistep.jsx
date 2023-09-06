@@ -52,8 +52,8 @@ export function JobMultistep() {
       },
       onError: (error) => {
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Failed to Post",
+          description: "Please check your subscription tier or try again",
           status: "error",
           duration: 1000,
           isClosable: true,

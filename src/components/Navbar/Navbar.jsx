@@ -99,7 +99,6 @@ export function Navbar() {
         <div className={styles.navbarComponentsLeft}>
           <Link to="/home">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
-          <Link to="/findsalaries">Find Salaries</Link>
           <Link to={`/resumebuild/${userId}`}>Build your Resume</Link>
           <Link to="/pricing">Pricing</Link>
         </div>

@@ -120,6 +120,7 @@ export function SearchResultCards({ searchResults }) {
   };
   const [applicationLimit, setApplicationLimit] = useState(0);
   const [currentApplicationCount, setCurrentApplicationCount] = useState(0);
+  const moment = require("moment-timezone");
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
@@ -350,7 +351,7 @@ export function SearchResultCards({ searchResults }) {
               <Text fontSize="16px" color="gray.500" fontWeight={300}>
                 {selectedVacancy?.locationName}
               </Text>
-              <Text>{selectedVacancy?.id}</Text>
+              {/* <Text>{selectedVacancy?.id}</Text> */}
               <Divider my={3} />
               <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
                 ${selectedVacancy?.salary}
@@ -389,10 +390,6 @@ export function SearchResultCards({ searchResults }) {
               >
                 Apply
               </Button>
-              <Text>
-                Current Application Count: {currentApplicationCount}
-                Application Limit: {applicationLimit}
-              </Text>
               <Button variant="outline" mr={3} onClick={onClose}>
                 Close
               </Button>

@@ -55,13 +55,6 @@ export function ResumeBuild() {
   ];
   const resumePlans = [
     { name: "Basic", price: "14.99", description: "Basic Resume Plan" },
-    { name: "Advanced", price: "29.99", description: "Advanced Resume Plan" },
-    {
-      name: "Pro",
-      price: "49.99",
-      description: "Pro Resume Plan",
-      isPopular: true,
-    },
   ];
   useEffect(() => {
     const fetchEducationLevels = async () => {

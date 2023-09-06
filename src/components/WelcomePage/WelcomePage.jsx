@@ -30,7 +30,9 @@ export function WelcomePage() {
             className={styles.slide1}
           >
             <Heading as="h3" size="lg" color="white">
-              Connecting Talent With Opportunity
+              Connecting Talent
+              <br />
+              With Opportunity
             </Heading>
           </Box>
           <Box
@@ -40,8 +42,10 @@ export function WelcomePage() {
             bgRepeat="no-repeat"
             className={styles.slide2}
           >
-            <Heading as="h3" size="md">
-              Streamlining Recruitment, Empowering Growth
+            <Heading as="h3" size="lg" color="white">
+              Streamlining Recruitment,
+              <br />
+              Empowering Growth
             </Heading>
           </Box>
           <Box
@@ -51,8 +55,10 @@ export function WelcomePage() {
             bgRepeat="no-repeat"
             className={styles.slide3}
           >
-            <Heading as="h3" size="md">
-              Find Your Perfect Fit, Faster Than Ever
+            <Heading as="h3" size="lg" color="white">
+              Find Your Perfect Fit,
+              <br />
+              Faster Than Ever
             </Heading>
           </Box>
         </Slider>
