@@ -91,6 +91,6 @@ nav {
 }
 
 .redBell {
-  animation: ringingBell 1s linear infinite;
+  animation: ringingBell 0.3s linear infinite;
   color: #2557a7 !important;
 }

@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setContent, setLoading } from "../../reducers/resumeSlice";
 
 export function ResumeBuild() {
+  const [isLoading, setIsLoading] = useState(true);
   const [educationLevels, setEducationLevels] = useState([]);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [localState, setLocalState] = useState(null);
