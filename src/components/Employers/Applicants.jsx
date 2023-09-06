@@ -33,6 +33,7 @@ import useUser from "../../customhooks/useUser";
 import { AcceptApplicantAlert } from "../AlertDialog/AcceptApplicantAlert";
 import { RejectApplicantAlert } from "../AlertDialog/RejectApplicantAlert";
 import { useDispatch, useSelector } from "react-redux";
+import { DownloadIcon } from "@chakra-ui/icons";
 export function Applicants() {
   const { userId } = useUser();
   const [isUserIdFetched, setIsUserIdFetched] = useState(false);
@@ -165,7 +166,7 @@ export function Applicants() {
                     <Td>{applicant.jobTitle}</Td>
                     <Td>
                       <a href={applicant.Resume} download>
-                        <FaDownload
+                        <DownloadIcon
                           size={"24px"}
                           style={{ cursor: "pointer" }}
                         />

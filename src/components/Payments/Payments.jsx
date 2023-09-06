@@ -11,19 +11,32 @@ import {
   Thead,
   Tr,
   Text,
+  Spinner,
+  IconButton,
 } from "@chakra-ui/react";
 import React from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import paymentsImg from "../../images/paymentsImg.png";
 import useUser from "../../customhooks/useUser";
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
+import { DownloadIcon } from "@chakra-ui/icons";
 export function Payments() {
   const [payments, setPayments] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const { userId } = useUser();
 
+  const downloadPDF = async () => {
+    const table = document.getElementById("my-table");
+    const canvas = await html2canvas(table);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("l", "mm", "a4");
+    pdf.addImage(imgData, "PNG", 10, 10);
+    pdf.save("transaction_history.pdf");
+  };
   useEffect(() => {
     const fetchData = async () => {
       setIsError(false);
@@ -84,7 +97,7 @@ export function Payments() {
           shadow="1px 1px 3px rgba(0,0,0,0.3)"
         >
           <TableContainer>
-            <Table variant="simple">
+            <Table variant="simple" id="my-table">
               <TableCaption>Payments</TableCaption>
               <Thead>
                 <Tr>
@@ -92,6 +105,16 @@ export function Payments() {
                   <Th>Amount</Th>
                   <Th>Type</Th>
                   <Th>Date</Th>
+                  <Th>
+                    Export
+                    <IconButton
+                      aria-label="Download PDF"
+                      icon={<DownloadIcon />}
+                      size="xs"
+                      onClick={downloadPDF}
+                      ml={2}
+                    />
+                  </Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -99,7 +122,7 @@ export function Payments() {
                   <Tr>
                     <Td>
                       <Flex justify="center" align="center">
-                        <Text>Loading...</Text>
+                        <Spinner />
                       </Flex>
                     </Td>
                   </Tr>
@@ -112,14 +135,27 @@ export function Payments() {
                     </Td>
                   </Tr>
                 ) : (
-                  payments?.map((payment, index) => (
-                    <Tr key={index}>
-                      <Td>{index + 1}</Td>
-                      <Td>{payment.amount}</Td>
-                      <Td>{payment.paymentType}</Td>
-                      <Td>{payment.date}</Td>
-                    </Tr>
-                  ))
+                  payments?.map((payment, index) => {
+                    const dateObject = new Date(payment.date);
+                    const formattedDate = `${dateObject
+                      .getDate()
+                      .toString()
+                      .padStart(2, "0")}-${(dateObject.getMonth() + 1)
+                      .toString()
+                      .padStart(
+                        2,
+                        "0"
+                      )}-${dateObject.getFullYear()} ${dateObject.getHours()}:${dateObject.getMinutes()}:${dateObject.getSeconds()}`;
+
+                    return (
+                      <Tr key={index}>
+                        <Td>{index + 1}</Td>
+                        <Td>{payment.amount}</Td>
+                        <Td>{payment.paymentType}</Td>
+                        <Td>{formattedDate}</Td>
+                      </Tr>
+                    );
+                  })
                 )}
               </Tbody>
             </Table>
