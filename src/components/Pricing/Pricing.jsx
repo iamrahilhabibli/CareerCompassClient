@@ -58,7 +58,9 @@ function PriceWrapper(props) {
 export default function ThreeTierPricing() {
   const toast = useToast();
   const { userId, token, userRole } = useUser();
+  const [plans, setPlans] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
+
   const isSubscriptionActive = (startDate) => {
     const subscriptionEndDate = new Date(startDate);
     subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
@@ -147,16 +149,25 @@ export default function ThreeTierPricing() {
     });
   };
 
-  const plans = [
-    { name: "Free", price: "0", limit: "3 posts per month", isFree: true },
-    {
-      name: "Basic",
-      price: "149",
-      limit: "10 posts per month",
-      isPopular: true,
-    },
-    { name: "Pro", price: "349", limit: "Unlimited posts" },
-  ];
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await axios.get(
+          "https://localhost:7013/api/Subscriptions/GetAll"
+        );
+        const fetchedPlans = response.data.map((plan) => ({
+          name: plan.name,
+          price: plan.price,
+          limit: `${plan.postLimit} posts per month`,
+        }));
+        setPlans(fetchedPlans);
+      } catch (error) {
+        console.error("Error fetching plans:", error);
+      }
+    };
+
+    fetchPlans();
+  }, []);
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
 
   return (
@@ -197,7 +208,6 @@ export default function ThreeTierPricing() {
                   <ListIcon as={FaCheckCircle} color="green.500" />
                   {plan.limit}
                 </ListItem>
-                {/* Add other features as required */}
               </List>
               <Box w="80%" pt={7}>
                 <Button

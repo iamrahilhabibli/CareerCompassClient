@@ -1,13 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
-import { FormControl, FormLabel, Text } from "@chakra-ui/react";
+import { Text, Spinner, Box } from "@chakra-ui/react";
 
 export function JobDescriptionForm({ formik }) {
+  const [isLoading, setIsLoading] = useState(true); // State to control spinner visibility
+
   return (
     <>
       <Text fontSize={"15px"} color={"red"} mb="8px">
         {formik.touched.description && formik.errors.description}
       </Text>
+
+      {isLoading && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="300px"
+        >
+          <Spinner size="xl" />
+        </Box>
+      )}
+
       <Editor
         apiKey="ampk5o36dpm7qqhr2h54evb0g8b4fqptomyoa5ntgpubk2h4"
         value={formik.values.description}
@@ -23,6 +37,7 @@ export function JobDescriptionForm({ formik }) {
         onEditorChange={(content) =>
           formik.setFieldValue("description", content)
         }
+        onInit={() => setIsLoading(false)}
       />
     </>
   );
