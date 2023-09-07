@@ -13,9 +13,12 @@ import { useCombobox } from "downshift";
 import workPlaceImg from "../images/workplace.png";
 import { fetchCompanyDetails } from "../services/getCompanies";
 import { debounce } from "lodash";
+import { useNavigate } from "react-router-dom";
 export function Companies() {
   const [companyItems, setCompanyItems] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const navigate = useNavigate();
+  const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
   const debouncedFetchCompanyDetails = debounce(async (input) => {
     if (input) {
       const results = await fetchCompanyDetails(input);
@@ -27,9 +30,11 @@ export function Companies() {
   const handleSearch = async (selectedItem) => {
     if (selectedItem) {
       const details = await fetchCompanyDetails(selectedItem.companyName);
-      console.log(`You selected ${selectedItem.companyName}`, details);
+      setSelectedCompanyDetails(details);
+      navigate(`?company=${encodeURIComponent(selectedItem.companyName)}`);
     }
   };
+
   const {
     isOpen,
     getMenuProps,
@@ -47,6 +52,7 @@ export function Companies() {
     },
     itemToString: (item) => (item ? item.companyName : ""),
   });
+  console.log(selectedCompanyDetails);
   return (
     <>
       <Box
@@ -83,23 +89,11 @@ export function Companies() {
             </Heading>
           </Flex>
         </Box>
+
         <Box position="relative" mr="10px" w="100%">
           <Flex position="relative" alignItems="center">
-            <Text
-              position="absolute"
-              fontWeight="700"
-              fontSize="14px"
-              lineHeight="14px"
-              color="#2d2d2d"
-              left="10px"
-              top="50%"
-              transform="translateY(-50%)"
-            >
-              Company
-            </Text>
             <Input
               {...getInputProps({
-                pl: "70px",
                 border: "1px solid #ccc",
                 w: "100%",
                 h: "45px",
@@ -113,7 +107,7 @@ export function Companies() {
                 color: "#2d2d2d",
                 _hover: { borderColor: "#2557a7", outline: "none" },
                 _focus: { borderColor: "#2557a7", outline: "none" },
-                placeholder: "Search for a company",
+                placeholder: "Enter Company Name",
               })}
               flex={1}
             />
@@ -161,6 +155,17 @@ export function Companies() {
               ))}
           </List>
         </Box>
+        {selectedCompanyDetails && selectedCompanyDetails.length > 0 && (
+          <Box mt={4}>
+            {selectedCompanyDetails.map((company, index) => (
+              <Box key={index} mt={4}>
+                <Text>Name: {company.companyName}</Text>
+                <Text>Location: {company.location}</Text>
+                <Text>Description: {company.description}</Text>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
     </>
   );
