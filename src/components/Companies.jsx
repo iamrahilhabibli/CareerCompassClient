@@ -1,9 +1,11 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Heading,
   Input,
+  Image,
   List,
   ListItem,
   Text,
@@ -32,6 +34,8 @@ export function Companies() {
       const details = await fetchCompanyDetails(selectedItem.companyName);
       setSelectedCompanyDetails(details);
       navigate(`?company=${encodeURIComponent(selectedItem.companyName)}`);
+    } else {
+      setSelectedCompanyDetails(null);
     }
   };
 
@@ -158,11 +162,24 @@ export function Companies() {
         {selectedCompanyDetails && selectedCompanyDetails.length > 0 && (
           <Box mt={4}>
             {selectedCompanyDetails.map((company, index) => (
-              <Box key={index} mt={4}>
-                <Text>Name: {company.companyName}</Text>
-                <Text>Location: {company.location}</Text>
-                <Text>Description: {company.description}</Text>
-              </Box>
+              <React.Fragment key={index}>
+                <Box mt={4} display="flex" alignItems="center">
+                  <Image
+                    boxSize="50px"
+                    src={company.logoUrl}
+                    alt={`${company.companyName} logo`}
+                    mr={4}
+                  />
+                  <Box>
+                    <Text>Name: {company.companyName}</Text>
+                    <Text> {company.industryName}</Text>
+                    <Text>Description: {company.description}</Text>
+                  </Box>
+                </Box>
+                {index < selectedCompanyDetails.length - 1 && (
+                  <Divider mt={4} />
+                )}
+              </React.Fragment>
             ))}
           </Box>
         )}
