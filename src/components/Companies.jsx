@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Flex,
   Heading,
   Input,
@@ -7,15 +8,28 @@ import {
   ListItem,
   Text,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { useCombobox } from "downshift";
 import workPlaceImg from "../images/workplace.png";
+import { fetchCompanyDetails } from "../services/getCompanies";
+import { debounce } from "lodash";
 export function Companies() {
-  const companyItems = [
-    { id: "1", companyName: "Apple" },
-    { id: "2", companyName: "Google" },
-    { id: "3", companyName: "Microsoft" },
-  ];
+  const [companyItems, setCompanyItems] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const debouncedFetchCompanyDetails = debounce(async (input) => {
+    if (input) {
+      const results = await fetchCompanyDetails(input);
+      setCompanyItems(results || []);
+    } else {
+      setCompanyItems([]);
+    }
+  }, 300);
+  const handleSearch = async (selectedItem) => {
+    if (selectedItem) {
+      const details = await fetchCompanyDetails(selectedItem.companyName);
+      console.log(`You selected ${selectedItem.companyName}`, details);
+    }
+  };
   const {
     isOpen,
     getMenuProps,
@@ -23,10 +37,15 @@ export function Companies() {
     highlightedIndex,
     getItemProps,
   } = useCombobox({
-    items: companyItems,
+    items: companyItems || [],
     onSelectedItemChange: ({ selectedItem }) => {
-      console.log(selectedItem);
+      handleSearch(selectedItem);
     },
+    onInputValueChange: ({ inputValue }) => {
+      setInputValue(inputValue);
+      debouncedFetchCompanyDetails(inputValue);
+    },
+    itemToString: (item) => (item ? item.companyName : ""),
   });
   return (
     <>
@@ -64,27 +83,72 @@ export function Companies() {
             </Heading>
           </Flex>
         </Box>
-        <Box position="relative" mr="10px">
-          <Text
+        <Box position="relative" mr="10px" w="100%">
+          <Flex position="relative" alignItems="center">
+            <Text
+              position="absolute"
+              fontWeight="700"
+              fontSize="14px"
+              lineHeight="14px"
+              color="#2d2d2d"
+              left="10px"
+              top="50%"
+              transform="translateY(-50%)"
+            >
+              Company
+            </Text>
+            <Input
+              {...getInputProps({
+                pl: "70px",
+                border: "1px solid #ccc",
+                w: "100%",
+                h: "45px",
+                borderTopRightRadius: "0",
+                borderTopLeftRadius: "10px",
+                borderBottomRightRadius: isOpen ? "0" : "0",
+                borderBottomLeftRadius: isOpen ? "0" : "10px",
+                borderColor: "#767676",
+                fontSize: "14px",
+                fontWeight: "400",
+                color: "#2d2d2d",
+                _hover: { borderColor: "#2557a7", outline: "none" },
+                _focus: { borderColor: "#2557a7", outline: "none" },
+                placeholder: "Search for a company",
+              })}
+              flex={1}
+            />
+            <Button
+              h="45px"
+              w="80px"
+              borderTopLeftRadius="0"
+              borderBottomLeftRadius="0"
+              borderTopRightRadius="10px"
+              borderBottomRightRadius="10px"
+              colorScheme="blue"
+            >
+              Search
+            </Button>
+          </Flex>
+          <List
+            {...getMenuProps()}
             position="absolute"
-            fontWeight="700"
-            fontSize="14px"
-            lineHeight="14px"
-            color="#2d2d2d"
-            left="10px"
-            top="50%"
-            transform="translateY(-50%)"
+            fontSize={"13px"}
+            w="400px"
+            _hover={"blue.200"}
+            maxH="200px"
+            overflowY="auto"
+            border="1px solid #ccc"
+            borderTop={isOpen ? "0" : "1px solid #ccc"}
+            borderBottomLeftRadius="10px"
+            borderBottomRightRadius="10px"
+            bgColor="white"
+            zIndex={2}
+            listStyleType="none"
+            padding="0"
+            margin="0"
           >
-            Company
-          </Text>
-          <Input
-            {...getInputProps({
-              pl: "70px",
-              placeholder: "Search for a company",
-            })}
-          />
-          <List {...getMenuProps()}>
             {isOpen &&
+              companyItems &&
               companyItems.map((item, index) => (
                 <ListItem
                   key={item.id}
