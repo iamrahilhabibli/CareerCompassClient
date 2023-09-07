@@ -117,14 +117,15 @@ export function Companies() {
             />
             <Button
               h="45px"
-              w="80px"
+              w="max-content"
               borderTopLeftRadius="0"
               borderBottomLeftRadius="0"
               borderTopRightRadius="10px"
               borderBottomRightRadius="10px"
-              colorScheme="blue"
+              bgColor={"#2557a7"}
+              color={"white"}
             >
-              Search
+              Find Companies
             </Button>
           </Flex>
           <List
@@ -166,14 +167,27 @@ export function Companies() {
                 <Box mt={4} display="flex" alignItems="center">
                   <Image
                     boxSize="50px"
+                    objectFit="cover"
+                    borderRadius="8px"
+                    boxShadow="0px 4px 10px rgba(0, 0, 0, 0.5)"
                     src={company.logoUrl}
                     alt={`${company.companyName} logo`}
                     mr={4}
+                    cursor={"pointer"}
                   />
+
                   <Box>
-                    <Text>Name: {company.companyName}</Text>
-                    <Text> {company.industryName}</Text>
-                    <Text>Description: {company.description}</Text>
+                    <Text
+                      fontSize={"16px"}
+                      color={"#2557a7"}
+                      fontWeight={"700"}
+                      _hover={{ textDecoration: "underline" }}
+                      cursor={"pointer"}
+                    >
+                      {" "}
+                      {company.companyName}
+                    </Text>
+                    <Text fontSize={"12px"}> {company.industryName}</Text>
                   </Box>
                 </Box>
                 {index < selectedCompanyDetails.length - 1 && (
