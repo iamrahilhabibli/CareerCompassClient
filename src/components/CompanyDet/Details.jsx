@@ -142,7 +142,6 @@ export function Details() {
       </Flex>
     );
   }
-  console.log("company state", company);
   return (
     <Box width="70%" mx="auto" mt={10} p={5}>
       <Box

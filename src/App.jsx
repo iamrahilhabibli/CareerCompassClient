@@ -34,6 +34,7 @@ import { Applicants } from "./components/Employers/Applicants";
 import { Messages } from "./components/Employers/Messages";
 import { JobseekerMessages } from "./components/Jobseeker/JobseekerMessages";
 import { Payments } from "./components/Payments/Payments";
+import PasswordResetInApp from "./components/PasswordReset/PasswordResetInApp";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -74,6 +75,10 @@ export function App() {
               <Route path="/search" element={<SearchResultCards />} />
               <Route path="/forgotpassword" element={<ForgotPass />} />
               <Route path="/passwordreset" element={<PasswordReset />} />
+              <Route
+                path="/passwordreset/:userId"
+                element={<PasswordResetInApp />}
+              />
               <Route path="/pricing" element={<ThreeTierPricing />} />
               <Route path="/payments/:userId" element={<Payments />} />
               <Route path="/paymentsuccess" element={<SuccessPayment />} />

@@ -1,24 +1,32 @@
 import React from "react";
-import { Box, Avatar, Text, VStack, Flex } from "@chakra-ui/react";
+import {
+  Box,
+  Avatar,
+  Text,
+  VStack,
+  Flex,
+  Spinner,
+  Button,
+} from "@chakra-ui/react";
 import profile from "../../images/profile.png";
 import useUser from "../../customhooks/useUser";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function Profile() {
   const { userId } = useParams();
   const { userDetails, userDetailsLoading } = useUser(userId);
-
+  const navigate = useNavigate();
   return (
-    <Box>
+    <Box width="70%" mx="auto" mt={10} p={5} maxWidth={800}>
       <Box
-        borderWidth={"1px"}
-        rounded={"lg"}
+        borderWidth="1px"
+        rounded="lg"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
         maxWidth={800}
-        bg={"white"}
+        bg="white"
         m="10px auto"
-        height={"200px"}
-        borderRadius={"12px"}
+        height="200px"
+        borderRadius="12px"
         bgRepeat="no-repeat"
         bgImage={profile}
         bgSize="auto 100%"
@@ -33,25 +41,54 @@ export function Profile() {
         spacing={4}
         padding="20px"
         alignItems="center"
-        bg="white"
+        bg="transparent"
         borderRadius="md"
-        shadow="md"
-        maxWidth="600px"
+        shadow="1px 1px 3px rgba(0,0,0,0.6)"
+        maxWidth={"100%"}
         width="100%"
         margin="0 auto"
       >
         {userDetailsLoading ? (
           <Text fontSize="xl" color="gray.400">
-            Loading...
+            <Spinner />
           </Text>
         ) : (
           <>
-            <Text fontSize="2xl" fontWeight="bold" color="gray.700">
-              {userDetails?.firstName} {userDetails?.lastName}
-            </Text>
-            <Text fontSize="lg" color="gray.500">
-              Email: {userDetails?.email}
-            </Text>
+            <VStack spacing={3} alignItems="start" w={"100%"}>
+              <Flex justifyContent="space-between" width="100%">
+                <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+                  {userDetails?.firstName} {userDetails?.lastName}
+                </Text>
+              </Flex>
+              <Flex justifyContent="space-between" width="100%">
+                <Text fontSize="lg" color="gray.500">
+                  Email: {userDetails?.email}
+                </Text>
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={() => {
+                    /* Insert logic to open email change form */
+                  }}
+                >
+                  Change Email
+                </Button>
+              </Flex>
+              <Flex justifyContent="space-between" width="100%">
+                <Text fontSize="lg" color="gray.500">
+                  Change your password
+                </Text>
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={() => {
+                    navigate(`/passwordreset/${userId}`);
+                  }}
+                >
+                  Change Password
+                </Button>
+              </Flex>
+            </VStack>
           </>
         )}
       </VStack>
