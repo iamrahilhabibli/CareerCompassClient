@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import profileImg from "../../images/profile.png";
 import {
@@ -26,50 +26,76 @@ export function Details() {
   const { isAuthenticated, loading, userId, token } = useUser();
   const [recruiter, setRecruiter] = useState(null);
   const [company, setCompany] = useState(null);
-
-  useEffect(() => {
-    async function getRecruiterDetails() {
-      if (isAuthenticated && !loading && userId && token) {
-        try {
-          const recruiterData = await fetchRecruiterDetails(userId, token);
-          setRecruiter(recruiterData);
-          if (recruiterData.companyId) {
-            const companyData = await fetchCompanyDetails(
-              recruiterData.companyId,
-              token
-            );
-            setCompany(companyData);
-          }
-        } catch (error) {
-          console.error("Error fetching details:", error);
+  const fileInputRef = useRef(null);
+  const getRecruiterDetails = useCallback(async () => {
+    if (isAuthenticated && !loading && userId && token) {
+      try {
+        const recruiterData = await fetchRecruiterDetails(userId, token);
+        setRecruiter(recruiterData);
+        if (recruiterData.companyId) {
+          const companyData = await fetchCompanyDetails(
+            recruiterData.companyId,
+            token
+          );
+          setCompany(companyData);
         }
+      } catch (error) {
+        console.error("Error fetching details:", error);
       }
     }
-    getRecruiterDetails();
   }, [isAuthenticated, loading, userId, token]);
+
+  useEffect(() => {
+    getRecruiterDetails();
+  }, [getRecruiterDetails]);
+  const updateCompanyLogoInDB = async (fullUrl, companyId) => {
+    try {
+      await axios.post(
+        `https://localhost:7013/api/Companies/UploadLogo?companyId=${companyId}`,
+        {
+          url: fullUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(
+        // Toast error must be added
+        "Failed to update logo URL in the database:",
+        error,
+        error.response
+      );
+    }
+  };
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    console.log("Selected file:", file);
-
     if (file) {
-      console.log("Uploading...");
       try {
         const newLogoUrl = await uploadLogo(file, userId, token);
-        console.log("Upload completed", newLogoUrl);
-        setCompany((prevState) => ({ ...prevState, logoUrl: newLogoUrl }));
+        const fullUrl = newLogoUrl[0]?.fullUrl;
+        console.log(fullUrl);
+        if (fullUrl) {
+          setCompany((prevState) => ({ ...prevState, logoUrl: fullUrl }));
+          if (company) {
+            updateCompanyLogoInDB(fullUrl, company.companyId);
+          }
+        } else {
+          console.error("The fullUrl property is not available.");
+        }
       } catch (error) {
         console.error("Error while uploading", error);
       }
     }
   };
+
   useEffect(() => {
-    const inputElement = document.getElementById("hiddenFileInput");
+    const inputElement = fileInputRef.current;
     if (inputElement) {
-      inputElement.addEventListener("change", (event) => {
-        console.log("File input changed by manual event listener");
-        handleFileChange(event);
-      });
+      inputElement.addEventListener("change", handleFileChange);
     }
     return () => {
       if (inputElement) {
@@ -77,6 +103,7 @@ export function Details() {
       }
     };
   }, [handleFileChange]);
+
   const uploadLogo = async (file, userId, token) => {
     const formData = new FormData();
     formData.append("containerName", "recruiters");
@@ -96,6 +123,7 @@ export function Details() {
       );
 
       if (response.status === 200) {
+        console.log("this is response", response);
         console.log("Entire server response:", response);
         return response.data;
       }
@@ -114,7 +142,7 @@ export function Details() {
       </Flex>
     );
   }
-
+  console.log("company state", company);
   return (
     <Box width="70%" mx="auto" mt={10} p={5}>
       <Box
