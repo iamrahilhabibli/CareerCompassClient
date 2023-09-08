@@ -81,6 +81,7 @@ export function Companies() {
           description:
             "You will be notified of any posts and updates by the company.",
           status: "success",
+          position: "top-right",
           duration: 5000,
           isClosable: true,
         });
@@ -121,8 +122,9 @@ export function Companies() {
           title: "Successfully Unfollowed!",
           description:
             "You will be no longer be notified of any posts and updates by the company.",
-          status: "success",
-          duration: 5000,
+          status: "warning",
+          position: "top-right",
+          duration: 1000,
           isClosable: true,
         });
 
@@ -138,7 +140,7 @@ export function Companies() {
         title: "Something went wrong!",
         description: "Please try again",
         status: "error",
-        duration: 5000,
+        duration: 1000,
         isClosable: true,
       });
     }
