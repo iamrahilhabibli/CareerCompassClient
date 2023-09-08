@@ -16,7 +16,7 @@ import { useCombobox } from "downshift";
 import workPlaceImg from "../images/workplace.png";
 import { fetchCompanyDetails } from "../services/getCompanies";
 import { debounce } from "lodash";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useUser from "../customhooks/useUser";
 import axios from "axios";
 
@@ -28,6 +28,7 @@ export function Companies() {
   const toast = useToast();
   const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
   const debouncedFetchCompanyDetails = debounce(async (input) => {
     if (input) {
@@ -37,6 +38,14 @@ export function Companies() {
       setCompanyItems([]);
     }
   }, 300);
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const companyName = searchParams.get("company");
+
+    if (companyName) {
+      handleSearch({ companyName: decodeURIComponent(companyName) });
+    }
+  }, [location.search]);
   const handleSearch = async (selectedItem) => {
     if (selectedItem) {
       const details = await fetchCompanyDetails(selectedItem.companyName);
@@ -299,19 +308,25 @@ export function Companies() {
                         fontWeight={"700"}
                         _hover={{ textDecoration: "underline" }}
                         cursor={"pointer"}
+                        onClick={() =>
+                          navigate(`/companies/${company.companyId}`, {
+                            state: { company },
+                          })
+                        }
                       >
                         {company.companyName}
                       </Text>
+
                       <Text fontSize={"12px"}>{company.industryName}</Text>
                     </Box>
                   </Box>
                   <Box>
-                    <Button mr={2} colorScheme="blue">
+                    {/* <Button mr={2} colorScheme="blue">
                       Write a review
                     </Button>
                     <Button mr={2} colorScheme="green">
                       See All Reviews
-                    </Button>
+                    </Button> */}
                     <Button
                       colorScheme={
                         isFollowing(company.companyId) ? "red" : "teal"

@@ -35,6 +35,7 @@ import { Messages } from "./components/Employers/Messages";
 import { JobseekerMessages } from "./components/Jobseeker/JobseekerMessages";
 import { Payments } from "./components/Payments/Payments";
 import PasswordResetInApp from "./components/PasswordReset/PasswordResetInApp";
+import { ReviewCompanyDetails } from "./components/ReviewCompanyDetails";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -66,6 +67,10 @@ export function App() {
               <Route path="/" element={<WelcomePage />} />
               <Route path="/home" element={<Home />} />
               <Route path="/companies" element={<Companies />} />
+              <Route
+                path="/companies/:companyId"
+                element={<ReviewCompanyDetails />}
+              />
               <Route path="/resumebuild/:userId" element={<ResumeBuild />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/signin" element={<Signin />} />
