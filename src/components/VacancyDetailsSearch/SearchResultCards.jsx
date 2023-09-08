@@ -79,8 +79,13 @@ export function SearchResultCards({ searchResults }) {
     isLoading,
     isError,
   } = useVacancies(jobTitle, locationId, sortOrder);
+
   const toggleSortOrder = () => {
-    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
+
+    const newUrl = `/search?jobTitle=${jobTitle}&locationId=${locationId}&sortOrder=${newSortOrder}`;
+    navigate(newUrl);
   };
 
   useEffect(() => {
