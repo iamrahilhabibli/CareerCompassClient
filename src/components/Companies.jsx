@@ -9,15 +9,23 @@ import {
   List,
   ListItem,
   Text,
+  useToast,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useCombobox } from "downshift";
 import workPlaceImg from "../images/workplace.png";
 import { fetchCompanyDetails } from "../services/getCompanies";
 import { debounce } from "lodash";
 import { useNavigate } from "react-router-dom";
+import useUser from "../customhooks/useUser";
+import axios from "axios";
+
 export function Companies() {
+  const { userId } = useUser();
+  const [followingCompanies, setFollowingCompanies] = useState([]);
+  const [followedCompanies, setFollowedCompanies] = useState([]);
   const [companyItems, setCompanyItems] = useState([]);
+  const toast = useToast();
   const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
@@ -38,7 +46,6 @@ export function Companies() {
       setSelectedCompanyDetails(null);
     }
   };
-
   const {
     isOpen,
     getMenuProps,
@@ -56,7 +63,108 @@ export function Companies() {
     },
     itemToString: (item) => (item ? item.companyName : ""),
   });
-  console.log(selectedCompanyDetails);
+  useEffect(() => {
+    const fetchFollowedCompanies = async () => {
+      await getFollowedCompanies(userId);
+    };
+
+    fetchFollowedCompanies();
+  }, []);
+
+  const followCompany = async (companyId, userId) => {
+    try {
+      const followCreateDto = {
+        appUserId: userId,
+        companyId: companyId,
+      };
+
+      const response = await axios.post(
+        "https://localhost:7013/api/Followers/Follow",
+        followCreateDto
+      );
+
+      if (response.status === 200) {
+        toast({
+          title: "Successfully followed!",
+          description:
+            "You will be notified of any posts and updates by the company.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        setFollowingCompanies([...followingCompanies, companyId]);
+      }
+    } catch (error) {
+      toast({
+        title: "Something went wrong!",
+        description: "Please try again",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const unFollowCompany = async (companyId, userId) => {
+    try {
+      const followRemoveDto = {
+        appUserId: userId,
+        companyId: companyId,
+      };
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: followRemoveDto,
+      };
+
+      const response = await axios.delete(
+        "https://localhost:7013/api/Followers/Unfollow",
+        config
+      );
+
+      if (response.status === 200) {
+        toast({
+          title: "Successfully Unfollowed!",
+          description:
+            "You will be no longer be notified of any posts and updates by the company.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+
+        const updatedFollowingCompanies = followingCompanies.filter(
+          (id) => id !== companyId
+        );
+        setFollowingCompanies(updatedFollowingCompanies);
+      }
+    } catch (error) {
+      console.error("Error details:", error);
+
+      toast({
+        title: "Something went wrong!",
+        description: "Please try again",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+  const getFollowedCompanies = async (userId) => {
+    try {
+      const url = `https://localhost:7013/api/Followers/GetFollowedCompanies?appUserId=${userId}`;
+      const response = await axios.get(url);
+
+      if (response.status === 200) {
+        setFollowedCompanies(response.data);
+      }
+    } catch (error) {
+      console.error("Error details:", error);
+    }
+  };
+
+  const isFollowing = (companyId) => followingCompanies.includes(companyId);
   return (
     <>
       <Box
@@ -164,30 +272,55 @@ export function Companies() {
           <Box mt={4}>
             {selectedCompanyDetails.map((company, index) => (
               <React.Fragment key={index}>
-                <Box mt={4} display="flex" alignItems="center">
-                  <Image
-                    boxSize="50px"
-                    objectFit="cover"
-                    borderRadius="8px"
-                    boxShadow="0px 4px 10px rgba(0, 0, 0, 0.5)"
-                    src={company.logoUrl}
-                    alt={`${company.companyName} logo`}
-                    mr={4}
-                    cursor={"pointer"}
-                  />
-
-                  <Box>
-                    <Text
-                      fontSize={"16px"}
-                      color={"#2557a7"}
-                      fontWeight={"700"}
-                      _hover={{ textDecoration: "underline" }}
+                <Box
+                  mt={4}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Box display="flex" alignItems="center">
+                    <Image
+                      boxSize="50px"
+                      objectFit="cover"
+                      borderRadius="8px"
+                      boxShadow="0px 4px 10px rgba(0, 0, 0, 0.5)"
+                      src={company.logoUrl}
+                      alt={`${company.companyName} logo`}
+                      mr={4}
                       cursor={"pointer"}
+                    />
+                    <Box>
+                      <Text
+                        fontSize={"16px"}
+                        color={"#2557a7"}
+                        fontWeight={"700"}
+                        _hover={{ textDecoration: "underline" }}
+                        cursor={"pointer"}
+                      >
+                        {company.companyName}
+                      </Text>
+                      <Text fontSize={"12px"}>{company.industryName}</Text>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Button mr={2} colorScheme="blue">
+                      Write a review
+                    </Button>
+                    <Button mr={2} colorScheme="green">
+                      See All Reviews
+                    </Button>
+                    <Button
+                      colorScheme={
+                        isFollowing(company.companyId) ? "red" : "teal"
+                      }
+                      onClick={() =>
+                        isFollowing(company.companyId)
+                          ? unFollowCompany(company.companyId, userId)
+                          : followCompany(company.companyId, userId)
+                      }
                     >
-                      {" "}
-                      {company.companyName}
-                    </Text>
-                    <Text fontSize={"12px"}> {company.industryName}</Text>
+                      {isFollowing(company.companyId) ? "Unfollow" : "Follow"}
+                    </Button>
                   </Box>
                 </Box>
                 {index < selectedCompanyDetails.length - 1 && (
