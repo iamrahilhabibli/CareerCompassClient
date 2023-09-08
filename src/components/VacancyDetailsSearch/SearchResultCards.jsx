@@ -3,6 +3,10 @@ import {
   Box,
   Flex,
   Heading,
+  RangeSlider,
+  RangeSliderFilledTrack,
+  RangeSliderThumb,
+  RangeSliderTrack,
   Select,
   Spinner,
   Text,
@@ -74,6 +78,7 @@ export function SearchResultCards({ searchResults }) {
     onClose: onModalClose,
   } = useDisclosure();
   const dispatch = useDispatch();
+
   const {
     data: vacancies,
     isLoading,
@@ -246,6 +251,22 @@ export function SearchResultCards({ searchResults }) {
           <option value="Temporary">Temporary</option>
           <option value="Internship">Internship</option>
         </select>
+
+        {/* <Box>
+          <RangeSlider
+            aria-label={["Minimum Salary", "Maximum Salary"]}
+            min={0}
+            max={maxSalary}
+            value={salaryRange}
+            onChange={(val) => setSalaryRange(val)}
+          >
+            <RangeSliderTrack>
+              <RangeSliderFilledTrack />
+            </RangeSliderTrack>
+            <RangeSliderThumb index={0} />
+            <RangeSliderThumb index={1} />
+          </RangeSlider>
+        </Box> */}
       </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
         <Box display="flex" flexWrap="wrap" justifyContent="space-around">
