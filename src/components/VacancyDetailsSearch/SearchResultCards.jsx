@@ -67,7 +67,7 @@ export function SearchResultCards({ searchResults }) {
   const [isUploading, setIsUploading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortOrder, setSortOrder] = useState("asc");
-
+  const [jobType, setJobType] = useState("");
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
@@ -78,13 +78,19 @@ export function SearchResultCards({ searchResults }) {
     data: vacancies,
     isLoading,
     isError,
-  } = useVacancies(jobTitle, locationId, sortOrder);
+  } = useVacancies(jobTitle, locationId, sortOrder, jobType);
 
   const toggleSortOrder = () => {
     const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
     setSortOrder(newSortOrder);
 
     const newUrl = `/search?jobTitle=${jobTitle}&locationId=${locationId}&sortOrder=${newSortOrder}`;
+    navigate(newUrl);
+  };
+  const handleJobTypeChange = (newJobType) => {
+    setJobType(newJobType);
+
+    const newUrl = `/search?jobTitle=${jobTitle}&locationId=${locationId}&sortOrder=${sortOrder}&jobType=${newJobType}`;
     navigate(newUrl);
   };
 
@@ -232,7 +238,14 @@ export function SearchResultCards({ searchResults }) {
       <Box>
         <Button onClick={toggleSortOrder}>Date Created</Button>
 
-        <Button>Job Type</Button>
+        <select onChange={(e) => handleJobTypeChange(e.target.value)}>
+          <option value="">Select Job Type</option>
+          <option value="PartTime">Part-Time</option>
+          <option value="FullTime">Full-Time</option>
+          <option value="Contract">Contract</option>
+          <option value="Temporary">Temporary</option>
+          <option value="Internship">Internship</option>
+        </select>
       </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
         <Box display="flex" flexWrap="wrap" justifyContent="space-around">
