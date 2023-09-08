@@ -63,14 +63,6 @@ export function Companies() {
     },
     itemToString: (item) => (item ? item.companyName : ""),
   });
-  useEffect(() => {
-    const fetchFollowedCompanies = async () => {
-      await getFollowedCompanies(userId);
-    };
-
-    fetchFollowedCompanies();
-  }, []);
-
   const followCompany = async (companyId, userId) => {
     try {
       const followCreateDto = {
@@ -155,15 +147,24 @@ export function Companies() {
     try {
       const url = `https://localhost:7013/api/Followers/GetFollowedCompanies?appUserId=${userId}`;
       const response = await axios.get(url);
-
       if (response.status === 200) {
-        setFollowedCompanies(response.data);
+        return response.data.map((company) => company.companyId);
       }
     } catch (error) {
-      console.error("Error details:", error);
+      return null;
     }
   };
-
+  useEffect(() => {
+    const fetchFollowedCompanies = async () => {
+      const followedCompanyIds = await getFollowedCompanies(userId);
+      if (followedCompanyIds) {
+        setFollowingCompanies(followedCompanyIds);
+      }
+    };
+    if (userId) {
+      fetchFollowedCompanies();
+    }
+  }, [userId]);
   const isFollowing = (companyId) => followingCompanies.includes(companyId);
   return (
     <>
