@@ -66,6 +66,8 @@ export function SearchResultCards({ searchResults }) {
   const [cvFile, setCvFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [sortOrder, setSortOrder] = useState("asc");
+
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
@@ -76,7 +78,10 @@ export function SearchResultCards({ searchResults }) {
     data: vacancies,
     isLoading,
     isError,
-  } = useVacancies(jobTitle, locationId);
+  } = useVacancies(jobTitle, locationId, sortOrder);
+  const toggleSortOrder = () => {
+    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,27 +99,6 @@ export function SearchResultCards({ searchResults }) {
     return vacancies?.slice(startIndex, startIndex + itemsPerPage);
   }, [currentPage, vacancies]);
 
-  const filterByDate = (result) => {
-    if (!dateFilter) return true;
-    const duration = moment().subtract(dateFilter.value, dateFilter.unit);
-    return moment(result.dateCreated).isAfter(duration);
-  };
-
-  const filterByJobType = (result) => {
-    if (jobTypeFilter.length === 0) return true;
-    return jobTypeFilter.some((type) => result.jobTypeIds.includes(type));
-  };
-
-  const filterByLocation = (result) => {
-    return !locationFilter || result.locationName === locationFilter;
-  };
-
-  const filteredVacancies = vacancies?.filter(
-    (result) =>
-      filterByDate(result) &&
-      filterByJobType(result) &&
-      filterByLocation(result)
-  );
   const handleFileChange = (e) => {
     setCvFile(e.target.files[0]);
   };
@@ -241,8 +225,8 @@ export function SearchResultCards({ searchResults }) {
   return (
     <>
       <Box>
-        <Button size={"sm"}>Date Created</Button>
-        <Button>Job location</Button>
+        <Button onClick={toggleSortOrder}>Date Created</Button>
+
         <Button>Job Type</Button>
       </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
