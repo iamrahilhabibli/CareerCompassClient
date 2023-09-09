@@ -258,7 +258,20 @@ export function JobseekerMessages() {
     }
   };
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        width="100%"
+      >
+        <Spinner size="xl" />{" "}
+      </Box>
+    );
+  }
+
   if (isError) {
     toast({
       title: "An error occurred.",

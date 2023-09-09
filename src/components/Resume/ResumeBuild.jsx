@@ -212,15 +212,15 @@ export function ResumeBuild() {
       });
   };
   const defaultTemplate = `
-  <h2>Education:</h2>
+  <h1><strong>Education:</strong></h1>
   <ul>
     <li></li>
   </ul>
-  <h2>Skills:</h2>
+  <h1><strong>Skills:</strong></h1>
   <ul>
     <li></li>
   </ul>
-  <h2>Interests:</h2>
+  <h1><strong>Interests:</strong></h1>
   <ul>
     <li></li>
   </ul>

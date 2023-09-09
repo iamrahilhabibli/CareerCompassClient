@@ -30,6 +30,12 @@ import {
   Avatar,
   AccordionPanel,
   AccordionIcon,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
   Flex,
 } from "@chakra-ui/react";
 import { FaStar, FaRegStar } from "react-icons/fa";
@@ -51,6 +57,7 @@ export function ReviewCompanyDetails() {
   const queryClient = useQueryClient();
   const initialRef = useRef();
   const toast = useToast();
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -190,7 +197,7 @@ export function ReviewCompanyDetails() {
                   {company.name}
                 </Heading>
                 <Box display="flex" flexDirection="column" alignItems="center">
-                  <Text fontSize="60px" fontWeight="bold">
+                  <Text color="#2557A7" fontSize="60px" fontWeight="bold">
                     {averageRating}
                   </Text>
                   <Box display="flex">
@@ -231,7 +238,9 @@ export function ReviewCompanyDetails() {
             >
               <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                 <GridItem>
-                  <Text fontWeight="bold">Industry:</Text>
+                  <Text fontWeight="bold" color="#2557A7">
+                    Industry:
+                  </Text>
                   <Text>{company.industry}</Text>
                 </GridItem>
                 <GridItem>
@@ -243,7 +252,7 @@ export function ReviewCompanyDetails() {
                   <Text>{company.companySize}</Text>
                 </GridItem>
                 <GridItem>
-                  <Text fontWeight="bold">Ceo:</Text>
+                  <Text fontWeight="bold">CEO:</Text>
                   <Text>{company.ceoName}</Text>
                 </GridItem>
                 <GridItem>
@@ -269,53 +278,69 @@ export function ReviewCompanyDetails() {
           <Spinner />
         )}
       </Box>
-      <Box flex="1" bg="gray.100">
-        <Box
-          display={"flex"}
-          justifyContent={"center"}
-          bg={"white"}
-          padding={"10px 0px 10px 0px"}
-        >
-          <Heading color={"#2557A7"}>Reviews</Heading>
-        </Box>
-        <Divider borderColor="#2557A7" borderWidth="1px" mx="1px" flex="1" />
-        <Accordion allowToggle>
-          {isLoading ? (
-            <Spinner />
-          ) : isError ? (
-            <Text>Something went wrong...</Text>
-          ) : (
-            reviews.map((review, index) => (
-              <AccordionItem key={index}>
-                <h2>
-                  <AccordionButton>
-                    <Box flex="1" textAlign="left">
-                      <Flex alignItems="center">
-                        <Avatar
-                          name={`${review.firstName} ${review.lastName}`}
-                        />
-                        <Text ml={4}>{review.title}</Text>
-                      </Flex>
-                    </Box>
-                    <Box>
-                      {[...Array(5)].map((_, i) => (
-                        <StarIcon
-                          key={i}
-                          color={i < review.rating ? "#2557A7" : "gray.300"}
-                        />
-                      ))}
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4}>
-                  <Text>{review.description}</Text>
-                </AccordionPanel>
-              </AccordionItem>
-            ))
-          )}
-        </Accordion>
-      </Box>
+      <Button color={"#2557A7"} onClick={() => setDrawerOpen(true)}>
+        See Reviews
+      </Button>
+      <Drawer
+        isOpen={isDrawerOpen}
+        placement="right"
+        onClose={() => setDrawerOpen(false)}
+      >
+        <DrawerOverlay>
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader color={"#2557A7"}>Reviews</DrawerHeader>
+            <DrawerBody>
+              <Box flex="1" bg="gray.100">
+                <Divider
+                  borderColor="#2557A7"
+                  borderWidth="1px"
+                  mx="1px"
+                  flex="1"
+                />
+                <Accordion allowToggle>
+                  {isLoading ? (
+                    <Spinner />
+                  ) : isError ? (
+                    <Text>Something went wrong...</Text>
+                  ) : (
+                    reviews.map((review, index) => (
+                      <AccordionItem key={index}>
+                        <h2>
+                          <AccordionButton>
+                            <Box flex="1" textAlign="left">
+                              <Flex alignItems="center">
+                                <Avatar
+                                  name={`${review.firstName} ${review.lastName}`}
+                                />
+                                <Text ml={4}>{review.title}</Text>
+                              </Flex>
+                            </Box>
+                            <Box>
+                              {[...Array(5)].map((_, i) => (
+                                <StarIcon
+                                  key={i}
+                                  color={
+                                    i < review.rating ? "#2557A7" : "gray.300"
+                                  }
+                                />
+                              ))}
+                            </Box>
+                            <AccordionIcon />
+                          </AccordionButton>
+                        </h2>
+                        <AccordionPanel pb={4}>
+                          <Text>{review.description}</Text>
+                        </AccordionPanel>
+                      </AccordionItem>
+                    ))
+                  )}
+                </Accordion>
+              </Box>
+            </DrawerBody>
+          </DrawerContent>
+        </DrawerOverlay>
+      </Drawer>
       <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent as="form" onSubmit={formik.handleSubmit}>

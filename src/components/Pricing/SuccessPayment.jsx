@@ -36,8 +36,8 @@ export default function SuccessPayment() {
         <p><strong>Email:</strong> ${contentToUse.email}</p>
         <p><strong>Phone:</strong> ${contentToUse.phoneNumber}</p>
       </div>
-      <h2>Experience: ${contentToUse.experience} years</h2>
-      <h2>Education: ${contentToUse.education}</h2>
+      <h2><strong>Experience:</strong> ${contentToUse.experience} years</h2>
+      <h2><strong>Education:</strong> ${contentToUse.education}</h2>
       <div>${contentToUse.description}</div>
     </div>
   `;
