@@ -1,23 +1,56 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useState, useRef } from "react";
 import {
-  Box,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  IconButton,
+  Icon,
   Button,
+  useToast,
+  Box,
   Grid,
   GridItem,
-  Heading,
-  Image,
   Spinner,
+  Divider,
+  Heading,
   Text,
-  VStack,
+  Image,
+  Link,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  Avatar,
+  AccordionPanel,
+  AccordionIcon,
+  Flex,
 } from "@chakra-ui/react";
+import { FaStar, FaRegStar } from "react-icons/fa";
+import { useFormik } from "formik";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import axios from "axios";
 import useUser from "../customhooks/useUser";
 import { fetchCompanyDetails } from "../services/fetchCompanyDetails";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { StarIcon } from "@chakra-ui/icons";
 
 export function ReviewCompanyDetails() {
   const { companyId } = useParams();
   const [company, setCompany] = useState(null);
   const { userId, token } = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const queryClient = useQueryClient();
+  const initialRef = useRef();
+  const toast = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +63,78 @@ export function ReviewCompanyDetails() {
     };
     fetchData();
   }, [companyId, token]);
-  console.log(company);
+
+  const mutation = useMutation(
+    (newReview) => {
+      return fetch("https://localhost:7013/api/Reviews/PostReview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newReview),
+      });
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("reviews");
+        toast({
+          title: "Submission Successful",
+          description:
+            "Thank you for submitting your review. It is currently under review by our moderation team and will be published upon approval.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      },
+
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Something went wrong while submitting your review.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      },
+    }
+  );
+
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      description: "",
+    },
+    onSubmit: async (values) => {
+      const payload = {
+        appUserId: userId,
+        title: values.title,
+        description: values.description,
+        rating,
+        companyId,
+      };
+      mutation.mutate(payload);
+      onClose();
+    },
+  });
+  const { data, isLoading, isError } = useQuery(
+    ["reviews", companyId],
+    () =>
+      axios
+        .get(
+          `https://localhost:7013/api/Reviews/GetAllByCompanyId?companyId=${companyId}`
+        )
+        .then((res) => {
+          console.log("API Response Data:", res.data);
+          return res.data;
+        }),
+    {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    }
+  );
+
+  const onClose = () => setIsOpen(false);
+
   return (
     <Box display="flex" width="100vw" height="100vh">
       <Box
@@ -58,7 +162,9 @@ export function ReviewCompanyDetails() {
               gap={"20px"}
             >
               <Heading mt={"20px"}>{company.name}</Heading>
-              <Button colorScheme="blue">Write a review</Button>
+              <Button colorScheme="blue" onClick={() => setIsOpen(true)}>
+                Write a review
+              </Button>
             </Box>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Grid templateColumns="repeat(2, 1fr)" gap={5}>
@@ -102,8 +208,106 @@ export function ReviewCompanyDetails() {
         )}
       </Box>
       <Box flex="1" bg="gray.100">
-        <Heading>{company.name} Reviews</Heading>
+        <Box
+          display={"flex"}
+          justifyContent={"center"}
+          bg={"white"}
+          borderBottomLeftRadius={"10px"}
+          borderBottomRightRadius={"10px"}
+          padding={"10px 0px 10px 0px"}
+        >
+          <Heading color={"#2557A7"}>Reviews</Heading>
+        </Box>
+        <Divider borderColor="#2557A7" borderWidth="1px" mx="1px" flex="1" />
+        <Accordion allowToggle>
+          {isLoading ? (
+            <Spinner />
+          ) : isError ? (
+            <Text>Something went wrong...</Text>
+          ) : (
+            data.map((review, index) => (
+              <AccordionItem key={index}>
+                <h2>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left">
+                      <Flex alignItems="center">
+                        <Avatar
+                          name={`${review.firstName} ${review.lastName}`}
+                        />
+                        <Text ml={4}>{review.title}</Text>
+                      </Flex>
+                    </Box>
+                    <Box>
+                      {[...Array(5)].map((_, i) => (
+                        <StarIcon
+                          key={i}
+                          color={i < review.rating ? "teal.500" : "gray.300"}
+                        />
+                      ))}
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <Text>{review.description}</Text>
+                </AccordionPanel>
+              </AccordionItem>
+            ))
+          )}
+        </Accordion>
       </Box>
+      <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent as="form" onSubmit={formik.handleSubmit}>
+          <ModalHeader>Write a Review</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl>
+              <FormLabel>Title</FormLabel>
+              <Input
+                ref={initialRef}
+                name="title"
+                placeholder="Awesome place to work!"
+                onChange={formik.handleChange}
+                value={formik.values.title}
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Description</FormLabel>
+              <Textarea
+                name="description"
+                placeholder="Your experience and review"
+                onChange={formik.handleChange}
+                value={formik.values.description}
+              />
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Rating</FormLabel>
+              <div>
+                {[1, 2, 3, 4, 5].map((starValue) => (
+                  <IconButton
+                    key={starValue}
+                    aria-label="Rate Job"
+                    icon={
+                      <Icon as={starValue <= rating ? FaStar : FaRegStar} />
+                    }
+                    color={starValue <= rating ? "yellow.400" : "gray.300"}
+                    onClick={() => setRating(starValue)}
+                  />
+                ))}
+              </div>
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} type="submit">
+              Submit
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

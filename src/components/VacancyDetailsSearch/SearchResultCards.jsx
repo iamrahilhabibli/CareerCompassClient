@@ -242,7 +242,6 @@ export function SearchResultCards({ searchResults }) {
     <>
       <Box>
         <Button onClick={toggleSortOrder}>Date Created</Button>
-
         <select onChange={(e) => handleJobTypeChange(e.target.value)}>
           <option value="">Select Job Type</option>
           <option value="PartTime">Part-Time</option>
@@ -251,25 +250,9 @@ export function SearchResultCards({ searchResults }) {
           <option value="Temporary">Temporary</option>
           <option value="Internship">Internship</option>
         </select>
-
-        {/* <Box>
-          <RangeSlider
-            aria-label={["Minimum Salary", "Maximum Salary"]}
-            min={0}
-            max={maxSalary}
-            value={salaryRange}
-            onChange={(val) => setSalaryRange(val)}
-          >
-            <RangeSliderTrack>
-              <RangeSliderFilledTrack />
-            </RangeSliderTrack>
-            <RangeSliderThumb index={0} />
-            <RangeSliderThumb index={1} />
-          </RangeSlider>
-        </Box> */}
       </Box>
       <Flex flexDirection={"column"} maxWidth={"60%"}>
-        <Box display="flex" flexWrap="wrap" justifyContent="space-around">
+        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={6}>
           {displayedVacancies?.map((result) => (
             <Box
               className={styles.Container}

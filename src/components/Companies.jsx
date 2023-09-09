@@ -321,12 +321,6 @@ export function Companies() {
                     </Box>
                   </Box>
                   <Box>
-                    {/* <Button mr={2} colorScheme="blue">
-                      Write a review
-                    </Button>
-                    <Button mr={2} colorScheme="green">
-                      See All Reviews
-                    </Button> */}
                     <Button
                       colorScheme={
                         isFollowing(company.companyId) ? "red" : "teal"
