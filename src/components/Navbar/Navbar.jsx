@@ -106,10 +106,30 @@ export function Navbar() {
           <Image boxSize="80px" src={cclogolarge} alt="Logo" />
         </Link>
         <HStack spacing={4} display={{ base: "none", md: "flex" }}>
-          <Link to="/home">Find jobs</Link>
-          <Link to="/companies">Company Reviews</Link>
-          <Link to={`/resumebuild/${userId}`}>Build your Resume</Link>
-          <Link to="/pricing">Pricing</Link>
+          <Link
+            to="/home"
+            _hover={{ color: "#2557a7", textDecoration: "underline" }}
+          >
+            Find jobs
+          </Link>
+          <Link
+            to="/companies"
+            _hover={{ color: "#2557a7", textDecoration: "underline" }}
+          >
+            Company Reviews
+          </Link>
+          <Link
+            to={`/resumebuild/${userId}`}
+            _hover={{ color: "#2557a7", textDecoration: "underline" }}
+          >
+            Build your Resume
+          </Link>
+          <Link
+            to="/pricing"
+            _hover={{ color: "#2557a7", textDecoration: "underline" }}
+          >
+            Pricing
+          </Link>
         </HStack>
       </Flex>
       <Flex align="center">
@@ -128,17 +148,21 @@ export function Navbar() {
               onClick={onOpen}
               className={hasUnreadNotifications ? styles.redBell : ""}
             />
-
             <Menu />
           </HStack>
         ) : (
-          <Link to="/signin">Sign in</Link>
+          <Link _hover={{ color: "#2557a7" }} to="/signin">
+            Sign in
+          </Link>
         )}
         <Divider orientation="vertical" height="20px" />
-        <Link to="#" onClick={handlePostJobClick}>
-          Employers/Post Job
-        </Link>
+        {isAuthenticated && (
+          <Link to="#" onClick={handlePostJobClick}>
+            Employers/Post Job
+          </Link>
+        )}
       </Flex>
+
       <NotificationsDrawer
         isOpen={isOpen}
         onClose={onClose}

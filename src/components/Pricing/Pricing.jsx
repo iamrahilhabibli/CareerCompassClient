@@ -60,7 +60,7 @@ export default function ThreeTierPricing() {
   const { userId, token, userRole } = useUser();
   const [plans, setPlans] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
-
+  const navigate = useNavigate();
   const isSubscriptionActive = (startDate) => {
     const subscriptionEndDate = new Date(startDate);
     subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
@@ -89,7 +89,9 @@ export default function ThreeTierPricing() {
       }
     });
   }, [userId, token, toast]);
-
+  if (!userId) {
+    navigate("/signin");
+  }
   const handleStartTrialClick = (plan) => {
     if (isJobSeeker()) {
       toast({

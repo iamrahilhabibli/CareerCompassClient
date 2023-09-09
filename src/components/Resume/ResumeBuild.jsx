@@ -24,9 +24,11 @@ import useUser from "../../customhooks/useUser";
 import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { setContent, setLoading } from "../../reducers/resumeSlice";
+import { useNavigate } from "react-router-dom";
 
 export function ResumeBuild() {
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
   const [educationLevels, setEducationLevels] = useState([]);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [localState, setLocalState] = useState(null);
@@ -225,6 +227,10 @@ export function ResumeBuild() {
     <li></li>
   </ul>
 `;
+
+  if (!userId) {
+    navigate("/signin");
+  }
   return (
     <>
       <Box
