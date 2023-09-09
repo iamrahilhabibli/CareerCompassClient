@@ -3,7 +3,15 @@ import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
-import { Flex, Spinner, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Divider,
+  Flex,
+  IconButton,
+  Spinner,
+  useBreakpointValue,
+  useToast,
+} from "@chakra-ui/react";
 import cclogolarge from "../../images/cclogolarge.png";
 import { HStack, Image } from "@chakra-ui/react";
 import { BellIcon, ChatIcon } from "@chakra-ui/icons";
@@ -90,56 +98,52 @@ export function Navbar() {
     notifications &&
     notifications.some((notification) => notification.readStatus === 1);
 
+  const isResponsiveMenu = useBreakpointValue({ base: true, md: false });
   return (
-    <nav>
-      <div className={styles.navbarLeftSide}>
+    <Flex as="nav" align="center" justify="space-between" px={4} py={2}>
+      <Flex align="center">
         <Link to="/">
-          <Image className={styles.navbarLogo} src={cclogolarge} alt="Logo" />
+          <Image boxSize="80px" src={cclogolarge} alt="Logo" />
         </Link>
-        <div className={styles.navbarComponentsLeft}>
+        <HStack spacing={4} display={{ base: "none", md: "flex" }}>
           <Link to="/home">Find jobs</Link>
           <Link to="/companies">Company Reviews</Link>
           <Link to={`/resumebuild/${userId}`}>Build your Resume</Link>
           <Link to="/pricing">Pricing</Link>
-        </div>
-      </div>
-      <div className={styles.navbarRightSide}>
-        <div className={styles.navbarComponentsRight}>
-          {isAuthenticated ? (
-            <HStack spacing={6} className={styles.iconContainer}>
-              <ChatIcon
-                boxSize={6}
-                transition="color 0.3s ease"
-                _hover={{ color: "#2557a7" }}
-                cursor={"pointer"}
-                onClick={redirectToMessages}
-              />
-              <BellIcon
-                boxSize={6}
-                transition="color 0.3s ease"
-                _hover={{ color: "#2557a7" }}
-                cursor={"pointer"}
-                onClick={onOpen}
-                className={hasUnreadNotifications ? styles.redBell : ""}
-              />
-              <Menu />
-            </HStack>
-          ) : (
-            <Link className={styles.signIn} to="/signin">
-              Sign in
-            </Link>
-          )}
-          <span className={styles.divider}></span>
-          <Link to="#" onClick={handlePostJobClick}>
-            Employers/Post Job
-          </Link>
-        </div>
-      </div>
+        </HStack>
+      </Flex>
+      <Flex align="center">
+        {isAuthenticated ? (
+          <HStack spacing={4}>
+            <IconButton
+              icon={<ChatIcon boxSize="4" />}
+              onClick={redirectToMessages}
+              _hover={{ color: "#2557a7" }}
+            />
+            <BellIcon
+              boxSize={6}
+              transition="color 0.3s ease"
+              _hover={{ color: "#2557a7" }}
+              cursor={"pointer"}
+              onClick={onOpen}
+              className={hasUnreadNotifications ? styles.redBell : ""}
+            />
+
+            <Menu />
+          </HStack>
+        ) : (
+          <Link to="/signin">Sign in</Link>
+        )}
+        <Divider orientation="vertical" height="20px" />
+        <Link to="#" onClick={handlePostJobClick}>
+          Employers/Post Job
+        </Link>
+      </Flex>
       <NotificationsDrawer
         isOpen={isOpen}
         onClose={onClose}
         notifications={notifications}
       />
-    </nav>
+    </Flex>
   );
 }

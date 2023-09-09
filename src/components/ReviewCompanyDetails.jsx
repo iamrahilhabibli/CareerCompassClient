@@ -41,7 +41,7 @@ import { fetchCompanyDetails } from "../services/fetchCompanyDetails";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { StarIcon } from "@chakra-ui/icons";
-
+import * as signalR from "@microsoft/signalr";
 export function ReviewCompanyDetails() {
   const { companyId } = useParams();
   const [company, setCompany] = useState(null);
@@ -52,6 +52,11 @@ export function ReviewCompanyDetails() {
   const initialRef = useRef();
   const toast = useToast();
 
+  // // const connection = new signalR.HubConnectionBuilder()
+  // //   .withUrl("https://localhost:7013/review")
+  // //   .build();
+
+  // connection.start();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -116,6 +121,17 @@ export function ReviewCompanyDetails() {
       onClose();
     },
   });
+
+  // useEffect(() => {
+  //   connection.on("ReviewApproved", () => {
+  //     queryClient.invalidateQueries("reviews");
+  //   });
+
+  //   return () => {
+  //     connection.off("ReviewApproved");
+  //   };
+  // }, [queryClient]);
+
   const { data, isLoading, isError } = useQuery(
     ["reviews", companyId],
     () =>
@@ -123,12 +139,10 @@ export function ReviewCompanyDetails() {
         .get(
           `https://localhost:7013/api/Reviews/GetAllByCompanyId?companyId=${companyId}`
         )
-        .then((res) => {
-          console.log("API Response Data:", res.data);
-          return res.data;
-        }),
+        .then((res) => res.data),
     {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60,
+      refetchInterval: 1000 * 60,
       retry: 1,
     }
   );
@@ -136,7 +150,12 @@ export function ReviewCompanyDetails() {
   const onClose = () => setIsOpen(false);
 
   return (
-    <Box display="flex" width="100vw" height="100vh">
+    <Box
+      display="flex"
+      flexWrap={{ base: "wrap", md: "nowrap" }}
+      width="100%"
+      height="100%"
+    >
       <Box
         flex="1"
         display="flex"

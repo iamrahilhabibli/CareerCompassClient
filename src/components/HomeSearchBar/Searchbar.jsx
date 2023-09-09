@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
   Flex,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useCombobox } from "downshift";
 import { useEffect, useState } from "react";
@@ -83,10 +84,24 @@ export function Searchbar() {
     },
     itemToString: (item) => (item ? item.jobTitle : ""),
   });
+
+  const inputWidth = useBreakpointValue({ base: "100%", md: "400px" });
+  const buttonWidth = useBreakpointValue({ base: "100%", md: "auto" });
+  const flexDirection = useBreakpointValue({ base: "column", md: "row" });
   return (
     <>
-      <Box display="flex" justifyContent="center" alignItems="center" pt="75px">
-        <Box position="relative" mr="10px">
+      <Box
+        display="flex"
+        flexDirection={flexDirection}
+        justifyContent="center"
+        alignItems="center"
+        pt="75px"
+      >
+        <Box
+          position="relative"
+          mr={{ base: "0", md: "10px" }}
+          mt={{ base: "10px", md: "0" }}
+        >
           <Text
             position="absolute"
             fontWeight="700"
@@ -154,7 +169,11 @@ export function Searchbar() {
           </List>
         </Box>
 
-        <Box position="relative" mr="10px">
+        <Box
+          position="relative"
+          mr={{ base: "0", md: "10px" }}
+          mt={{ base: "10px", md: "0" }}
+        >
           <Text
             position="absolute"
             fontWeight="700"
@@ -231,6 +250,8 @@ export function Searchbar() {
           fontSize="14px"
           fontWeight="500"
           borderRadius="10px"
+          w={buttonWidth}
+          mt={{ base: "10px", md: "0" }}
         >
           Search
         </Button>

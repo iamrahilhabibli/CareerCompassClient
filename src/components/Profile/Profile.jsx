@@ -7,6 +7,7 @@ import {
   Flex,
   Spinner,
   Button,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import profile from "../../images/profile.png";
 import useUser from "../../customhooks/useUser";
@@ -16,8 +17,15 @@ export function Profile() {
   const { userId } = useParams();
   const { userDetails, userDetailsLoading } = useUser(userId);
   const navigate = useNavigate();
+  const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
   return (
-    <Box width="70%" mx="auto" mt={10} p={5} maxWidth={800}>
+    <Box
+      width={{ base: "100%", md: "70%" }}
+      mx="auto"
+      mt={10}
+      p={5}
+      maxWidth={800}
+    >
       <Box
         borderWidth="1px"
         rounded="lg"
@@ -54,18 +62,40 @@ export function Profile() {
           </Text>
         ) : (
           <>
-            <VStack spacing={3} alignItems="start" w={"100%"}>
-              <Flex justifyContent="space-between" width="100%">
-                <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+            <VStack
+              spacing={3}
+              alignItems={{ base: "center", md: "start" }}
+              w={"100%"}
+            >
+              <Flex
+                justifyContent="space-between"
+                width="100%"
+                flexDirection={{ base: "column", md: "row" }}
+              >
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  color="gray.700"
+                  textAlign={{ base: "center", md: "left" }}
+                >
                   {userDetails?.firstName} {userDetails?.lastName}
                 </Text>
               </Flex>
-              <Flex justifyContent="space-between" width="100%">
-                <Text fontSize="lg" color="gray.500">
+              <Flex
+                justifyContent="space-between"
+                width="100%"
+                flexDirection={{ base: "column", md: "row" }}
+              >
+                <Text
+                  fontSize="lg"
+                  color="gray.500"
+                  mb={{ base: 2, md: 0 }}
+                  textAlign={{ base: "center", md: "left" }}
+                >
                   Email: {userDetails?.email}
                 </Text>
                 <Button
-                  size="sm"
+                  size={buttonSize}
                   colorScheme="blue"
                   onClick={() => {
                     /* Insert logic to open email change form */
@@ -74,12 +104,21 @@ export function Profile() {
                   Change Email
                 </Button>
               </Flex>
-              <Flex justifyContent="space-between" width="100%">
-                <Text fontSize="lg" color="gray.500">
+              <Flex
+                justifyContent="space-between"
+                width="100%"
+                flexDirection={{ base: "column", md: "row" }}
+              >
+                <Text
+                  fontSize="lg"
+                  color="gray.500"
+                  mb={{ base: 2, md: 0 }}
+                  textAlign={{ base: "center", md: "left" }}
+                >
                   Change your password
                 </Text>
                 <Button
-                  size="sm"
+                  size={buttonSize}
                   colorScheme="blue"
                   onClick={() => {
                     navigate(`/passwordreset/${userId}`);
