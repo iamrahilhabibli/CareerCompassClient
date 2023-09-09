@@ -18,27 +18,26 @@ import { useState } from "react";
 import { useMutation } from "react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
+import useUser from "../../customhooks/useUser";
 
 export default function PasswordResetInApp() {
   const bgColor = useColorModeValue("gray.50", "gray.800");
-  const [searchParams] = useSearchParams();
-  const userId = searchParams.get("userId");
-  const urlQueryParamsToken = searchParams.get("token");
+  const { userId } = useUser();
   const [showSpinner, setShowSpinner] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
   const mutation = useMutation(
-    (newPasswordData) => {
-      // return axios.post(
-      //   `https://localhost:7013/api/Accounts/ResetPassword?userId=${userId}&token=${correctedToken}`,
-      //   newPasswordData,
-      //   {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //   }
-      // );
+    (passwordData) => {
+      return axios.post(
+        `https://localhost:7013/api/Accounts/PasswordChange/${userId}`,
+        passwordData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
     },
     {
       onSuccess: () => {
@@ -46,14 +45,14 @@ export default function PasswordResetInApp() {
         toast({
           title: "Success",
           description:
-            "Password successfully changed, Redirecting you to the login page",
+            "Password successfully changed, Redirecting you to the home page",
           status: "success",
           duration: 3000,
           isClosable: true,
         });
         setTimeout(() => {
           setShowSpinner(false);
-          navigate("/signin");
+          navigate("/home");
         }, 3000);
       },
       onError: (error) => {
@@ -76,10 +75,13 @@ export default function PasswordResetInApp() {
 
   const formik = useFormik({
     initialValues: {
+      oldPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
+
     validationSchema: Yup.object({
+      oldPassword: Yup.string().required("Old password is required"),
       newPassword: Yup.string()
         .min(8, "Must be 8 characters or more")
         .matches(
@@ -98,11 +100,12 @@ export default function PasswordResetInApp() {
     }),
     onSubmit: (values) => {
       const requestData = {
-        password: values.newPassword,
-        confirmPassword: values.confirmPassword,
+        oldPassword: values.oldPassword,
+        newPassword: values.newPassword,
+        confirmNewPassword: values.confirmPassword,
       };
 
-      console.log(requestData);
+      console.log("Sending request with data:", requestData);
       mutation.mutate(requestData);
     },
   });
@@ -124,6 +127,19 @@ export default function PasswordResetInApp() {
           <form onSubmit={formik.handleSubmit}>
             <Box rounded={"lg"} bg={bgColor} boxShadow={"lg"} p={8}>
               <Stack spacing={4}>
+                <FormControl id="old-password">
+                  <FormLabel>Old Password</FormLabel>
+                  <Input
+                    type="password"
+                    name="oldPassword"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.oldPassword}
+                  />
+                  {formik.touched.oldPassword && formik.errors.oldPassword ? (
+                    <Box color="red.500">{formik.errors.oldPassword}</Box>
+                  ) : null}
+                </FormControl>
                 <FormControl id="new-password">
                   <FormLabel>New Password</FormLabel>
                   <Input
