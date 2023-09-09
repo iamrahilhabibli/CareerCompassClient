@@ -52,11 +52,6 @@ export function ReviewCompanyDetails() {
   const initialRef = useRef();
   const toast = useToast();
 
-  // // const connection = new signalR.HubConnectionBuilder()
-  // //   .withUrl("https://localhost:7013/review")
-  // //   .build();
-
-  // connection.start();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -131,8 +126,11 @@ export function ReviewCompanyDetails() {
   //     connection.off("ReviewApproved");
   //   };
   // }, [queryClient]);
-
-  const { data, isLoading, isError } = useQuery(
+  const {
+    data: { reviews, averageRating } = {},
+    isLoading,
+    isError,
+  } = useQuery(
     ["reviews", companyId],
     () =>
       axios
@@ -165,26 +163,40 @@ export function ReviewCompanyDetails() {
       >
         {company ? (
           <>
-            <Image
-              boxSize="200px"
-              mt={"20px"}
-              objectFit="cover"
-              borderRadius="12px"
-              boxShadow="0px 4px 10px rgba(0, 0, 0, 0.5)"
-              src={company.logoUrl}
-              alt={`${company.companyName} logo`}
-            />
             <Box
               display={"flex"}
-              justifyContent={"center"}
+              flexDirection={{ base: "column", md: "row" }}
               alignItems={"center"}
+              justifyContent={"center"}
               gap={"20px"}
             >
-              <Heading mt={"20px"}>{company.name}</Heading>
-              <Button colorScheme="blue" onClick={() => setIsOpen(true)}>
-                Write a review
-              </Button>
+              <Image
+                boxSize={{ base: "150px", md: "200px" }}
+                objectFit="cover"
+                borderRadius="12px"
+                boxShadow="0px 4px 10px rgba(0, 0, 0, 0.5)"
+                src={company.logoUrl}
+                alt={`${company.companyName} logo`}
+              />
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                justifyContent={"center"}
+                alignItems={"center"}
+                gap={"20px"}
+              >
+                <Heading mt={{ base: "10px", md: "20px" }}>
+                  {company.name}
+                </Heading>
+                <Text fontSize="lg" fontWeight="bold">
+                  {averageRating}
+                </Text>
+                <Button colorScheme="blue" onClick={() => setIsOpen(true)}>
+                  Write a review
+                </Button>
+              </Box>
             </Box>
+
             <Box display="flex" justifyContent="center" alignItems="center">
               <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                 <GridItem>
@@ -231,8 +243,6 @@ export function ReviewCompanyDetails() {
           display={"flex"}
           justifyContent={"center"}
           bg={"white"}
-          borderBottomLeftRadius={"10px"}
-          borderBottomRightRadius={"10px"}
           padding={"10px 0px 10px 0px"}
         >
           <Heading color={"#2557A7"}>Reviews</Heading>
@@ -244,7 +254,7 @@ export function ReviewCompanyDetails() {
           ) : isError ? (
             <Text>Something went wrong...</Text>
           ) : (
-            data.map((review, index) => (
+            reviews.map((review, index) => (
               <AccordionItem key={index}>
                 <h2>
                   <AccordionButton>
@@ -260,7 +270,7 @@ export function ReviewCompanyDetails() {
                       {[...Array(5)].map((_, i) => (
                         <StarIcon
                           key={i}
-                          color={i < review.rating ? "teal.500" : "gray.300"}
+                          color={i < review.rating ? "#2557A7" : "gray.300"}
                         />
                       ))}
                     </Box>
