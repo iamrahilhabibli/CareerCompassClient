@@ -169,6 +169,7 @@ export function ReviewCompanyDetails() {
               alignItems={"center"}
               justifyContent={"center"}
               gap={"20px"}
+              mt={"25px"}
             >
               <Image
                 boxSize={{ base: "150px", md: "200px" }}
@@ -188,16 +189,46 @@ export function ReviewCompanyDetails() {
                 <Heading mt={{ base: "10px", md: "20px" }}>
                   {company.name}
                 </Heading>
-                <Text fontSize="lg" fontWeight="bold">
-                  {averageRating}
-                </Text>
+                <Box display="flex" flexDirection="column" alignItems="center">
+                  <Text fontSize="60px" fontWeight="bold">
+                    {averageRating}
+                  </Text>
+                  <Box display="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Box key={i} position="relative">
+                        <StarIcon boxSize={"24px"} color="gray.300" />
+                        {i < Math.floor(averageRating) && (
+                          <Box position="absolute" top={0} left={0}>
+                            <StarIcon boxSize="24px" color="#2557A7" />
+                          </Box>
+                        )}
+                        {i === Math.floor(averageRating) && (
+                          <Box
+                            position="absolute"
+                            top={0}
+                            left={0}
+                            overflow="hidden"
+                            width={`${(averageRating % 1) * 100}%`}
+                          >
+                            <StarIcon boxSize="24px" color="#2557A7" />
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
                 <Button colorScheme="blue" onClick={() => setIsOpen(true)}>
                   Write a review
                 </Button>
               </Box>
             </Box>
 
-            <Box display="flex" justifyContent="center" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              mt={"50px"}
+            >
               <Grid templateColumns="repeat(2, 1fr)" gap={5}>
                 <GridItem>
                   <Text fontWeight="bold">Industry:</Text>
