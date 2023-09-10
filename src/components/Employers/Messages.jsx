@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Avatar,
   Box,
   Button,
@@ -40,6 +46,11 @@ import { VideoCall } from "./Videocall";
 import useUserMedia from "../../customhooks/useUserMedia";
 export function Messages() {
   const dispatch = useDispatch();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [applicationIdToDelete, setApplicationIdToDelete] = useState(null);
+  const onCloseDeleteDialog = () => setIsDeleteDialogOpen(false);
+  const cancelRef = useRef();
+
   const toast = useToast();
   const [isLoadingPeerConnection, setIsLoadingPeerConnection] = useState(true);
   const { userId, token } = useUser();
@@ -68,7 +79,7 @@ export function Messages() {
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
     console.log(applicant.applicantAppUserId);
-    console.log(userId);
+    console.log(applicant);
     setCurrentApplicant(applicant);
     try {
       await connectionRef.current.invoke(
@@ -78,7 +89,6 @@ export function Messages() {
       );
       console.log("Joined group.");
 
-      // Fetch unread messages after successfully joining the group
       fetch(
         `https://localhost:7013/api/Messages/GetMessages?senderId=${userId}&receiverId=${applicant.applicantAppUserId}`
       )
@@ -99,13 +109,38 @@ export function Messages() {
     setIsOpen(true);
   };
 
+  //   try {
+  //     await axios.delete(
+  //       `https://localhost:7013/api/JobApplications/RemoveApplication?applicationId=${applicationId}`
+  //     );
+  //     setIsDeleteDialogOpen(false);
+  //   } catch (err) {
+  //     console.error("Error deleting the application", err);
+  //   }
+  // };
+  const deleteApplication = async (applicationId) => {
+    try {
+      await axios.delete(
+        `https://localhost:7013/api/JobApplications/RemoveApplication?applicationId=${applicationId}`
+      );
+      toast({
+        title: "Application deleted.",
+        status: "success",
+        isClosable: true,
+      });
+      refetch();
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      // Handle the error here
+    }
+  };
+
   const connectionRef = useSignalRConnection(
     userId,
     currentRecipientId,
     dispatch,
     addMessage
   );
-  console.log("connectionRef before handleSendMessage:", connectionRef);
 
   const handleSendMessage = useSendMessage(toast);
   const fetchApprovedApplicants = async () => {
@@ -118,11 +153,13 @@ export function Messages() {
     data: approvedApplicants,
     isLoading,
     isError,
+    refetch,
   } = useQuery(["approvedApplicants", userId], fetchApprovedApplicants, {
     retry: 1,
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
+
   const videoConnectionRef = useRef(null);
 
   const {
@@ -451,9 +488,9 @@ export function Messages() {
                     icon={<FaVideo />}
                     onClick={async (e) => {
                       e.stopPropagation();
-                      setIsLoadingPeerConnection(true); // Show spinner while initializing
+                      setIsLoadingPeerConnection(true);
                       await handleStartVideoCall(applicant.applicantAppUserId);
-                      setIsLoadingPeerConnection(false); // Hide spinner
+                      setIsLoadingPeerConnection(false);
                     }}
                     m={2}
                   />
@@ -462,6 +499,8 @@ export function Messages() {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      setApplicationIdToDelete(applicant.applicationId);
+                      setIsDeleteDialogOpen(true);
                     }}
                   >
                     Delete
@@ -509,7 +548,7 @@ export function Messages() {
                     p={3}
                     borderRadius="lg"
                     color={message.senderId === userId ? "white" : "black"}
-                    maxWidth="70%" // limit the message box width
+                    maxWidth="70%"
                   >
                     {message.content}
                   </Box>
@@ -544,6 +583,36 @@ export function Messages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AlertDialog
+        isOpen={isDeleteDialogOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onCloseDeleteDialog}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this chat?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onCloseDeleteDialog}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => deleteApplication(applicationIdToDelete)}
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
 
       <Modal isOpen={isVideoCallOpen}>
         <ModalOverlay />
