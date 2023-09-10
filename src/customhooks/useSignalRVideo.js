@@ -27,18 +27,27 @@ const setupCallReception = (
   connection,
   userId,
   handleReceiveCallOffer,
+  handleCallDeclined,
   addIceCandidate
 ) => {
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
-      console.log("RECEIVEDIRECT CALL!");
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
         handleReceiveCallOffer(callerId, recipientId, offer);
       }
     }
   );
+  connection.on("ReceiveCallDeclined", (callerId, recipientId) => {
+    console.log("UserId in ReceiveCallDeclined: ", userId);
+    console.log("RecipientId in ReceiveCallDeclined: ", recipientId);
+
+    if (userId === recipientId) {
+      console.log("Call has been declined by:", callerId);
+      handleCallDeclined();
+    }
+  });
 
   connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
     try {
@@ -88,6 +97,7 @@ export const useSignalRVideo = (
   userId,
   handleReceiveCallOffer,
   jobseekerContacts,
+  handleCallDeclined,
   token
 ) => {
   const [connection, setConnection] = useState(null);
@@ -125,14 +135,20 @@ export const useSignalRVideo = (
 
   useEffect(() => {
     if (connection) {
-      setupCallReception(connection, userId, handleReceiveCallOffer);
+      setupCallReception(
+        connection,
+        userId,
+        handleReceiveCallOffer,
+        handleCallDeclined
+      );
 
       return () => {
         connection.off("ReceiveDirectCall");
+        connection.off("ReceiveCallDeclined");
         connection.off("ReceiveIceCandidate");
       };
     }
-  }, [connection, userId, handleReceiveCallOffer]);
+  }, [connection, userId, handleReceiveCallOffer, handleCallDeclined]);
 
   return { connection };
 };

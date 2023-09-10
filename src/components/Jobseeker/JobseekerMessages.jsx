@@ -67,7 +67,10 @@ export function JobseekerMessages() {
     video: true,
     audio: true,
   });
-  const { peerConnection, createAnswer } = useWebRTC(userId, callerId);
+  const { peerConnection, createAnswer, endConnection } = useWebRTC(
+    userId,
+    callerId
+  );
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
     console.log(contact.recruiterAppUserId);
@@ -114,9 +117,16 @@ export function JobseekerMessages() {
   );
   const handleSendMessage = useSendMessage(toast);
 
+  const handleCallDeclined = () => {
+    console.log("handleCallDeclined called");
+    // endConnection();
+    // setIsVideoCallOpen(false);
+  };
+
   const handleReceiveCallOffer = async (callerId, recipientId, offer) => {
     setIsCallDialogOpen(true);
     setCallerId(callerId);
+    console.log("OfferReceived", offer);
     console.log("Reference in handleReceiveCallOffer: ", peerConnection);
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
@@ -169,41 +179,38 @@ export function JobseekerMessages() {
     userId,
     handleReceiveCallOffer,
     jobseekerContacts,
+    handleCallDeclined,
     token
   );
 
   const handleAccept = async () => {
-    console.log("Reference in handleAccept: ", peerConnection);
     setIsCallDialogOpen(false);
     setIsVideoCallOpen(true);
 
-    const handleError = (message, error) => {
-      console.error(message, error);
+    const handleError = (message) => {
       showToastError(message);
     };
 
     if (!peerConnection) {
-      handleError("WebRTC peer connection is not initialized.", null);
+      handleError("WebRTC peer connection is not initialized.");
       return;
     }
 
     if (peerConnection.signalingState !== "have-remote-offer") {
-      handleError("PeerConnection is not in 'have-remote-offer' state.", null);
+      handleError("PeerConnection is not in 'have-remote-offer' state.");
       return;
     }
 
     if (!peerConnection.remoteDescription) {
-      handleError("Remote description is not set. Cannot create answer.", null);
+      handleError("Remote description is not set. Cannot create answer.");
       return;
     }
 
     try {
       const localStream = await startMedia();
       if (!localStream) {
-        console.warn("Local media stream is not available.");
         return;
       }
-      console.log("Local Stream", localStream);
       localStream
         .getTracks()
         .forEach((track) => peerConnection.addTrack(track, localStream));
@@ -223,10 +230,10 @@ export function JobseekerMessages() {
           JSON.stringify(answer)
         );
       } else {
-        handleError("SignalR connection is not available.", null);
+        handleError("SignalR connection is not available.");
       }
     } catch (error) {
-      handleError(`Error in handleAccept: ${error.message}`, error);
+      handleError(`Error in handleAccept: ${error.message}`);
     }
   };
 

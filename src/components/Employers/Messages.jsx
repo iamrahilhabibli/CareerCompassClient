@@ -16,6 +16,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { FaVideo } from "react-icons/fa";
+import audioFile from "./ringing-151670.mp3";
 import {
   Modal,
   ModalOverlay,
@@ -60,6 +61,7 @@ export function Messages() {
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [addedTrackIds, setAddedTrackIds] = useState(new Set());
+  const audio = new Audio(audioFile);
   const showToastError = (errorMessage) => {
     toast({
       title: "An error occurred.",
@@ -141,6 +143,22 @@ export function Messages() {
     dispatch,
     addMessage
   );
+  const playRingingSound = () => {
+    audio.loop = true;
+    audio
+      .play()
+      .then(() => {
+        console.log("Audio played successfully");
+      })
+      .catch((error) => {
+        console.error("Failed to play audio:", error);
+      });
+  };
+  const stopRingingSound = () => {
+    audio.loop = false;
+    audio.pause();
+    audio.currentTime = 0;
+  };
 
   const handleSendMessage = useSendMessage(toast);
   const fetchApprovedApplicants = async () => {
@@ -180,6 +198,7 @@ export function Messages() {
   const handleStartVideoCall = async (recipientId) => {
     const stream = await startMedia();
     if (stream) {
+      // playRingingSound();
       startVideoCall(recipientId, stream);
     } else {
       console.log("No MediaStream available.");
@@ -198,13 +217,12 @@ export function Messages() {
       setCurrentRecipientId(recipientId);
 
       if (!videoConnectionRef.current) {
-        console.log("VideoHub Connection is not available.");
         return;
       }
       if (!peerConnection) {
-        console.error("Peer connection is null or undefined. Aborting.");
         return;
       }
+
       mediaStream.getTracks().forEach((track) => {
         if (!addedTrackIds.has(track.id)) {
           peerConnection.addTrack(track, mediaStream);
@@ -212,11 +230,10 @@ export function Messages() {
           newSet.add(track.id);
           setAddedTrackIds(newSet);
         } else {
-          console.log("Call already in progress");
           toast({
             title: "Call already in progress",
             description:
-              "You have already started a call. Please end the current call before starting a new one.",
+              "Please end the current call before starting a new one.",
             status: "warning",
             duration: 3000,
             isClosable: true,
@@ -225,7 +242,6 @@ export function Messages() {
       });
 
       const offer = await createOffer();
-      console.log("Offer created:", offer);
 
       if (!offer) {
         toast({
@@ -239,14 +255,11 @@ export function Messages() {
       }
 
       peerConnection.onicecandidate = async (event) => {
-        if (event.candidate) {
-          console.log("ICE candidate generated:", event.candidate);
-
-          if (
-            videoConnectionRef.current.state === HubConnectionState.Connected
-          ) {
-            await sendIceCandidate(recipientId, event.candidate);
-          }
+        if (
+          event.candidate &&
+          videoConnectionRef.current.state === HubConnectionState.Connected
+        ) {
+          await sendIceCandidate(recipientId, event.candidate);
         }
       };
 
@@ -260,10 +273,6 @@ export function Messages() {
 
       setIsVideoCallOpen(true);
     } catch (error) {
-      console.error("Failed to start video call", error);
-      if (error.stack) {
-        console.error("Error Stack:", error.stack);
-      }
       toast({
         title: "An error occurred.",
         description: "Failed to start a video call.",
@@ -272,6 +281,35 @@ export function Messages() {
         isClosable: true,
       });
     }
+  };
+  const endCall = async () => {
+    endConnection();
+    if (videoConnectionRef.current.state === HubConnectionState.Connected) {
+      console.log("UserId before invoke: ", userId);
+      console.log("RecipientId before invoke: ", currentRecipientId);
+
+      try {
+        await videoConnectionRef.current.invoke(
+          "NotifyCallDeclined",
+          userId,
+          currentRecipientId
+        );
+        console.log("Invoked the Decline");
+      } catch (error) {
+        console.error(
+          "Failed to notify the other user that the call has been ended: ",
+          error.toString(),
+          "Server responded with:",
+          error?.serverMessage
+        );
+      }
+    } else {
+      console.warn(
+        "Couldn't notify the other user that the call has ended because the SignalR connection is not active."
+      );
+    }
+    setIsVideoCallOpen(false);
+    initializePeerConnection();
   };
 
   const sendIceCandidate = async (recipientId, candidate) => {
@@ -324,6 +362,7 @@ export function Messages() {
   }, []);
 
   const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
+    stopRingingSound();
     console.log("Received answer from callerId: ", callerId);
     if (!peerConnection || peerConnection.signalingState === "closed") {
       console.error("PeerConnection is not yet initialized or is closed.");
@@ -392,13 +431,6 @@ export function Messages() {
       videoConnectionRef.current.off("ReceiveIceCandidate");
     };
   }, [peerConnection]);
-
-  const endCall = () => {
-    console.log("Ending call");
-    endConnection();
-    setIsVideoCallOpen(false);
-    initializePeerConnection();
-  };
 
   const closeModal = async () => {
     setIsOpen(false);

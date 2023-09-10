@@ -4,16 +4,32 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
 
+  // const addIceCandidate = (candidateJson) => {
+  //   if (!peerConnection) {
+  //     console.error(
+  //       "PeerConnection is not initialized, can't add ICE candidate"
+  //     );
+  //     return;
+  //   }
+  //   const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
+  //   peerConnection.addIceCandidate(candidate).catch((e) => {
+  //     console.error(`Failed to add ICE candidate: ${e.toString()}`);
+  //   });
+  // };
+
   const addIceCandidate = (candidateJson) => {
-    if (!peerConnection) {
-      console.error(
-        "PeerConnection is not initialized, can't add ICE candidate"
-      );
-      return;
-    }
-    const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
-    peerConnection.addIceCandidate(candidate).catch((e) => {
-      console.error(`Failed to add ICE candidate: ${e.toString()}`);
+    return new Promise((resolve, reject) => {
+      if (!peerConnection) {
+        reject("PeerConnection is not initialized, can't add ICE candidate");
+        return;
+      }
+      const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
+      peerConnection
+        .addIceCandidate(candidate)
+        .then(resolve)
+        .catch((e) => {
+          reject(`Failed to add ICE candidate: ${e.toString()}`);
+        });
     });
   };
 
@@ -48,7 +64,6 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
         console.warn("event.candidate is null");
       }
     };
-
     setPeerConnection(pc);
   };
 
@@ -56,9 +71,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
     initializePeerConnection();
 
     return () => {
-      if (peerConnection) {
-        peerConnection.close();
-      }
+      endConnection();
     };
   }, [userId, applicantAppUserId, videoConnectionRef]);
 
@@ -102,6 +115,7 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   };
 
   const endConnection = () => {
+    console.log("Endconnection called");
     if (peerConnection) {
       peerConnection.getSenders().forEach((sender) => {
         if (sender.track) {
