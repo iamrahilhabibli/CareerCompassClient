@@ -22,7 +22,7 @@ import useUser from "../../customhooks/useUser";
 
 export default function PasswordResetInApp() {
   const bgColor = useColorModeValue("gray.50", "gray.800");
-  const { userId } = useUser();
+  const { userId, token, isAuthenticated } = useUser();
   const [showSpinner, setShowSpinner] = useState(false);
 
   const toast = useToast();
@@ -35,6 +35,7 @@ export default function PasswordResetInApp() {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -72,7 +73,6 @@ export default function PasswordResetInApp() {
       },
     }
   );
-
   const formik = useFormik({
     initialValues: {
       oldPassword: "",
@@ -109,6 +109,9 @@ export default function PasswordResetInApp() {
       mutation.mutate(requestData);
     },
   });
+  if (!isAuthenticated) {
+    navigate("/signin");
+  }
   return (
     <Flex minH={"100vh"} align={"center"} justify={"center"} bg={bgColor}>
       {showSpinner ? (

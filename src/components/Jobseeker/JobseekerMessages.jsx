@@ -24,6 +24,7 @@ import * as signalR from "@microsoft/signalr";
 import useUser from "../../customhooks/useUser";
 import inboxImg from "../../images/inbox.png";
 import { addMessage } from "../../reducers/messageSlice";
+import { loadInitialMessages } from "../../reducers/messageSlice";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import {
@@ -69,6 +70,8 @@ export function JobseekerMessages() {
   const { peerConnection, createAnswer } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
+    console.log(contact.recruiterAppUserId);
+    console.log(userId);
     setCurrentContact(contact);
     try {
       await connectionRef.current.invoke(
@@ -77,11 +80,26 @@ export function JobseekerMessages() {
         contact.recruiterAppUserId
       );
       console.log("Joined group.");
+      fetch(
+        `https://localhost:7013/api/Messages/GetMessages?senderId=${userId}&receiverId=${contact.recruiterAppUserId}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          dispatch(
+            loadInitialMessages({
+              recipientId: contact.recruiterAppUserId,
+              messages: data,
+            })
+          );
+        })
+
+        .catch((error) => console.error("Error fetching messages:", error));
     } catch (err) {
       console.error("Error joining group: ", err);
     }
     setIsOpen(true);
   };
+
   const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
@@ -372,7 +390,7 @@ export function JobseekerMessages() {
       </Box>
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
-        <ModalContent width="600px">
+        <ModalContent maxW="800px">
           <ModalHeader>
             {currentContact
               ? `${currentContact.firstName} ${currentContact.lastName}`
@@ -384,7 +402,7 @@ export function JobseekerMessages() {
               flex="1"
               bg="gray.100"
               border="1px"
-              maxHeight="600px"
+              maxHeight="400px"
               overflowY="auto"
             >
               {messages[currentRecipientId]?.map((message, index) => (
@@ -400,6 +418,7 @@ export function JobseekerMessages() {
                     p={3}
                     borderRadius="lg"
                     color={message.senderId === userId ? "white" : "black"}
+                    maxWidth="70%"
                   >
                     {message.content}
                   </Box>
@@ -419,20 +438,22 @@ export function JobseekerMessages() {
             />
             <Button
               colorScheme="blue"
-              onClick={() =>
+              onClick={() => {
                 handleSendMessage(
                   inputMessage,
                   userId,
                   currentRecipientId,
                   connectionRef
-                )
-              }
+                );
+                setInputMessage("");
+              }}
             >
               Send
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       <AlertDialog
         isOpen={isCallDialogOpen}
         onClose={() => setIsCallDialogOpen(false)}

@@ -32,6 +32,7 @@ import { useQuery } from "react-query";
 import useUser from "../../customhooks/useUser";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage } from "../../reducers/messageSlice";
+import { loadInitialMessages } from "../../reducers/messageSlice";
 import { useSendMessage } from "../../customhooks/useSendMessage";
 import { useSignalRConnection } from "../../customhooks/useSignalRConnection";
 import useWebRTC from "../../customhooks/useWebRTC";
@@ -66,6 +67,8 @@ export function Messages() {
   const messages = useSelector((state) => state.messages);
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
+    console.log(applicant.applicantAppUserId);
+    console.log(userId);
     setCurrentApplicant(applicant);
     try {
       await connectionRef.current.invoke(
@@ -74,17 +77,36 @@ export function Messages() {
         applicant.applicantAppUserId
       );
       console.log("Joined group.");
+
+      // Fetch unread messages after successfully joining the group
+      fetch(
+        `https://localhost:7013/api/Messages/GetMessages?senderId=${userId}&receiverId=${applicant.applicantAppUserId}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          dispatch(
+            loadInitialMessages({
+              recipientId: applicant.applicantAppUserId,
+              messages: data,
+            })
+          );
+        })
+
+        .catch((error) => console.error("Error fetching messages:", error));
     } catch (err) {
       console.error("Error joining group: ", err);
     }
     setIsOpen(true);
   };
+
   const connectionRef = useSignalRConnection(
     userId,
     currentRecipientId,
     dispatch,
     addMessage
   );
+  console.log("connectionRef before handleSendMessage:", connectionRef);
+
   const handleSendMessage = useSendMessage(toast);
   const fetchApprovedApplicants = async () => {
     const { data } = await axios.get(
@@ -457,9 +479,9 @@ export function Messages() {
         </Box>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={closeModal}>
+      <Modal isOpen={isOpen} onClose={closeModal} size="2xl">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxW="800px">
           <ModalHeader>
             {currentApplicant
               ? `${currentApplicant.firstName} ${currentApplicant.lastName}`
@@ -471,7 +493,7 @@ export function Messages() {
               flex="1"
               bg="gray.100"
               border="1px"
-              maxHeight="600px"
+              maxHeight="400px"
               overflowY="auto"
             >
               {messages[currentRecipientId]?.map((message, index) => (
@@ -487,6 +509,7 @@ export function Messages() {
                     p={3}
                     borderRadius="lg"
                     color={message.senderId === userId ? "white" : "black"}
+                    maxWidth="70%" // limit the message box width
                   >
                     {message.content}
                   </Box>
@@ -506,20 +529,22 @@ export function Messages() {
             />
             <Button
               colorScheme="blue"
-              onClick={() =>
+              onClick={() => {
                 handleSendMessage(
                   inputMessage,
                   userId,
                   currentRecipientId,
                   connectionRef
-                )
-              }
+                );
+                setInputMessage("");
+              }}
             >
               Send
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       <Modal isOpen={isVideoCallOpen}>
         <ModalOverlay />
         <ModalContent>

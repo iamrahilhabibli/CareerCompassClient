@@ -4,7 +4,7 @@ const initialState = {};
 
 export const messageSlice = createSlice({
   name: "messages",
-  initialState: {},
+  initialState: initialState,
   reducers: {
     addMessage: (state, action) => {
       const { recipientId, message } = action.payload;
@@ -22,9 +22,16 @@ export const messageSlice = createSlice({
 
       state[recipientId].push(standardizedMessage);
     },
+    loadInitialMessages: (state, action) => {
+      const { recipientId, messages } = action.payload;
+      if (!state[recipientId]) {
+        state[recipientId] = [];
+      }
+      state[recipientId] = [...messages];
+    },
   },
 });
 
-export const { addMessage } = messageSlice.actions;
+export const { addMessage, loadInitialMessages } = messageSlice.actions;
 
 export default messageSlice.reducer;

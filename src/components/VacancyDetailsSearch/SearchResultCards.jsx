@@ -154,6 +154,18 @@ export function SearchResultCards({ searchResults }) {
     }
   }, [selectedVacancy]);
   const handleApplication = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "You must sign in with your account first.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        onCloseComplete: () => {
+          navigate("/signin");
+        },
+      });
+      return;
+    }
     if (cvFile) {
       setIsUploading(true);
       const formData = new FormData();
@@ -201,8 +213,8 @@ export function SearchResultCards({ searchResults }) {
       } catch (error) {
         console.error("Something went wrong:", error);
         toast({
-          title: "Error.",
-          description: `Something went wrong: ${error.message}`,
+          title: "Oops something went wrong.",
+          description: `Something went wrong please try again later`,
           status: "error",
           duration: 5000,
           isClosable: true,

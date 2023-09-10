@@ -19,6 +19,15 @@ export const useSignalRConnection = (
       }
     };
 
+    const handleReceiveUnreadMessages = (unreadMessages) => {
+      dispatch(
+        addMessage({
+          recipientId: currentRecipientId,
+          messages: unreadMessages,
+        })
+      );
+    };
+
     if (userId) {
       const connection = new signalR.HubConnectionBuilder()
         .withUrl("https://localhost:7013/chat")
@@ -28,6 +37,7 @@ export const useSignalRConnection = (
         .build();
 
       connectionRef.current = connection;
+
       connection.on("ReceiveMessage", (senderId, recipientId, message) => {
         if (
           recipientId === currentRecipientId ||
@@ -46,14 +56,17 @@ export const useSignalRConnection = (
           );
         }
       });
+
+      connection.on("ReceiveUnreadMessages", handleReceiveUnreadMessages);
+
       startConnection();
     }
+
     return () => {
       if (connectionRef.current) {
         connectionRef.current.stop();
       }
     };
   }, [userId, currentRecipientId, dispatch, addMessage]);
-
   return connectionRef;
 };

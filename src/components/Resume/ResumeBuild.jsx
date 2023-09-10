@@ -73,7 +73,32 @@ export function ResumeBuild() {
 
     fetchEducationLevels();
   }, []);
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      if (!userId) {
+        navigate("/signin");
+        toast({
+          title: "Warning",
+          description: "Please sign in to create your resume.",
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+          position: "top-right",
+        });
+      } else {
+        const details = await fetchJobSeekerDetails(userId, token);
+        if (details) {
+          formik.setFieldValue("firstName", details.firstName);
+          formik.setFieldValue("lastName", details.lastName);
+          formik.setFieldValue("email", details.email);
+          formik.setFieldValue("phoneNumber", details.phoneNumber);
+        }
+        setIsLoading(false);
+      }
+    };
 
+    checkAuthentication();
+  }, [userId, token]);
   useEffect(() => {
     if (content && resumePreviewRef.current) {
       resumePreviewRef.current.innerHTML = content;

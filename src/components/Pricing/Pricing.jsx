@@ -57,7 +57,7 @@ function PriceWrapper(props) {
 
 export default function ThreeTierPricing() {
   const toast = useToast();
-  const { userId, token, userRole } = useUser();
+  const { userId, token, userRole, isAuthenticated } = useUser();
   const [plans, setPlans] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const navigate = useNavigate();
@@ -89,9 +89,7 @@ export default function ThreeTierPricing() {
       }
     });
   }, [userId, token, toast]);
-  if (!userId) {
-    navigate("/signin");
-  }
+
   const handleStartTrialClick = (plan) => {
     if (isJobSeeker()) {
       toast({
@@ -173,7 +171,7 @@ export default function ThreeTierPricing() {
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
 
   return (
-    <Box py={12}>
+    <Box py={12} bg="white" borderRadius="xl" boxShadow="md">
       <VStack spacing={2} textAlign="center">
         <Heading as="h1" fontSize="4xl">
           Plans that fit your need
@@ -187,48 +185,54 @@ export default function ThreeTierPricing() {
         py={10}
       >
         {plans.map((plan, index) => (
-          <PriceWrapper key={index} isPopular={plan.isPopular}>
-            <Box py={4} px={12}>
-              <Text fontWeight="500" fontSize="2xl">
-                {plan.name}
-              </Text>
-              <HStack justifyContent="center">
-                <Text fontSize="3xl" fontWeight="600">
-                  $
+          <Box key={index} bg="white" borderRadius="lg" boxShadow="md" p={4}>
+            <PriceWrapper isPopular={plan.isPopular}>
+              <Box py={4} px={12}>
+                <Text fontWeight="500" fontSize="2xl">
+                  {plan.name}
                 </Text>
-                <Text fontSize="5xl" fontWeight="900">
-                  {plan.price}
-                </Text>
-                <Text fontSize="16px" color="gray.500">
-                  /per month
-                </Text>
-              </HStack>
-            </Box>
-            <VStack bg={backgroundColor} py={4} borderBottomRadius="xl">
-              <List spacing={3} textAlign="start" px={12}>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  {plan.limit}
-                </ListItem>
-              </List>
-              <Box w="80%" pt={7}>
-                <Button
-                  w="full"
-                  colorScheme="red"
-                  variant="outline"
-                  onClick={() => handleStartTrialClick(plan)}
-                  isDisabled={plan.isFree || (isSubscribed && !isJobSeeker())}
-                  _disabled={{
-                    color: "gray.400",
-                    cursor: "not-allowed",
-                    backgroundColor: "gray.100",
-                  }}
-                >
-                  Start trial
-                </Button>
+                <HStack justifyContent="center">
+                  <Text fontSize="3xl" fontWeight="600">
+                    $
+                  </Text>
+                  <Text fontSize="5xl" fontWeight="900">
+                    {plan.price}
+                  </Text>
+                  <Text fontSize="16px" color="gray.500">
+                    /per month
+                  </Text>
+                </HStack>
               </Box>
-            </VStack>
-          </PriceWrapper>
+              <VStack bg={backgroundColor} py={4} borderBottomRadius="xl">
+                <List spacing={3} textAlign="start" px={12}>
+                  <ListItem>
+                    <ListIcon as={FaCheckCircle} color="green.500" />
+                    {plan.limit}
+                  </ListItem>
+                </List>
+                <Box w="80%" pt={7}>
+                  <Button
+                    w="full"
+                    colorScheme="red"
+                    variant="outline"
+                    onClick={() => handleStartTrialClick(plan)}
+                    isDisabled={
+                      plan.isFree ||
+                      (isSubscribed && !isJobSeeker()) ||
+                      !isAuthenticated
+                    }
+                    _disabled={{
+                      color: "gray.400",
+                      cursor: "not-allowed",
+                      backgroundColor: "gray.100",
+                    }}
+                  >
+                    Start trial
+                  </Button>
+                </Box>
+              </VStack>
+            </PriceWrapper>
+          </Box>
         ))}
       </Stack>
     </Box>

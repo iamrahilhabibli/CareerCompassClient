@@ -7,6 +7,7 @@ import {
   ListItem,
   Flex,
   useBreakpointValue,
+  useToast,
 } from "@chakra-ui/react";
 import { useCombobox } from "downshift";
 import { useEffect, useState } from "react";
@@ -35,6 +36,7 @@ export function Searchbar() {
   const { data: jobTitles } = useGetByJobTitle(jobTitleInputValue);
   const jobTitleItems = jobTitles || [];
   const navigate = useNavigate();
+  const toast = useToast();
   const { userId, isAuthenticated, userRole } = useUser();
   const linkTo =
     isAuthenticated && userRole === "JobSeeker"
@@ -279,6 +281,17 @@ export function Searchbar() {
               color: "#2557A7",
               fontWeight: "bold",
               fontSize: "16px",
+            }}
+            onClick={(e) => {
+              if (!isAuthenticated || userRole !== "Recruiter") {
+                e.preventDefault();
+                toast({
+                  title: "You must be signed in as a recruiter",
+                  status: "warning",
+                  duration: 3000,
+                  isClosable: true,
+                });
+              }
             }}
           >
             Post a job
