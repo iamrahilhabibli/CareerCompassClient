@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
-
   // const addIceCandidate = (candidateJson) => {
   //   if (!peerConnection) {
   //     console.error(

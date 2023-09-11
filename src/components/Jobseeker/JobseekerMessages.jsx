@@ -67,10 +67,12 @@ export function JobseekerMessages() {
     video: true,
     audio: true,
   });
-  const { peerConnection, createAnswer, endConnection } = useWebRTC(
-    userId,
-    callerId
-  );
+  const {
+    peerConnection,
+    createAnswer,
+    endConnection,
+    initializePeerConnection,
+  } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
     console.log(contact.recruiterAppUserId);
@@ -102,7 +104,6 @@ export function JobseekerMessages() {
     }
     setIsOpen(true);
   };
-
   const fetchJobseekerContacts = async () => {
     const { data } = await axios.get(
       `https://localhost:7013/api/JobApplications/GetApprovedPositions/${userId}`
@@ -119,8 +120,9 @@ export function JobseekerMessages() {
 
   const handleCallDeclined = () => {
     console.log("handleCallDeclined called");
-    // endConnection();
-    // setIsVideoCallOpen(false);
+    endConnection();
+    setIsVideoCallOpen(false);
+    initializePeerConnection();
   };
 
   const handleReceiveCallOffer = async (callerId, recipientId, offer) => {

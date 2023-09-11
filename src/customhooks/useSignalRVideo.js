@@ -33,6 +33,8 @@ const setupCallReception = (
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
+      console.log("CallerID:", callerId);
+      console.log("RecepientId:", recipientId);
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
         handleReceiveCallOffer(callerId, recipientId, offer);
@@ -40,9 +42,6 @@ const setupCallReception = (
     }
   );
   connection.on("ReceiveCallDeclined", (callerId, recipientId) => {
-    console.log("UserId in ReceiveCallDeclined: ", userId);
-    console.log("RecipientId in ReceiveCallDeclined: ", recipientId);
-
     if (userId === recipientId) {
       console.log("Call has been declined by:", callerId);
       handleCallDeclined();

@@ -337,6 +337,7 @@ export function Messages() {
     );
   };
   useEffect(() => {
+    console.log("VideoCOnnectionSET");
     videoConnectionRef.current = new HubConnectionBuilder()
       .withUrl(`https://localhost:7013/video?access_token=${token}`, {
         accessTokenFactory: () => token,
