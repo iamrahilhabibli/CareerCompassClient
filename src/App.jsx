@@ -38,6 +38,7 @@ import PasswordResetInApp from "./components/PasswordReset/PasswordResetInApp";
 import { ReviewCompanyDetails } from "./components/ReviewCompanyDetails";
 import Dashboard from "./components/Admin/Dashboard";
 import AdminSidebarWithHeader from "./components/Admin/AdminSidebar";
+import Users from "./components/Admin/Users";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -47,7 +48,7 @@ export function App() {
     "/applicants",
     "/messages",
   ];
-  const pathsForAdminLayout = ["/dashboard"];
+  const pathsForAdminLayout = ["/dashboard", "/usermanagement"];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
   const useAdminLayout = pathsForAdminLayout.includes(location.pathname);
@@ -73,6 +74,7 @@ export function App() {
           <AdminSidebarWithHeader>
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/usermanagement" element={<Users />} />
             </Routes>
           </AdminSidebarWithHeader>
         )}
