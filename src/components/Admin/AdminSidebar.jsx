@@ -23,12 +23,14 @@ import {
   FiBriefcase,
   FiUser,
   FiFileText,
+  FiMail,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
   { name: "Home", icon: FiHome, path: "/home" },
   { name: "User Management", icon: FiUser, path: "/usermanagement" },
   { name: "Company Management", icon: FiBriefcase, path: "/companymanagement" },
+  { name: "Review Management", icon: FiMail, path: "/reviewmanagement" },
   { name: "Reports", icon: FiFileText, path: "/reports" },
   { name: "Analytics", icon: FiTrendingUp, path: "/analytics" },
   { name: "Settings", icon: FiSettings, path: "/adminsettings" },
