@@ -36,6 +36,8 @@ import { JobseekerMessages } from "./components/Jobseeker/JobseekerMessages";
 import { Payments } from "./components/Payments/Payments";
 import PasswordResetInApp from "./components/PasswordReset/PasswordResetInApp";
 import { ReviewCompanyDetails } from "./components/ReviewCompanyDetails";
+import Dashboard from "./components/Admin/Dashboard";
+import AdminSidebarWithHeader from "./components/Admin/AdminSidebar";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -45,13 +47,17 @@ export function App() {
     "/applicants",
     "/messages",
   ];
+  const pathsForAdminLayout = ["/dashboard"];
+
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
+  const useAdminLayout = pathsForAdminLayout.includes(location.pathname);
 
   return (
     <Provider store={store}>
       <>
-        {!useSpecialLayout && <Navbar />}
-        {useSpecialLayout ? (
+        {!useSpecialLayout && !useAdminLayout && <Navbar />}
+
+        {useSpecialLayout && (
           <SidebarWithHeader>
             <Routes>
               <Route path="/employerscareercompass" element={<Employers />} />
@@ -61,7 +67,17 @@ export function App() {
               <Route path="/messages" element={<Messages />} />
             </Routes>
           </SidebarWithHeader>
-        ) : (
+        )}
+
+        {useAdminLayout && (
+          <AdminSidebarWithHeader>
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Routes>
+          </AdminSidebarWithHeader>
+        )}
+
+        {!useSpecialLayout && !useAdminLayout && (
           <DownloadProvider>
             <Routes>
               <Route path="/" element={<WelcomePage />} />
@@ -98,7 +114,8 @@ export function App() {
             </Routes>
           </DownloadProvider>
         )}
-        {!useSpecialLayout && <Footer />}
+
+        {!useSpecialLayout && !useAdminLayout && <Footer />}
       </>
     </Provider>
   );

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   IconButton,
   Avatar,
@@ -16,26 +17,22 @@ import {
 import { Link } from "react-router-dom";
 import {
   FiHome,
-  FiStar,
   FiSettings,
   FiMenu,
-  FiBriefcase,
-  FiMessageSquare,
-  FiMap,
-  FiPlus,
+  FiTrendingUp,
+  FiUser,
+  FiFileText,
 } from "react-icons/fi";
 
-const LinkItems = [
-  { name: "Home", icon: FiHome, path: "/home" },
-  { name: "Post a Job", icon: FiPlus, path: "/postjob" },
-  { name: "Main", icon: FiMap, path: "/employerscareercompass" },
-  { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
-  { name: "Messages", icon: FiMessageSquare, path: "/messages" },
-  { name: "Applicants", icon: FiStar, path: "/applicants" },
-  { name: "Settings", icon: FiSettings },
+const AdminLinkItems = [
+  { name: "Dashboard", icon: FiHome, path: "/dashboard" },
+  { name: "User Management", icon: FiUser, path: "/usermanagement" },
+  { name: "Reports", icon: FiFileText, path: "/reports" },
+  { name: "Analytics", icon: FiTrendingUp, path: "/analytics" },
+  { name: "Settings", icon: FiSettings, path: "/adminsettings" },
 ];
 
-const SidebarContent = ({ onClose, ...rest }) => (
+const AdminSidebarContent = ({ onClose, ...rest }) => (
   <Box
     transition="3s ease"
     bg={"blue.900"}
@@ -53,11 +50,11 @@ const SidebarContent = ({ onClose, ...rest }) => (
         fontFamily="monospace"
         fontWeight="bold"
       >
-        Recruiter Dashboard
+        Admin Panel
       </Text>
       <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
     </Flex>
-    {LinkItems.map((link) => (
+    {AdminLinkItems.map((link) => (
       <NavItem key={link.name} icon={link.icon} path={link.path}>
         {link.name}
       </NavItem>
@@ -96,19 +93,20 @@ const NavItem = ({ icon, children, path, ...rest }) => (
   </Link>
 );
 
-export const SidebarWithHeader = ({ children }) => {
+export const AdminSidebarWithHeader = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Flex minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
-      <SidebarContent
+      <AdminSidebarContent
         onClose={() => onClose}
         display={{ base: "none", md: "block" }}
       />
-
       <Box flex="1" ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>
     </Flex>
   );
 };
+
+export default AdminSidebarWithHeader;

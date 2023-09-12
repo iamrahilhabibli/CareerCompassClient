@@ -70,6 +70,13 @@ export function Navbar() {
       });
     }
   };
+  const handleAdminClick = (event) => {
+    if (!isAuthenticated) {
+      event.preventDefault();
+      navigate("/signin");
+    }
+    navigate("/dashboard");
+  };
   const redirectToMessages = () => {
     navigate("/jsmessages");
   };
@@ -157,8 +164,19 @@ export function Navbar() {
         )}
         <Divider orientation="vertical" height="20px" />
         {isAuthenticated && (
-          <Link to="#" onClick={handlePostJobClick}>
-            Employers/Post Job
+          <Link
+            to={
+              userRole === "Master" || userRole === "Admin" ? "/dashboard" : "#"
+            }
+            onClick={
+              userRole === "Master" || userRole === "Admin"
+                ? handleAdminClick
+                : handlePostJobClick
+            }
+          >
+            {userRole === "Master" || userRole === "Admin"
+              ? "Admin Dashboard"
+              : "Employers/Post Job"}
           </Link>
         )}
       </Flex>
