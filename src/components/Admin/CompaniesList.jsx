@@ -20,9 +20,11 @@ import React, { useEffect, useState } from "react";
 import registeredCompanies from "../../images/companiesRegistered.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useUser from "../../customhooks/useUser";
 export default function CompaniesList() {
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { userId, token } = useUser();
   const [sortOrders, setSortOrders] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -60,7 +62,14 @@ export default function CompaniesList() {
           const separator = sortOrdersString ? "&" : "?";
           url += `${separator}searchQuery=${searchQuery}`;
         }
-        const { data } = await axios.get(url);
+
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const { data } = await axios.get(url, config);
         setCompanies(data);
         setIsLoading(false);
       } catch (error) {
@@ -101,13 +110,14 @@ export default function CompaniesList() {
       <Box mb={4}>
         <Flex align="center" justify="space-between">
           <Input
+            bgColor={"white"}
             placeholder="Search by location or company name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             padding={2}
-            borderColor="#007BFF"
+            width={"300px"}
             borderRadius="md"
-            fontSize="md"
+            fontSize="sm"
             boxShadow="sm"
           />
           <Button
@@ -199,28 +209,17 @@ export default function CompaniesList() {
                       <Td>{company.followersCount}</Td>
                       <Td>{company.location}</Td>
                       <Td>
-                        {/* <Flex direction="row" spacing={2} gap={"8px"}>
-                          {user.role !== "Admin" && (
-                            <Button
-                              colorScheme="teal"
-                              variant="solid"
-                              size="xs"
-                              borderRadius="full"
-                              onClick={() => promptToChangeRole(user.appUserId)}
-                            >
-                              Change Role
-                            </Button>
-                          )}
+                        <Flex direction="row" spacing={2} gap={"8px"}>
                           <Button
                             colorScheme="red"
                             variant="outline"
                             size="xs"
                             borderRadius="full"
-                            onClick={() => promptToDelete(user.appUserId)}
+                            // onClick={() => promptToDelete(user.appUserId)}
                           >
                             Delete
                           </Button>
-                        </Flex> */}
+                        </Flex>
                       </Td>
                     </Tr>
                   ))
