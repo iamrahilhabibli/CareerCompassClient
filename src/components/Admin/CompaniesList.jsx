@@ -2,16 +2,39 @@ import {
   Box,
   Flex,
   Heading,
+  Spinner,
   Table,
   TableCaption,
   TableContainer,
+  Tbody,
+  Td,
   Th,
   Thead,
+  Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import registeredCompanies from "../../images/companiesRegistered.png";
+import axios from "axios";
 export default function CompaniesList() {
+  const [companies, setCompanies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const fetchCompanies = async () => {
+    try {
+      const { data } = await axios.get(
+        "https://localhost:7013/api/Dashboards/GetAllCompanies"
+      );
+      setCompanies(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
   return (
     <Box
       rounded={"lg"}
@@ -55,67 +78,73 @@ export default function CompaniesList() {
                 <Th>Company Name</Th>
                 <Th>Reviews Count</Th>
                 <Th>Followers Count</Th>
+                <Th>Location</Th>
                 <Th>Actions</Th>
               </Tr>
             </Thead>
-            {/* <Tbody>
-              {isLoading ? (
-                <Tr fontSize="sm">
-                  <Td colSpan="6">
-                    <Flex
-                      justify="center"
-                      align="center"
-                      height="100px"
-                      width="100%"
-                    >
-                      <Spinner />
-                    </Flex>
-                  </Td>
-                </Tr>
-              ) : users.length === 0 ? (
-                <Tr fontSize="sm">
-                  <Td colSpan="6">No users available</Td>
-                </Tr>
-              ) : (
-                users.map((user, index) => (
-                  <Tr key={index} fontSize="sm">
-                    <Td isNumeric>
-                      <Tooltip label={user.appUserId} aria-label="A tooltip">
-                        <span>{user.appUserId.substring(0, 8)}...</span>
-                      </Tooltip>
-                    </Td>
-                    <Td>{user.userName}</Td>
-                    <Td>{user.email}</Td>
-                    <Td>{user.phoneNumber}</Td>
-                    <Td>{user.role}</Td>
-                    <Td>
-                      <Flex direction="row" spacing={2} gap={"8px"}>
-                        {user.role !== "Admin" && (
-                          <Button
-                            colorScheme="teal"
-                            variant="solid"
-                            size="xs"
-                            borderRadius="full"
-                            onClick={() => promptToChangeRole(user.appUserId)}
-                          >
-                            Change Role
-                          </Button>
-                        )}
-                        <Button
-                          colorScheme="red"
-                          variant="outline"
-                          size="xs"
-                          borderRadius="full"
-                          onClick={() => promptToDelete(user.appUserId)}
-                        >
-                          Delete
-                        </Button>
+            {
+              <Tbody>
+                {isLoading ? (
+                  <Tr fontSize="sm">
+                    <Td colSpan="6">
+                      <Flex
+                        justify="center"
+                        align="center"
+                        height="100px"
+                        width="100%"
+                      >
+                        <Spinner />
                       </Flex>
                     </Td>
                   </Tr>
-                ))
-              )}
-            </Tbody> */}
+                ) : companies.length === 0 ? (
+                  <Tr fontSize="sm">
+                    <Td colSpan="6">No companies available</Td>
+                  </Tr>
+                ) : (
+                  companies.map((company, index) => (
+                    <Tr key={index} fontSize="sm">
+                      <Td isNumeric>
+                        <Tooltip
+                          label={company.companyId}
+                          aria-label="A tooltip"
+                        >
+                          <span>{company.companyId.substring(0, 8)}...</span>
+                        </Tooltip>
+                      </Td>
+                      <Td>{company.companyName}</Td>
+                      <Td>{company.followersCount}</Td>
+                      <Td>{company.reviewsCount}</Td>
+                      <Td>{company.location}</Td>
+                      <Td>
+                        {/* <Flex direction="row" spacing={2} gap={"8px"}>
+                          {user.role !== "Admin" && (
+                            <Button
+                              colorScheme="teal"
+                              variant="solid"
+                              size="xs"
+                              borderRadius="full"
+                              onClick={() => promptToChangeRole(user.appUserId)}
+                            >
+                              Change Role
+                            </Button>
+                          )}
+                          <Button
+                            colorScheme="red"
+                            variant="outline"
+                            size="xs"
+                            borderRadius="full"
+                            onClick={() => promptToDelete(user.appUserId)}
+                          >
+                            Delete
+                          </Button>
+                        </Flex> */}
+                      </Td>
+                    </Tr>
+                  ))
+                )}
+              </Tbody>
+            }
           </Table>
         </TableContainer>
       </Box>
