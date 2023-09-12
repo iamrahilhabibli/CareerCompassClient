@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   Flex,
@@ -14,6 +20,7 @@ import {
   Thead,
   Tooltip,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
 import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
 import React, { useEffect, useState } from "react";
@@ -27,8 +34,30 @@ export default function CompaniesList() {
   const { userId, token } = useUser();
   const [sortOrders, setSortOrders] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAlertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [companyIdToDelete, setcompanyIdToDelete] = useState(null);
   const navigate = useNavigate();
+  const toast = useToast();
 
+  const toastSuccess = (message) => {
+    toast({
+      title: message,
+      status: "success",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+
+  const toastError = (message) => {
+    toast({
+      title: message,
+      status: "error",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
   const updateSortOrders = (field, direction) => {
     setSortOrders((prevSortOrders) => {
       const newSortOrders = {
@@ -46,7 +75,38 @@ export default function CompaniesList() {
       return newSortOrders;
     });
   };
+  const promptToDelete = (id) => {
+    setcompanyIdToDelete(id);
+    setAlertDialogOpen(true);
+  };
+  const executeCompanyDeletion = async () => {
+    if (!companyIdToDelete) return;
 
+    try {
+      await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveCompany?companyId=${companyIdToDelete}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toastSuccess("Company deleted successfully");
+      setCompanies((prevCompanies) =>
+        prevCompanies.filter(
+          (company) => company.companyId !== companyIdToDelete
+        )
+      );
+    } catch (error) {
+      console.error(
+        `Something went wrong: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+      toastError("Something went wrong");
+    } finally {
+      setcompanyIdToDelete(null);
+      setAlertDialogOpen(false);
+    }
+  };
   useEffect(() => {
     const sortOrdersString = Object.keys(sortOrders)
       .map((key) => `${key}_${sortOrders[key]}`)
@@ -215,7 +275,7 @@ export default function CompaniesList() {
                             variant="outline"
                             size="xs"
                             borderRadius="full"
-                            // onClick={() => promptToDelete(user.appUserId)}
+                            onClick={() => promptToDelete(company.companyId)}
                           >
                             Delete
                           </Button>
@@ -229,7 +289,7 @@ export default function CompaniesList() {
           </Table>
         </TableContainer>
       </Box>
-      {/* <AlertDialog
+      <AlertDialog
         isOpen={isAlertDialogOpen}
         onClose={() => setAlertDialogOpen(false)}
       >
@@ -239,18 +299,18 @@ export default function CompaniesList() {
               Delete User
             </AlertDialogHeader>
             <AlertDialogBody>
-              Are you sure you want to delete this user? This action cannot be
-              undone.
+              Are you sure you want to delete this company? This action cannot
+              be undone.
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button onClick={() => setAlertDialogOpen(false)}>Cancel</Button>
-              <Button colorScheme="red" onClick={executeUserDeletion} ml={3}>
+              <Button colorScheme="red" onClick={executeCompanyDeletion} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialogOverlay>
-      </AlertDialog> */}
+      </AlertDialog>
     </Box>
   );
 }
