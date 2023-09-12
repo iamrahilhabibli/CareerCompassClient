@@ -13,28 +13,56 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react";
+import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
 import React, { useEffect, useState } from "react";
 import registeredCompanies from "../../images/companiesRegistered.png";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export default function CompaniesList() {
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const fetchCompanies = async () => {
-    try {
-      const { data } = await axios.get(
-        "https://localhost:7013/api/Dashboards/GetAllCompanies"
-      );
-      setCompanies(data);
-      console.log(data);
-    } catch (error) {
-      console.error("Error fetching");
-    } finally {
-      setIsLoading(false);
-    }
+  const [sortOrders, setSortOrders] = useState({});
+
+  const navigate = useNavigate();
+
+  const updateSortOrders = (field, direction) => {
+    setSortOrders((prevSortOrders) => {
+      const newSortOrders = {
+        ...prevSortOrders,
+        [field]: direction,
+      };
+
+      const sortOrdersString = Object.keys(newSortOrders)
+        .map((key) => `${key}_${newSortOrders[key]}`)
+        .join("|");
+
+      navigate(`/companymanagement?sortOrder=${sortOrdersString}`);
+      return newSortOrders;
+    });
   };
+
   useEffect(() => {
+    const sortOrdersString = Object.keys(sortOrders)
+      .map((key) => `${key}_${sortOrders[key]}`)
+      .join("|");
+
+    const fetchCompanies = async () => {
+      const url = sortOrdersString
+        ? `https://localhost:7013/api/Dashboards/GetAllCompanies?sortOrder=${sortOrdersString}`
+        : "https://localhost:7013/api/Dashboards/GetAllCompanies";
+
+      try {
+        const { data } = await axios.get(url);
+        setCompanies(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching", error);
+      }
+    };
+
     fetchCompanies();
-  }, []);
+  }, [sortOrders]);
+
   return (
     <Box
       rounded={"lg"}
@@ -76,8 +104,33 @@ export default function CompaniesList() {
               <Tr>
                 <Th>#</Th>
                 <Th>Company Name</Th>
-                <Th>Reviews Count</Th>
-                <Th>Followers Count</Th>
+                <Th>
+                  Reviews Count
+                  <ArrowUpIcon
+                    boxSize={4}
+                    cursor={"pointer"}
+                    onClick={() => updateSortOrders("reviews", "asc")}
+                  />
+                  <ArrowDownIcon
+                    boxSize={4}
+                    cursor={"pointer"}
+                    onClick={() => updateSortOrders("reviews", "desc")}
+                  />
+                </Th>
+                <Th>
+                  Followers Count
+                  <ArrowUpIcon
+                    boxSize={4}
+                    cursor={"pointer"}
+                    onClick={() => updateSortOrders("followers", "asc")}
+                  />
+                  <ArrowDownIcon
+                    boxSize={4}
+                    cursor={"pointer"}
+                    onClick={() => updateSortOrders("followers", "desc")}
+                  />
+                </Th>
+
                 <Th>Location</Th>
                 <Th>Actions</Th>
               </Tr>
@@ -113,8 +166,8 @@ export default function CompaniesList() {
                         </Tooltip>
                       </Td>
                       <Td>{company.companyName}</Td>
-                      <Td>{company.followersCount}</Td>
                       <Td>{company.reviewsCount}</Td>
+                      <Td>{company.followersCount}</Td>
                       <Td>{company.location}</Td>
                       <Td>
                         {/* <Flex direction="row" spacing={2} gap={"8px"}>
