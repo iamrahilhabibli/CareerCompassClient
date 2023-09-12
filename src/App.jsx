@@ -39,6 +39,7 @@ import { ReviewCompanyDetails } from "./components/ReviewCompanyDetails";
 import Dashboard from "./components/Admin/Dashboard";
 import AdminSidebarWithHeader from "./components/Admin/AdminSidebar";
 import Users from "./components/Admin/Users";
+import CompaniesList from "./components/Admin/CompaniesList";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -48,7 +49,11 @@ export function App() {
     "/applicants",
     "/messages",
   ];
-  const pathsForAdminLayout = ["/dashboard", "/usermanagement"];
+  const pathsForAdminLayout = [
+    "/dashboard",
+    "/usermanagement",
+    "/companymanagement",
+  ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
   const useAdminLayout = pathsForAdminLayout.includes(location.pathname);
@@ -75,6 +80,7 @@ export function App() {
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/usermanagement" element={<Users />} />
+              <Route path="/companymanagement" element={<CompaniesList />} />
             </Routes>
           </AdminSidebarWithHeader>
         )}

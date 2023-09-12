@@ -20,13 +20,15 @@ import {
   FiSettings,
   FiMenu,
   FiTrendingUp,
+  FiBriefcase,
   FiUser,
   FiFileText,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
-  { name: "Dashboard", icon: FiHome, path: "/dashboard" },
+  { name: "Home", icon: FiHome, path: "/home" },
   { name: "User Management", icon: FiUser, path: "/usermanagement" },
+  { name: "Company Management", icon: FiBriefcase, path: "/companymanagement" },
   { name: "Reports", icon: FiFileText, path: "/reports" },
   { name: "Analytics", icon: FiTrendingUp, path: "/analytics" },
   { name: "Settings", icon: FiSettings, path: "/adminsettings" },
