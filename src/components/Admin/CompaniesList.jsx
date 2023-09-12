@@ -1,7 +1,9 @@
 import {
   Box,
+  Button,
   Flex,
   Heading,
+  Input,
   Spinner,
   Table,
   TableCaption,
@@ -22,7 +24,7 @@ export default function CompaniesList() {
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrders, setSortOrders] = useState({});
-
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const updateSortOrders = (field, direction) => {
@@ -36,7 +38,9 @@ export default function CompaniesList() {
         .map((key) => `${key}_${newSortOrders[key]}`)
         .join("|");
 
-      navigate(`/companymanagement?sortOrder=${sortOrdersString}`);
+      navigate(
+        `/companymanagement?sortOrder=${sortOrdersString}&searchQuery=${searchQuery}`
+      );
       return newSortOrders;
     });
   };
@@ -47,11 +51,15 @@ export default function CompaniesList() {
       .join("|");
 
     const fetchCompanies = async () => {
-      const url = sortOrdersString
-        ? `https://localhost:7013/api/Dashboards/GetAllCompanies?sortOrder=${sortOrdersString}`
-        : "https://localhost:7013/api/Dashboards/GetAllCompanies";
-
       try {
+        let url = "https://localhost:7013/api/Dashboards/GetAllCompanies";
+        if (sortOrdersString) {
+          url += `?sortOrder=${sortOrdersString}`;
+        }
+        if (searchQuery) {
+          const separator = sortOrdersString ? "&" : "?";
+          url += `${separator}searchQuery=${searchQuery}`;
+        }
         const { data } = await axios.get(url);
         setCompanies(data);
         setIsLoading(false);
@@ -61,7 +69,7 @@ export default function CompaniesList() {
     };
 
     fetchCompanies();
-  }, [sortOrders]);
+  }, [sortOrders, searchQuery]);
 
   return (
     <Box
@@ -90,6 +98,27 @@ export default function CompaniesList() {
         </Flex>
       </Box>
       <Box my={4} />
+      <Box mb={4}>
+        <Flex align="center" justify="space-between">
+          <Input
+            placeholder="Search by location or company name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            padding={2}
+            borderColor="#007BFF"
+            borderRadius="md"
+            fontSize="md"
+            boxShadow="sm"
+          />
+          <Button
+            onClick={() => setSearchQuery(searchQuery)}
+            colorScheme="blue"
+            ml={4}
+          >
+            Search
+          </Button>
+        </Flex>
+      </Box>
 
       <Box
         borderWidth={"1px"}
