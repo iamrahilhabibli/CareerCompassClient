@@ -25,9 +25,11 @@ import {
   Radio,
   Stack,
   RadioGroup,
+  Input,
 } from "@chakra-ui/react";
 import axios from "axios";
 import useUser from "../../customhooks/useUser";
+import { debounce } from "lodash";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -37,25 +39,30 @@ export default function Users() {
   const [isChangeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const { userId, token, userRole } = useUser();
+  const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
 
+  const debouncedSave = debounce(async (query) => {
+    let url = "/GetAllUsers";
+    if (query) {
+      url = `${url}?searchQuery=${query}`;
+    }
+    try {
+      const { data } = await api.get(url);
+      setUsers(data);
+    } catch (error) {
+      console.error(
+        `Error fetching data: ${error.response?.data?.message || error.message}`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, 1000);
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data } = await api.get("/GetAllUsers");
-        setUsers(data);
-      } catch (error) {
-        console.error(
-          `Error fetching data: ${
-            error.response?.data?.message || error.message
-          }`
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+    setIsLoading(true);
+    debouncedSave(searchQuery);
+  }, [searchQuery]);
 
   const promptToDelete = (id) => {
     setUserIdToDelete(id);
@@ -174,6 +181,28 @@ export default function Users() {
         </Flex>
       </Box>
       <Box my={4} />
+      <Box mb={4}>
+        <Flex align="center" justify="space-between">
+          <Input
+            bgColor={"white"}
+            placeholder="Search user by email, username, or phone number..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            padding={2}
+            width={"300px"}
+            borderRadius="md"
+            fontSize="sm"
+            boxShadow="sm"
+          />
+          <Button
+            onClick={() => setSearchQuery(searchQuery)}
+            colorScheme="blue"
+            ml={4}
+          >
+            Search
+          </Button>
+        </Flex>
+      </Box>
 
       <Box
         borderWidth={"1px"}
@@ -183,7 +212,13 @@ export default function Users() {
       >
         <TableContainer>
           <Table variant="simple">
-            <TableCaption>Registered Users</TableCaption>
+            <TableCaption>
+              Registered Users Total : {users.length} | Total JobSeekers:{" "}
+              {users.filter((user) => user.role === "JobSeeker").length} | Total
+              Recruiters:{" "}
+              {users.filter((user) => user.role === "Recruiter").length}
+            </TableCaption>
+
             <Thead>
               <Tr>
                 <Th>#</Th>

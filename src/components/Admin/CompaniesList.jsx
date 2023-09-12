@@ -28,6 +28,7 @@ import registeredCompanies from "../../images/companiesRegistered.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../customhooks/useUser";
+import { debounce } from "lodash";
 export default function CompaniesList() {
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,37 +108,37 @@ export default function CompaniesList() {
       setAlertDialogOpen(false);
     }
   };
-  useEffect(() => {
+  const debouncedFetchCompanies = debounce(async () => {
     const sortOrdersString = Object.keys(sortOrders)
       .map((key) => `${key}_${sortOrders[key]}`)
       .join("|");
 
-    const fetchCompanies = async () => {
-      try {
-        let url = "https://localhost:7013/api/Dashboards/GetAllCompanies";
-        if (sortOrdersString) {
-          url += `?sortOrder=${sortOrdersString}`;
-        }
-        if (searchQuery) {
-          const separator = sortOrdersString ? "&" : "?";
-          url += `${separator}searchQuery=${searchQuery}`;
-        }
+    let url = "https://localhost:7013/api/Dashboards/GetAllCompanies";
+    if (sortOrdersString) {
+      url += `?sortOrder=${sortOrdersString}`;
+    }
+    if (searchQuery) {
+      const separator = sortOrdersString ? "&" : "?";
+      url += `${separator}searchQuery=${searchQuery}`;
+    }
 
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-
-        const { data } = await axios.get(url, config);
-        setCompanies(data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching", error);
-      }
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     };
 
-    fetchCompanies();
+    try {
+      const { data } = await axios.get(url, config);
+      setCompanies(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching", error);
+    }
+  }, 1000);
+  useEffect(() => {
+    setIsLoading(true);
+    debouncedFetchCompanies();
   }, [sortOrders, searchQuery]);
 
   return (
@@ -198,7 +199,9 @@ export default function CompaniesList() {
       >
         <TableContainer>
           <Table variant="simple">
-            <TableCaption>Registered Companies</TableCaption>
+            <TableCaption>
+              Registered Companies: {companies.length}
+            </TableCaption>
             <Thead>
               <Tr>
                 <Th>#</Th>
