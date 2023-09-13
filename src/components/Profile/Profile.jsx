@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Avatar,
@@ -12,12 +12,77 @@ import {
 import profile from "../../images/profile.png";
 import useUser from "../../customhooks/useUser";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 export function Profile() {
   const { userId } = useParams();
-  const { userDetails, userDetailsLoading } = useUser(userId);
+  const { userDetails, userDetailsLoading, token } = useUser(userId);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    setAvatarUrl(userDetails?.avatarUrl);
+  }, [userDetails]);
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const newAvatarUrl = await uploadAvatar(file, userId);
+        const fullUrl = newAvatarUrl[0]?.fullUrl;
+        if (fullUrl) {
+          await updateAvatarUrlInDB(fullUrl, userId);
+          setAvatarUrl(fullUrl);
+        }
+      } catch (error) {
+        console.error("Error while uploading", error);
+      }
+    }
+  };
+  const uploadAvatar = async (file, userId) => {
+    const formData = new FormData();
+    formData.append("containerName", "jobseekers");
+    formData.append("files", file);
+    formData.append("appUserId", userId);
+
+    try {
+      const response = await axios.post(
+        "https://localhost:7013/api/Files/Upload",
+        formData
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+  const updateAvatarUrlInDB = async (fullUrl, userId) => {
+    console.log(fullUrl);
+    console.log(userId);
+    try {
+      await axios.post(
+        `https://localhost:7013/api/Jobseeker/UploadAvatar?jobseekerId=${userId}`,
+        {
+          url: fullUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(
+        "Failed to update logo URL in the database:",
+        error,
+        error.response
+      );
+    }
+  };
   return (
     <Box
       width={{ base: "100%", md: "70%" }}
@@ -42,9 +107,24 @@ export function Profile() {
         position="relative"
       >
         <Flex alignItems={"center"} ml={"50px"} width={"100%"} height={"100%"}>
-          <Avatar size="2xl" name={userDetails?.firstName || "User"} />
+          <input
+            type="file"
+            id="hiddenFileInput"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
+          <Avatar
+            size="2xl"
+            name={userDetails?.firstName || "User"}
+            src={userDetails?.avatarUrl || null}
+            onClick={() => fileInputRef.current.click()}
+            cursor="pointer"
+          />
         </Flex>
       </Box>
+
       <VStack
         spacing={4}
         padding="20px"
