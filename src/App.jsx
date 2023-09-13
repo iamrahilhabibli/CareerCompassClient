@@ -41,6 +41,7 @@ import AdminSidebarWithHeader from "./components/Admin/AdminSidebar";
 import Users from "./components/Admin/Users";
 import CompaniesList from "./components/Admin/CompaniesList";
 import ReviewsList from "./components/Admin/ReviewsList";
+import Reports from "./components/Admin/Reports";
 export function App() {
   const location = useLocation();
   const pathsForSpecialLayout = [
@@ -55,6 +56,7 @@ export function App() {
     "/usermanagement",
     "/companymanagement",
     "/reviewmanagement",
+    "/reports",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -84,6 +86,7 @@ export function App() {
               <Route path="/usermanagement" element={<Users />} />
               <Route path="/companymanagement" element={<CompaniesList />} />
               <Route path="/reviewmanagement" element={<ReviewsList />} />
+              <Route path="/reports" element={<Reports />} />
             </Routes>
           </AdminSidebarWithHeader>
         )}
