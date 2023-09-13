@@ -566,6 +566,7 @@ export function Messages() {
               bg="gray.100"
               border="1px"
               maxHeight="400px"
+              height={"400px"}
               overflowY="auto"
             >
               {messages[currentRecipientId]?.map((message, index) => (

@@ -411,6 +411,7 @@ export function JobseekerMessages() {
               flex="1"
               bg="gray.100"
               border="1px"
+              height={"400px"}
               maxHeight="400px"
               overflowY="auto"
             >

@@ -1,5 +1,5 @@
 import { Navbar } from "./components/Navbar/Navbar";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { Home } from "./components/Home";
 import { Companies } from "./components/Companies";
 import { Provider } from "react-redux";
@@ -42,8 +42,14 @@ import Users from "./components/Admin/Users";
 import CompaniesList from "./components/Admin/CompaniesList";
 import ReviewsList from "./components/Admin/ReviewsList";
 import Reports from "./components/Admin/Reports";
+import EducationLevels from "./components/Admin/EducationLevels";
+import useUser from "./customhooks/useUser";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 export function App() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { userId, isAuthenticated, userRole } = useUser();
   const pathsForSpecialLayout = [
     "/employerscareercompass",
     "/postjob",
@@ -57,6 +63,7 @@ export function App() {
     "/companymanagement",
     "/reviewmanagement",
     "/reports",
+    "/educationlevels",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -69,28 +76,31 @@ export function App() {
 
         {useSpecialLayout && (
           <SidebarWithHeader>
-            <Routes>
-              <Route path="/employerscareercompass" element={<Employers />} />
-              <Route path="/postjob" element={<JobMultistep />} />
-              <Route path="/vacancieslist" element={<PostedJobs />} />
-              <Route path="/applicants" element={<Applicants />} />
-              <Route path="/messages" element={<Messages />} />
-            </Routes>
+            <ProtectedRoute>
+              <Routes>
+                <Route path="/employerscareercompass" element={<Employers />} />
+                <Route path="/postjob" element={<JobMultistep />} />
+                <Route path="/vacancieslist" element={<PostedJobs />} />
+                <Route path="/applicants" element={<Applicants />} />
+                <Route path="/messages" element={<Messages />} />
+              </Routes>
+            </ProtectedRoute>
           </SidebarWithHeader>
         )}
-
         {useAdminLayout && (
-          <AdminSidebarWithHeader>
-            <Routes>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/usermanagement" element={<Users />} />
-              <Route path="/companymanagement" element={<CompaniesList />} />
-              <Route path="/reviewmanagement" element={<ReviewsList />} />
-              <Route path="/reports" element={<Reports />} />
-            </Routes>
-          </AdminSidebarWithHeader>
+          <AdminProtectedRoute>
+            <AdminSidebarWithHeader>
+              <Routes>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/usermanagement" element={<Users />} />
+                <Route path="/companymanagement" element={<CompaniesList />} />
+                <Route path="/reviewmanagement" element={<ReviewsList />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/educationlevels" element={<EducationLevels />} />
+              </Routes>
+            </AdminSidebarWithHeader>
+          </AdminProtectedRoute>
         )}
-
         {!useSpecialLayout && !useAdminLayout && (
           <DownloadProvider>
             <Routes>

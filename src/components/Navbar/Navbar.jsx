@@ -163,7 +163,7 @@ export function Navbar() {
           </Link>
         )}
         <Divider orientation="vertical" height="20px" />
-        {isAuthenticated && (
+        {isAuthenticated && userRole !== "JobSeeker" && (
           <Link
             to={
               userRole === "Master" || userRole === "Admin" ? "/dashboard" : "#"

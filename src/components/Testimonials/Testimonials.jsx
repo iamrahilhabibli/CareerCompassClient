@@ -80,18 +80,73 @@ const TestimonialAvatar = (props) => {
 };
 
 export default function WithSpeechBubbles() {
+  const mockData = [
+    {
+      name: "John Doe",
+      title: "Software Developer",
+      text: "This company is amazing! They transformed my business.",
+      imgSrc: "path/to/image1.jpg",
+    },
+    {
+      name: "Jane Doe",
+      title: "Product Manager",
+      text: "Highly recommend them for any of your business needs.",
+      imgSrc: "path/to/image2.jpg",
+    },
+    {
+      name: "Jane Doe",
+      title: "Product Manager",
+      text: "Highly recommend them for any of your business needs.",
+      imgSrc: "path/to/image2.jpg",
+    },
+  ];
+
   return (
-    <Box bg={useColorModeValue("gray.100", "gray.700")}>
+    <Box bg={useColorModeValue("blue.100", "blue.250")}>
       <Container maxW={"7xl"} py={16} as={Stack} spacing={12}>
-        <Stack spacing={0} align={"center"}>
-          <Heading>Our Clients Speak</Heading>
-          <Text>We have been working with clients around the world</Text>
+        <Stack spacing={4} align={"center"}>
+          <Box
+            borderBottom="2px"
+            borderBottomColor="gray.300"
+            width="fit-content"
+          >
+            <Heading
+              as={"h1"}
+              fontSize={["xl", "2xl"]}
+              textTransform="uppercase"
+              fontWeight="bold"
+            >
+              Our Clients Speak
+            </Heading>
+          </Box>
+          <Text
+            as={"p"}
+            fontSize={["md", "lg"]}
+            fontStyle="italic"
+            textAlign="center"
+            color={useColorModeValue("gray.600", "gray.400")}
+          >
+            We Have Been Assisting Jobseekers in Securing Their Dream Jobs
+            Globally
+          </Text>
         </Stack>
         <Stack
           direction={{ base: "column", md: "row" }}
           spacing={{ base: 10, md: 4, lg: 10 }}
         >
-          <Testimonial>{/*... and so on ...*/}</Testimonial>
+          {mockData.map((data, index) => (
+            <Testimonial key={index}>
+              <TestimonialContent>
+                <TestimonialHeading>{data.name}</TestimonialHeading>
+                <TestimonialText>{data.text}</TestimonialText>
+                <TestimonialAvatar
+                  src={data.imgSrc}
+                  name={data.name}
+                  title={data.title}
+                />
+              </TestimonialContent>
+            </Testimonial>
+          ))}
         </Stack>
       </Container>
     </Box>

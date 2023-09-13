@@ -165,7 +165,6 @@ export function Details() {
               size="2xl"
               src={company?.logoUrl || "default_logo.jpg"}
               onClick={() => {
-                console.log("Avatar clicked");
                 document.getElementById("hiddenFileInput").click();
               }}
               cursor="pointer"
