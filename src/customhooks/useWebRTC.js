@@ -1,56 +1,65 @@
 import { useState, useEffect, useRef } from "react";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addIceCandidate,
+  setRemoteDescription,
+  flushIceCandidateQueue,
+} from "../reducers/webRtcSlice";
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
-  const iceCandidateQueue = useRef([]);
   const [videoConnectionRef, setVideoConnectionRef] = useState(null);
-  const [remoteDescriptionSet, setRemoteDescriptionSet] = useState(false);
+  const dispatch = useDispatch();
+  const remoteDescriptionSet = useSelector(
+    (state) => state.webRTC.remoteDescriptionSet
+  );
 
+  const iceCandidateQueue = useSelector(
+    (state) => state.webRTC.iceCandidateQueue
+  );
   const updateRemoteDescriptionSet = (value) => {
-    setRemoteDescriptionSet(value);
+    dispatch(setRemoteDescription(value));
+    if (value) {
+      flushIceCandidateQueue();
+    }
   };
+
   const flushIceCandidateQueue = () => {
-    iceCandidateQueue.current.forEach((candidateJson) => {
+    iceCandidateQueue.forEach((candidateJson) => {
       addIceCandidate(candidateJson);
     });
-    iceCandidateQueue.current = [];
+    dispatch(flushIceCandidateQueue());
   };
-  const addIceCandidate = (candidateJson) => {
-    console.log(
-      "remote description set in addIceCandidate",
-      remoteDescriptionSet
-    );
-    if (!remoteDescriptionSet) {
-      console.log(
-        "Queueing ICE candidate as remote description is not set yet."
-      );
-      iceCandidateQueue.current.push(candidateJson);
-      return;
-    }
+  const handleAddIceCandidate = (candidateJson) => {
     return new Promise((resolve, reject) => {
+      if (!remoteDescriptionSet) {
+        dispatch(addIceCandidate(candidateJson));
+        reject("Remote description not set.");
+        return;
+      }
+
       if (!peerConnection) {
         reject("PeerConnection is not initialized, can't add ICE candidate");
         return;
       }
+
       let candidate;
-      if (typeof candidateJson === "string") {
-        try {
-          candidate = new RTCIceCandidate(JSON.parse(candidateJson));
-        } catch (e) {
-          reject(`Error parsing ICE candidate JSON: ${e.toString()}`);
-          return;
-        }
-      } else if (typeof candidateJson === "object") {
-        candidate = new RTCIceCandidate(candidateJson);
-      } else {
-        reject("Unknown candidateJson type");
+      try {
+        candidate = new RTCIceCandidate(
+          typeof candidateJson === "string"
+            ? JSON.parse(candidateJson)
+            : candidateJson
+        );
+      } catch (e) {
+        reject(`Error parsing ICE candidate JSON: ${e.toString()}`);
         return;
       }
 
       peerConnection
         .addIceCandidate(candidate)
-        .then(resolve)
+        .then(() => {
+          resolve();
+        })
         .catch((e) => {
           reject(`Failed to add ICE candidate: ${e.toString()}`);
         });
@@ -158,6 +167,7 @@ const useWebRTC = (userId, applicantAppUserId) => {
     addIceCandidate,
     updateRemoteDescriptionSet,
     flushIceCandidateQueue,
+    handleAddIceCandidate,
   };
 };
 

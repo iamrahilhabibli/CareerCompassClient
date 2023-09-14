@@ -4,11 +4,11 @@ import {
   HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
+import { useDispatch } from "react-redux";
 
 const startConnection = async (connection) => {
   try {
     if (connection.state === HubConnectionState.Connected) {
-      console.log("SignalR Connection is already connected.");
       return;
     }
 
@@ -17,7 +17,6 @@ const startConnection = async (connection) => {
     }
 
     await connection.start();
-    console.log("SignalR Connection successfully started for VIDEO");
   } catch (error) {
     console.error("Failed to start SignalR Connection:", error);
   }
@@ -28,7 +27,9 @@ const setupCallReception = (
   userId,
   handleReceiveCallOffer,
   handleCallDeclined,
-  addIceCandidate
+  addIceCandidate,
+  dispatch,
+  handleAddIceCandidate
 ) => {
   connection.on(
     "ReceiveDirectCall",
@@ -48,7 +49,7 @@ const setupCallReception = (
   connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
     try {
       const iceCandidate = JSON.parse(iceCandidateJson);
-      addIceCandidate(iceCandidate);
+      handleAddIceCandidate(iceCandidate);
     } catch (error) {
       console.error("Error handling received ICE candidate:", error);
     }
@@ -95,6 +96,7 @@ export const useSignalRVideo = (
 ) => {
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     if (token) {
       const newConnection = new HubConnectionBuilder()
@@ -120,7 +122,6 @@ export const useSignalRVideo = (
   }, [connection]);
 
   useEffect(() => {
-    console.log("Joining ");
     if (isConnected && jobseekerContacts && jobseekerContacts.length > 0) {
       joinGroups(connection, userId, jobseekerContacts);
     }
@@ -133,7 +134,8 @@ export const useSignalRVideo = (
         userId,
         handleReceiveCallOffer,
         handleCallDeclined,
-        addIceCandidate
+        addIceCandidate,
+        dispatch
       );
 
       return () => {

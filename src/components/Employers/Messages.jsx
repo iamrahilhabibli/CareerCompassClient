@@ -81,8 +81,6 @@ export function Messages() {
   const messages = useSelector((state) => state.messages);
   const openChatWithApplicant = async (applicant) => {
     setCurrentRecipientId(applicant.applicantAppUserId);
-    console.log(applicant.applicantAppUserId);
-    console.log(applicant);
     setCurrentApplicant(applicant);
     try {
       await connectionRef.current.invoke(
@@ -207,7 +205,6 @@ export function Messages() {
       // playRingingSound();
       startVideoCall(recipientId, stream);
     } else {
-      console.log("No MediaStream available.");
       toast({
         title: "No MediaStream available",
         description:
@@ -300,7 +297,6 @@ export function Messages() {
           userId,
           currentRecipientId
         );
-        console.log("Invoked the Decline");
       } catch (error) {
         console.error(
           "Failed to notify the other user that the call has been ended: ",
@@ -320,21 +316,18 @@ export function Messages() {
 
   const sendIceCandidate = async (recipientId, candidate) => {
     try {
-      console.log("Invoking SendIceCandidate in sendIceCandidate");
       await videoConnectionRef.current.invoke(
         "SendIceCandidate",
         recipientId,
         JSON.stringify(candidate)
       );
     } catch (error) {
-      console.log("Error sending ICE candidate:", error);
+      //error handle
     }
   };
 
   const joinAndStartCall = async (userId, recipientId, offer) => {
-    console.log("Invoking JoinGroup...");
     await videoConnectionRef.current.invoke("JoinGroup", userId, recipientId);
-    console.log("Invoking StartDirectCallAsync...");
     await videoConnectionRef.current.invoke(
       "StartDirectCallAsync",
       userId,
@@ -343,7 +336,6 @@ export function Messages() {
     );
   };
   useEffect(() => {
-    console.log("VideoCOnnectionSET");
     videoConnectionRef.current = new HubConnectionBuilder()
       .withUrl(`https://localhost:7013/video?access_token=${token}`, {
         accessTokenFactory: () => token,
@@ -371,23 +363,19 @@ export function Messages() {
 
   const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
     stopRingingSound();
-    console.log("Received answer from callerId: ", callerId);
     if (!peerConnection || peerConnection.signalingState === "closed") {
       console.error("PeerConnection is not yet initialized or is closed.");
       return;
     }
     try {
       const remoteAnswer = new RTCSessionDescription(JSON.parse(answer));
-      console.log("Remote answer", remoteAnswer);
       await peerConnection.setRemoteDescription(remoteAnswer);
-      console.log("Remote description set successfully for the answer.");
     } catch (err) {
       console.error("Error in handleReceiveCallAnswer: ", err);
     }
   };
   useEffect(() => {
     const handleReceiveDirectCallAnswer = (callerId, answerJson) => {
-      console.log("Received answer:", answerJson);
       if (peerConnection) {
         handleReceiveCallAnswer(callerId, answerJson, peerConnection);
       } else {
@@ -417,7 +405,6 @@ export function Messages() {
     try {
       const iceCandidate = new RTCIceCandidate(JSON.parse(iceCandidateJson));
       await peerConnection.addIceCandidate(iceCandidate);
-      console.log("ICE candidate added successfully.");
     } catch (err) {
       console.error("Error in handleReceiveIceCandidate: ", err);
     }

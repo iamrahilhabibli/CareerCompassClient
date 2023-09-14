@@ -75,7 +75,7 @@ export function JobseekerMessages() {
     initializePeerConnection,
     addIceCandidate,
     updateRemoteDescriptionSet,
-    flushIceCandidateQueue,
+    handleAddIceCandidate,
   } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -156,7 +156,6 @@ export function JobseekerMessages() {
       const remoteOffer = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteOffer);
       updateRemoteDescriptionSet(true);
-      flushIceCandidateQueue();
     } catch (err) {
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
     }
@@ -186,7 +185,8 @@ export function JobseekerMessages() {
     jobseekerContacts,
     handleCallDeclined,
     token,
-    addIceCandidate
+    addIceCandidate,
+    handleAddIceCandidate
   );
 
   const handleAccept = async () => {
