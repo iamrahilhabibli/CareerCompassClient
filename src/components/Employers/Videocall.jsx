@@ -5,7 +5,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const [error, setError] = useState(null);
-
+  const [focusedVideo, setFocusedVideo] = useState("remote");
   useEffect(() => {
     if (!mediaStream) {
       setError("No media stream available.");
@@ -39,8 +39,65 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   return (
     <div className="video-call-wrapper">
       {error && <div className="error">{error}</div>}
-      <video ref={localVideoRef} autoPlay muted className="local-video"></video>
-      <video ref={remoteVideoRef} autoPlay className="remote-video"></video>
+      <video
+        ref={localVideoRef}
+        autoPlay
+        muted
+        className={`video ${
+          focusedVideo === "local" ? "focused" : ""
+        } local-video`}
+        onClick={() =>
+          setFocusedVideo(focusedVideo === "local" ? "remote" : "local")
+        }
+      ></video>
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        className={`video ${
+          focusedVideo === "remote" ? "focused" : ""
+        } remote-video`}
+        onClick={() =>
+          setFocusedVideo(focusedVideo === "remote" ? "local" : "remote")
+        }
+      ></video>
+
+      <style>{`
+        .video-call-wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          height: 100%;
+          border-radius: 15px;
+          overflow: hidden;
+        }
+        .video {
+          flex: 1;
+          border-radius: 10px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin: 1rem;
+          object-fit: cover;
+          transition: flex 0.3s ease-in-out;
+        }
+        .focused {
+          flex: 2;
+        }
+        .local-video {
+          // Additional styling specific to local video, if any
+        }
+        .remote-video {
+          // Additional styling specific to remote video, if any
+        }
+        .error {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: red;
+          color: white;
+          padding: 0.5rem;
+          border-radius: 5px;
+        }
+      `}</style>
     </div>
   );
 }

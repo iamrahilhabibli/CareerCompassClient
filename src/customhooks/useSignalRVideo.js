@@ -33,8 +33,6 @@ const setupCallReception = (
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
-      console.log("CallerID:", callerId);
-      console.log("RecepientId:", recipientId);
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
         handleReceiveCallOffer(callerId, recipientId, offer);
@@ -43,7 +41,6 @@ const setupCallReception = (
   );
   connection.on("ReceiveCallDeclined", (callerId, recipientId) => {
     if (userId === recipientId) {
-      console.log("Call has been declined by:", callerId);
       handleCallDeclined();
     }
   });
@@ -59,10 +56,6 @@ const setupCallReception = (
 };
 
 const joinGroups = (connection, userId, jobseekerContacts) => {
-  console.log("Attempting to join groups...");
-  console.log(`Connection State: ${connection.state}`);
-  console.log(jobseekerContacts);
-
   if (jobseekerContacts && jobseekerContacts.length > 0) {
     if (connection.state === HubConnectionState.Connected) {
       console.log("Connecting to groups");

@@ -61,6 +61,7 @@ export function Messages() {
   const [currentRecipientId, setCurrentRecipientId] = useState(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [addedTrackIds, setAddedTrackIds] = useState(new Set());
+  const [isVideoConnectionReady, setVideoConnectionReady] = useState(false);
   const audio = new Audio(audioFile);
   const showToastError = (errorMessage) => {
     toast({
@@ -186,7 +187,12 @@ export function Messages() {
     endConnection,
     initializePeerConnection,
     addIceCandidate,
-  } = useWebRTC(userId, currentRecipientId, videoConnectionRef);
+  } = useWebRTC(
+    userId,
+    currentRecipientId,
+    videoConnectionRef,
+    isVideoConnectionReady
+  );
   useEffect(() => {
     if (peerConnection) {
       setIsLoadingPeerConnection(false);
@@ -349,6 +355,7 @@ export function Messages() {
     videoConnectionRef.current
       .start()
       .then(() => {
+        setVideoConnectionReady(true);
         console.log("VideoHub connected");
       })
       .catch((err) => {

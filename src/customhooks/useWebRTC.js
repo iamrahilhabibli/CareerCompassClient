@@ -1,20 +1,14 @@
 import { useState, useEffect } from "react";
 
-const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
+const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
-  // const addIceCandidate = (candidateJson) => {
-  //   if (!peerConnection) {
-  //     console.error(
-  //       "PeerConnection is not initialized, can't add ICE candidate"
-  //     );
-  //     return;
-  //   }
-  //   const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
-  //   peerConnection.addIceCandidate(candidate).catch((e) => {
-  //     console.error(`Failed to add ICE candidate: ${e.toString()}`);
-  //   });
-  // };
+  const [videoConnectionRef, setVideoConnectionRef] = useState(null); // Assume you set this somewhere
+
+  const shouldEndConnection = () => {
+    // Your conditional logic here, e.g.
+    return videoConnectionRef && videoConnectionRef.current;
+  };
 
   const addIceCandidate = (candidateJson) => {
     return new Promise((resolve, reject) => {
@@ -22,7 +16,21 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
         reject("PeerConnection is not initialized, can't add ICE candidate");
         return;
       }
-      const candidate = new RTCIceCandidate(JSON.parse(candidateJson));
+      let candidate;
+      if (typeof candidateJson === "string") {
+        try {
+          candidate = new RTCIceCandidate(JSON.parse(candidateJson));
+        } catch (e) {
+          reject(`Error parsing ICE candidate JSON: ${e.toString()}`);
+          return;
+        }
+      } else if (typeof candidateJson === "object") {
+        candidate = new RTCIceCandidate(candidateJson);
+      } else {
+        reject("Unknown candidateJson type");
+        return;
+      }
+
       peerConnection
         .addIceCandidate(candidate)
         .then(resolve)
@@ -33,6 +41,8 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
   };
 
   const initializePeerConnection = () => {
+    console.log("Initializing PeerConnection");
+
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
@@ -66,13 +76,24 @@ const useWebRTC = (userId, applicantAppUserId, videoConnectionRef) => {
     setPeerConnection(pc);
   };
 
+  // useEffect(() => {
+  //   console.log("Running useEffect to initialize PeerConnection");
+  //   initializePeerConnection();
+
+  //   return () => {
+  //     console.log("Running useEffect cleanup function");
+  //     if (shouldEndConnection()) {
+  //       endConnection();
+  //     }
+  //   };
+  // }, [userId, applicantAppUserId]); // Removed videoConnectionRef from dependency array
+
   useEffect(() => {
     initializePeerConnection();
-
     return () => {
       endConnection();
     };
-  }, [userId, applicantAppUserId, videoConnectionRef]);
+  }, []); // Empty dependency array
 
   const createOffer = async () => {
     setError(null);
