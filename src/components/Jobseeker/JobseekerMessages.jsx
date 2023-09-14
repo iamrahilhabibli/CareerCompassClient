@@ -44,6 +44,7 @@ import {
   setIdle,
 } from "../../reducers/callSlice";
 import useUserMedia from "../../customhooks/useUserMedia";
+import { FaPhoneSlash } from "react-icons/fa";
 
 export function JobseekerMessages() {
   const toast = useToast();
@@ -131,8 +132,6 @@ export function JobseekerMessages() {
   const handleReceiveCallOffer = async (callerId, recipientId, offer) => {
     setIsCallDialogOpen(true);
     setCallerId(callerId);
-    console.log("OfferReceived", offer);
-    console.log("Reference in handleReceiveCallOffer: ", peerConnection);
 
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
@@ -156,12 +155,9 @@ export function JobseekerMessages() {
 
       const remoteOffer = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteOffer);
-      console.log("Remote Description set successfully.");
       updateRemoteDescriptionSet(true);
-
       flushIceCandidateQueue();
     } catch (err) {
-      console.error("Error in handleReceiveCallOffer: ", err);
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
     }
   };
@@ -221,6 +217,7 @@ export function JobseekerMessages() {
       if (!localStream) {
         return;
       }
+
       localStream
         .getTracks()
         .forEach((track) => peerConnection.addTrack(track, localStream));
@@ -318,7 +315,6 @@ export function JobseekerMessages() {
     });
     return null;
   }
-  console.log("Isvideocallopen", isVideoCallOpen);
   return (
     <>
       <Box
@@ -510,7 +506,7 @@ export function JobseekerMessages() {
 
       <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxWidth="80%">
           <ModalHeader>Video Call</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -518,9 +514,18 @@ export function JobseekerMessages() {
               <VideoCall
                 setIsVideoCallOpen={setIsVideoCallOpen}
                 peerConnection={peerConnection}
+                mediaStream={mediaStream}
               />
             )}
           </ModalBody>
+          <ModalFooter justifyContent="center">
+            <Button
+              colorScheme="red"
+              variant="solid"
+              // onClick={endCall}
+              leftIcon={<FaPhoneSlash color="white" />}
+            ></Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

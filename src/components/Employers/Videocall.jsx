@@ -6,10 +6,13 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const remoteVideoRef = useRef(null);
   const [error, setError] = useState(null);
   const [focusedVideo, setFocusedVideo] = useState("remote");
+
   useEffect(() => {
     if (!mediaStream) {
+      console.log("Error: No media stream available."); // Debug line
       setError("No media stream available.");
     } else if (localVideoRef.current) {
+      console.log("Setting local media stream."); // Debug line
       localVideoRef.current.srcObject = mediaStream;
     }
 
@@ -20,8 +23,13 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
 
   useEffect(() => {
     if (peerConnection) {
+      console.log("Peer connection available."); // Debug line
+
       const handleTrackEvent = (event) => {
+        console.log("Received track event:", event); // Debug line
+
         if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+          console.log("Setting remote media stream."); // Debug line
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
@@ -32,6 +40,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         peerConnection.ontrack = null;
       };
     } else {
+      console.log("Error: No peer connection available."); // Debug line
       setError("No peer connection available.");
     }
   }, [peerConnection]);

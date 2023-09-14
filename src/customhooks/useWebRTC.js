@@ -58,14 +58,11 @@ const useWebRTC = (userId, applicantAppUserId) => {
   };
 
   const initializePeerConnection = () => {
-    console.log("Initializing PeerConnection");
-
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
     const pc = new RTCPeerConnection(configuration);
     pc.debugId = Math.random().toString();
-    console.log(`New PeerConnection created with debugId: ${pc.debugId}`);
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
@@ -77,7 +74,6 @@ const useWebRTC = (userId, applicantAppUserId) => {
               applicantAppUserId,
               JSON.stringify(event.candidate)
             );
-            console.log("ICE candidate successfully sent to the server.");
           } catch (error) {
             console.error("Error sending ICE candidate: ", error);
           }
