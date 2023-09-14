@@ -15,7 +15,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { FaVideo } from "react-icons/fa";
+import { FaPhoneSlash, FaVideo } from "react-icons/fa";
 import audioFile from "./ringing-151670.mp3";
 import {
   Modal,
@@ -493,7 +493,12 @@ export function Messages() {
 
         <Box my={4} />
 
-        <Box my={4}>
+        <Box
+          my={4}
+          borderRadius={"8px"}
+          bg={"white"}
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+        >
           {approvedApplicants?.length > 0 ? (
             approvedApplicants.map((applicant) => (
               <Flex
@@ -515,7 +520,7 @@ export function Messages() {
                     <Text fontSize="sm">Click to chat</Text>
                   </Box>
                 </Flex>
-                <Flex>
+                <Flex justifyContent="space-between" alignItems="center">
                   <IconButton
                     aria-label="Start video call"
                     icon={<FaVideo />}
@@ -536,7 +541,7 @@ export function Messages() {
                       setIsDeleteDialogOpen(true);
                     }}
                   >
-                    Delete
+                    X
                   </Button>
                 </Flex>
               </Flex>
@@ -647,10 +652,9 @@ export function Messages() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
       <Modal isOpen={isVideoCallOpen}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent maxWidth="80%">
           <ModalHeader>Video Call</ModalHeader>
           <ModalBody>
             <VideoCall
@@ -658,10 +662,13 @@ export function Messages() {
               mediaStream={mediaStream}
             />
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="red" onClick={endCall}>
-              Decline Call
-            </Button>
+          <ModalFooter justifyContent="center">
+            <Button
+              colorScheme="red"
+              variant="solid"
+              onClick={endCall}
+              leftIcon={<FaPhoneSlash color="white" />}
+            ></Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
