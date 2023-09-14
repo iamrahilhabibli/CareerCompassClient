@@ -72,6 +72,9 @@ export function JobseekerMessages() {
     createAnswer,
     endConnection,
     initializePeerConnection,
+    addIceCandidate,
+    updateRemoteDescriptionSet,
+    flushIceCandidateQueue,
   } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -130,6 +133,7 @@ export function JobseekerMessages() {
     setCallerId(callerId);
     console.log("OfferReceived", offer);
     console.log("Reference in handleReceiveCallOffer: ", peerConnection);
+
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
       showToastError("PeerConnection is not yet initialized.");
@@ -151,8 +155,11 @@ export function JobseekerMessages() {
       }
 
       const remoteOffer = new RTCSessionDescription(offer);
-      console.log("Debug: About to set remote description");
       await peerConnection.setRemoteDescription(remoteOffer);
+      console.log("Remote Description set successfully.");
+      updateRemoteDescriptionSet(true);
+
+      flushIceCandidateQueue();
     } catch (err) {
       console.error("Error in handleReceiveCallOffer: ", err);
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
@@ -182,7 +189,8 @@ export function JobseekerMessages() {
     handleReceiveCallOffer,
     jobseekerContacts,
     handleCallDeclined,
-    token
+    token,
+    addIceCandidate
   );
 
   const handleAccept = async () => {
@@ -310,6 +318,7 @@ export function JobseekerMessages() {
     });
     return null;
   }
+  console.log("Isvideocallopen", isVideoCallOpen);
   return (
     <>
       <Box

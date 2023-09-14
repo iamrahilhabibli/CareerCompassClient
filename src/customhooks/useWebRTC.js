@@ -1,16 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
-  const [videoConnectionRef, setVideoConnectionRef] = useState(null); // Assume you set this somewhere
+  const iceCandidateQueue = useRef([]);
+  const [videoConnectionRef, setVideoConnectionRef] = useState(null);
+  const [remoteDescriptionSet, setRemoteDescriptionSet] = useState(false);
 
-  const shouldEndConnection = () => {
-    // Your conditional logic here, e.g.
-    return videoConnectionRef && videoConnectionRef.current;
+  const updateRemoteDescriptionSet = (value) => {
+    setRemoteDescriptionSet(value);
   };
-
+  const flushIceCandidateQueue = () => {
+    iceCandidateQueue.current.forEach((candidateJson) => {
+      addIceCandidate(candidateJson);
+    });
+    iceCandidateQueue.current = [];
+  };
   const addIceCandidate = (candidateJson) => {
+    console.log(
+      "remote description set in addIceCandidate",
+      remoteDescriptionSet
+    );
+    if (!remoteDescriptionSet) {
+      console.log(
+        "Queueing ICE candidate as remote description is not set yet."
+      );
+      iceCandidateQueue.current.push(candidateJson);
+      return;
+    }
     return new Promise((resolve, reject) => {
       if (!peerConnection) {
         reject("PeerConnection is not initialized, can't add ICE candidate");
@@ -76,24 +93,12 @@ const useWebRTC = (userId, applicantAppUserId) => {
     setPeerConnection(pc);
   };
 
-  // useEffect(() => {
-  //   console.log("Running useEffect to initialize PeerConnection");
-  //   initializePeerConnection();
-
-  //   return () => {
-  //     console.log("Running useEffect cleanup function");
-  //     if (shouldEndConnection()) {
-  //       endConnection();
-  //     }
-  //   };
-  // }, [userId, applicantAppUserId]); // Removed videoConnectionRef from dependency array
-
   useEffect(() => {
     initializePeerConnection();
     return () => {
       endConnection();
     };
-  }, []); // Empty dependency array
+  }, []);
 
   const createOffer = async () => {
     setError(null);
@@ -155,6 +160,8 @@ const useWebRTC = (userId, applicantAppUserId) => {
     error,
     initializePeerConnection,
     addIceCandidate,
+    updateRemoteDescriptionSet,
+    flushIceCandidateQueue,
   };
 };
 

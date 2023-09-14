@@ -48,7 +48,7 @@ const setupCallReception = (
   connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
     try {
       const iceCandidate = JSON.parse(iceCandidateJson);
-      addIceCandidate(new RTCIceCandidate(iceCandidate));
+      addIceCandidate(iceCandidate);
     } catch (error) {
       console.error("Error handling received ICE candidate:", error);
     }
@@ -90,7 +90,8 @@ export const useSignalRVideo = (
   handleReceiveCallOffer,
   jobseekerContacts,
   handleCallDeclined,
-  token
+  token,
+  addIceCandidate
 ) => {
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -131,7 +132,8 @@ export const useSignalRVideo = (
         connection,
         userId,
         handleReceiveCallOffer,
-        handleCallDeclined
+        handleCallDeclined,
+        addIceCandidate
       );
 
       return () => {
