@@ -11,15 +11,30 @@ import {
   Thead,
   useToast,
   Tr,
+  Tbody,
+  Td,
+  Spinner,
+  ModalFooter,
+  Input,
+  FormLabel,
+  FormControl,
+  ModalBody,
+  ModalCloseButton,
+  ModalHeader,
+  ModalContent,
+  ModalOverlay,
 } from "@chakra-ui/react";
 import axios from "axios";
 import joblocationsImg from "../../images/jobLocationsImg.png";
 import React, { useEffect, useState } from "react";
 import useUser from "../../customhooks/useUser";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 export default function NewLocations() {
   const [joblocationsData, setJobLocationsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [locationName, setLocationName] = useState("");
   const toast = useToast();
   const toastSuccess = (message) => {
     toast({
@@ -51,6 +66,7 @@ export default function NewLocations() {
             },
           }
         );
+        console.log(response.data);
         setJobLocationsData(response.data);
       } catch (error) {
         toastError("Something went wrong");
@@ -60,6 +76,51 @@ export default function NewLocations() {
     };
     fetchJobLocations();
   }, []);
+  const onClose = () => setIsOpen(false);
+  const openModal = () => setIsOpen(true);
+  const handleCreateJobLocation = async () => {
+    try {
+      const response = await axios.post(
+        "https://localhost:7013/api/Dashboards/CreateJobLocation",
+        {
+          locationName: locationName,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        const newId = response.data;
+        toastSuccess("Successfully created");
+        setJobLocationsData((prevLevels) => [
+          ...prevLevels,
+          { id: newId, location: locationName },
+        ]);
+        onClose();
+      }
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
+  const handleDeleteExperiencelevel = async (locationId) => {
+    console.log(locationId);
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveJobLocation?jobLocationId=${locationId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        setJobLocationsData((prevLocations) =>
+          prevLocations.filter((location) => location.id !== locationId)
+        );
+        toastSuccess("Deleted successfully");
+      }
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
   return (
     <Box
       rounded={"lg"}
@@ -96,7 +157,7 @@ export default function NewLocations() {
         <TableContainer>
           <Table variant="simple">
             <TableCaption>
-              {/* Experience levels: {experienceLevelsData.length} */}
+              Job locations: {joblocationsData.length}
             </TableCaption>
             <Thead>
               <Tr>
@@ -104,22 +165,24 @@ export default function NewLocations() {
                 <Th>Location</Th>
                 <Th>Actions</Th>
                 <Th>
-                  <Button colorScheme="blue">Create new</Button>
+                  <Button colorScheme="blue" onClick={openModal}>
+                    Create new
+                  </Button>
                 </Th>
               </Tr>
             </Thead>
-            {/* <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Create a new experience level</ModalHeader>
+                <ModalHeader>Create a new location</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <FormControl>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Location</FormLabel>
                     <Input
-                      placeholder="Enter new level name"
-                      value={newLevelName}
-                      onChange={(e) => setNewLevelName(e.target.value)}
+                      placeholder="Enter new location "
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
                     />
                   </FormControl>
                 </ModalBody>
@@ -128,7 +191,7 @@ export default function NewLocations() {
                   <Button
                     colorScheme="blue"
                     mr={3}
-                    onClick={handleCreateExperienceLevel}
+                    onClick={handleCreateJobLocation}
                   >
                     Create
                   </Button>
@@ -137,56 +200,54 @@ export default function NewLocations() {
                   </Button>
                 </ModalFooter>
               </ModalContent>
-            </Modal> */}
-            {/* {
-              <Tbody>
-                {isLoading ? (
-                  <Tr fontSize="sm">
-                    <Td colSpan="6">
+            </Modal>
+            <Tbody>
+              {isLoading ? (
+                <Tr fontSize="sm">
+                  <Td colSpan="6">
+                    <Flex
+                      justify="center"
+                      align="center"
+                      height="100px"
+                      width="100%"
+                    >
+                      <Spinner />
+                    </Flex>
+                  </Td>
+                </Tr>
+              ) : joblocationsData.length === 0 ? (
+                <Tr fontSize="sm">
+                  <Td colSpan="6">No Locations available</Td>
+                </Tr>
+              ) : (
+                joblocationsData.map((location, index) => (
+                  <Tr key={index} fontSize="sm">
+                    <Td isNumeric>{index + 1}</Td>
+                    <Td>{location.location}</Td>
+                    <Td>
                       <Flex
-                        justify="center"
-                        align="center"
-                        height="100px"
-                        width="100%"
+                        direction="row"
+                        spacing={2}
+                        gap={"8px"}
+                        alignItems={"center"}
                       >
-                        <Spinner />
+                        <Button
+                          colorScheme="red"
+                          variant="outline"
+                          size="xs"
+                          borderRadius="full"
+                          onClick={() =>
+                            handleDeleteExperiencelevel(location.id)
+                          }
+                        >
+                          <DeleteIcon />
+                        </Button>
                       </Flex>
                     </Td>
                   </Tr>
-                ) : experienceLevelsData.length === 0 ? (
-                  <Tr fontSize="sm">
-                    <Td colSpan="6">No Levels available</Td>
-                  </Tr>
-                ) : (
-                  experienceLevelsData.map((level, index) => (
-                    <Tr key={index} fontSize="sm">
-                      <Td isNumeric>{index + 1}</Td>
-                      <Td>{level.levelName}</Td>
-                      <Td>
-                        <Flex
-                          direction="row"
-                          spacing={2}
-                          gap={"8px"}
-                          alignItems={"center"}
-                        >
-                          <Button
-                            colorScheme="red"
-                            variant="outline"
-                            size="xs"
-                            borderRadius="full"
-                            onClick={() =>
-                              handleDeleteExperiencelevel(level.id)
-                            }
-                          >
-                            <DeleteIcon />
-                          </Button>
-                        </Flex>
-                      </Td>
-                    </Tr>
-                  ))
-                )}
-              </Tbody>
-            } */}
+                ))
+              )}
+            </Tbody>
           </Table>
         </TableContainer>
       </Box>
