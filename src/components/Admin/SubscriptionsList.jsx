@@ -2,7 +2,19 @@ import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  NumberInput,
+  NumberInputField,
   Spinner,
   Table,
   TableCaption,
@@ -12,6 +24,7 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
 import React from "react";
 import subscriptionsImg from "../../images/subscriptionsImg.png";
@@ -23,7 +36,64 @@ import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 export default function SubscriptionsList() {
   const [subscriptionsData, setSubscriptionsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { token } = useUser();
+  const [subscriptionPlanName, setSubscriptionPlanName] = useState("");
+  const [subscriptionPlanPrice, setSubscriptionPlanPrice] = useState(0.0);
+  const [subscriptionPlanPostCount, setSubscriptionPlanPostCount] = useState(0);
+  const onClose = () => setIsOpen(false);
+  const openModal = () => setIsOpen(true);
+  const toast = useToast();
+  const toastSuccess = (message) => {
+    toast({
+      title: message,
+      status: "success",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+  const toastError = (message) => {
+    toast({
+      title: message,
+      status: "error",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+  console.log(subscriptionsData);
+  const handleCreateSubscription = async () => {
+    try {
+      const response = await axios.post(
+        "https://localhost:7013/api/Dashboards/CreateSubscription",
+        {
+          Name: subscriptionPlanName,
+          Price: subscriptionPlanPrice,
+          PostLimit: subscriptionPlanPostCount,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        const newId = response.data;
+        toastSuccess("Successfully created");
+        setSubscriptionsData((subs) => [
+          ...subs,
+          {
+            id: newId,
+            name: subscriptionPlanName,
+            price: subscriptionPlanPrice,
+            postLimit: subscriptionPlanPostCount,
+          },
+        ]);
+        onClose();
+      }
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
@@ -91,23 +161,45 @@ export default function SubscriptionsList() {
                 <Th>Post Limit</Th>
                 <Th>Actions</Th>
                 <Th>
-                  <Button colorScheme="blue">Create new</Button>
+                  <Button colorScheme="blue" onClick={openModal}>
+                    Create new
+                  </Button>
                 </Th>
               </Tr>
             </Thead>
-            {/* <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Create a new type</ModalHeader>
+                <ModalHeader>Create a new subscription plan</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <FormControl>
-                    <FormLabel>Job Type</FormLabel>
+                    <FormLabel>Plan Name</FormLabel>
                     <Input
-                      placeholder="Enter new job type "
-                      value={newTypeName}
-                      onChange={(e) => setNewTypeName(e.target.value)}
+                      placeholder="Enter new subscription name "
+                      value={subscriptionPlanName}
+                      onChange={(e) => setSubscriptionPlanName(e.target.value)}
                     />
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Price</FormLabel>
+                    <NumberInput
+                      precision={2}
+                      step={0.01}
+                      value={subscriptionPlanPrice}
+                      onChange={(value) => setSubscriptionPlanPrice(value)}
+                    >
+                      <NumberInputField placeholder="Enter  price" />
+                    </NumberInput>
+                  </FormControl>
+                  <FormControl>
+                    <FormLabel>Post count</FormLabel>
+                    <NumberInput
+                      value={subscriptionPlanPostCount}
+                      onChange={(value) => setSubscriptionPlanPostCount(value)}
+                    >
+                      <NumberInputField placeholder="Enter post limit" />
+                    </NumberInput>
                   </FormControl>
                 </ModalBody>
 
@@ -115,7 +207,7 @@ export default function SubscriptionsList() {
                   <Button
                     colorScheme="blue"
                     mr={3}
-                    onClick={handleCreateJobType}
+                    onClick={handleCreateSubscription}
                   >
                     Create
                   </Button>
@@ -124,7 +216,7 @@ export default function SubscriptionsList() {
                   </Button>
                 </ModalFooter>
               </ModalContent>
-            </Modal> */}
+            </Modal>
             <Tbody>
               {isLoading ? (
                 <Tr fontSize="sm">
