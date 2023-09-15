@@ -102,8 +102,6 @@ export default function ExperienceLevels() {
       toastError("Something went wrong");
     }
   };
-
-  console.log(experienceLevelsData);
   const handleDeleteExperiencelevel = async (levelId) => {
     console.log(levelId);
     try {

@@ -96,10 +96,12 @@ export default function EducationLevels() {
         }
       );
       if (response.status === 200) {
+        const newId = response.data;
+
         toastSuccess("Successfully created");
         setEducationlevelsData((prevLevels) => [
           ...prevLevels,
-          { name: newLevelName },
+          { levelId: newId, name: newLevelName },
         ]);
         onClose();
       }
@@ -107,6 +109,7 @@ export default function EducationLevels() {
       toastError("Something went wrong");
     }
   };
+  console.log(educationLevelsData);
   const handleDeleteEducationlevel = async (levelId) => {
     try {
       const response = await axios.delete(
