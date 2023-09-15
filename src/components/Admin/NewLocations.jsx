@@ -29,12 +29,15 @@ import joblocationsImg from "../../images/jobLocationsImg.png";
 import React, { useEffect, useState } from "react";
 import useUser from "../../customhooks/useUser";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { debounce } from "lodash";
+import { useCallback } from "react";
 
 export default function NewLocations() {
   const [joblocationsData, setJobLocationsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [locationName, setLocationName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
   const toastSuccess = (message) => {
     toast({
@@ -55,27 +58,35 @@ export default function NewLocations() {
     });
   };
   const { token } = useUser();
-  useEffect(() => {
-    const fetchJobLocations = async () => {
+  const debouncedFetchJobLocations = useCallback(
+    debounce(async (searchQuery) => {
+      let url = "https://localhost:7013/api/Dashboards/GetAllJobLocations";
+      if (searchQuery) {
+        url = `${url}?searchQuery=${searchQuery}`;
+      }
       try {
-        const response = await axios.get(
-          "https://localhost:7013/api/Dashboards/GetAllJobLocations",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response.data);
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setJobLocationsData(response.data);
       } catch (error) {
         toastError("Something went wrong");
       } finally {
         setIsLoading(false);
       }
-    };
-    fetchJobLocations();
-  }, []);
+    }, 1000),
+    [token]
+  );
+  useEffect(() => {
+    debouncedFetchJobLocations(searchQuery).then(() => {
+      if (joblocationsData.length === 0) {
+        toastError("No Locations Found");
+      }
+    });
+  }, [searchQuery, debouncedFetchJobLocations]);
+
   const onClose = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
   const handleCreateJobLocation = async () => {
@@ -145,6 +156,29 @@ export default function NewLocations() {
           <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
             Review Job Locations
           </Heading>
+        </Flex>
+      </Box>
+      <Box my={4} />
+      <Box mb={4}>
+        <Flex align="center" justify="space-between">
+          <Input
+            bgColor={"white"}
+            placeholder="Search location..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            padding={2}
+            width={"300px"}
+            borderRadius="md"
+            fontSize="sm"
+            boxShadow="sm"
+          />
+          <Button
+            onClick={() => setSearchQuery(searchQuery)}
+            colorScheme="blue"
+            ml={4}
+          >
+            Search
+          </Button>
         </Flex>
       </Box>
       <Box my={4} />
