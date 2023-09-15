@@ -31,6 +31,7 @@ import useUser from "../../customhooks/useUser";
 import axios from "axios";
 import { useEffect } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { type } from "@testing-library/user-event/dist/type";
 export default function JobTypes() {
   const [jobTypeData, setJobTypeData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +80,50 @@ export default function JobTypes() {
     };
     fetchJobTypes();
   }, []);
+  const handleCreateJobType = async () => {
+    try {
+      const response = await axios.post(
+        "https://localhost:7013/api/Dashboards/CreateJobType",
+        {
+          typeName: newTypeName,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        const newId = response.data;
+
+        toastSuccess("Successfully created");
+        setJobTypeData((prevLevels) => [
+          ...prevLevels,
+          { id: newId, typeName: newTypeName },
+        ]);
+        onClose();
+      }
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
+  const handleDeleteJobType = async (typeId) => {
+    console.log(typeId);
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveJobType?jobTypeId=${typeId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        setJobTypeData((prevLevels) =>
+          prevLevels.filter((type) => type.id !== typeId)
+        );
+      }
+      toastSuccess("Deleted successfully");
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
   return (
     <Box
       rounded={"lg"}
@@ -149,7 +194,7 @@ export default function JobTypes() {
                   <Button
                     colorScheme="blue"
                     mr={3}
-                    // onClick={handleCreateJobLocation}
+                    onClick={handleCreateJobType}
                   >
                     Create
                   </Button>
@@ -194,6 +239,7 @@ export default function JobTypes() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
+                          onClick={() => handleDeleteJobType(type.id)}
                         >
                           <DeleteIcon />
                         </Button>
