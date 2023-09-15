@@ -28,6 +28,7 @@ import {
   FiBook,
   FiMap,
   FiFolder,
+  FiBookmark,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
@@ -40,6 +41,7 @@ const AdminLinkItems = [
   { name: "Experience Levels", icon: FiAward, path: "/experiencelevels" },
   { name: "Job Locations", icon: FiMap, path: "/joblocations" },
   { name: "Job Types", icon: FiFolder, path: "/jobtypes" },
+  { name: "Subscriptions", icon: FiBookmark, path: "/subscriptionslist" },
   { name: "Settings", icon: FiSettings, path: "/adminsettings" },
 ];
 
@@ -52,6 +54,7 @@ const AdminSidebarContent = ({ onClose, ...rest }) => (
     w={{ base: "full", md: 60 }}
     pos="fixed"
     h="full"
+    overflowY="auto"
     {...rest}
   >
     <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
