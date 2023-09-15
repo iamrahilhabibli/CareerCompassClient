@@ -47,6 +47,7 @@ import useUser from "./customhooks/useUser";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import ExperienceLevels from "./components/Admin/ExperienceLevels";
+import NewLocations from "./components/Admin/NewLocations";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ export function App() {
     "/reports",
     "/educationlevels",
     "/experiencelevels",
+    "/joblocations",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -99,6 +101,7 @@ export function App() {
                 <Route path="/reviewmanagement" element={<ReviewsList />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/educationlevels" element={<EducationLevels />} />
+                <Route path="/joblocations" element={<NewLocations />} />
                 <Route
                   path="/experiencelevels"
                   element={<ExperienceLevels />}

@@ -2,42 +2,25 @@ import {
   Box,
   Button,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  Input,
   Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Spinner,
   Table,
   TableCaption,
   TableContainer,
-  Tbody,
-  Td,
   Th,
   Thead,
-  Tr,
   useToast,
+  Tr,
 } from "@chakra-ui/react";
-import React from "react";
-import experienceImg from "../../images/experienceImg.png";
-import useUser from "../../customhooks/useUser";
-import { useState } from "react";
 import axios from "axios";
-import { useEffect } from "react";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-export default function ExperienceLevels() {
-  const toast = useToast();
-  const { token } = useUser();
-  const [experienceLevelsData, setExperienceLevelsData] = useState([]);
+import joblocationsImg from "../../images/jobLocationsImg.png";
+import React, { useEffect, useState } from "react";
+import useUser from "../../customhooks/useUser";
+
+export default function NewLocations() {
+  const [joblocationsData, setJobLocationsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
-  const [newLevelName, setNewLevelName] = useState("");
+  const toast = useToast();
   const toastSuccess = (message) => {
     toast({
       title: message,
@@ -56,72 +39,27 @@ export default function ExperienceLevels() {
       position: "top-right",
     });
   };
+  const { token } = useUser();
   useEffect(() => {
-    const fetchExperienceLevel = async () => {
+    const fetchJobLocations = async () => {
       try {
         const response = await axios.get(
-          "https://localhost:7013/api/Dashboards/GetExperienceLevels",
+          "https://localhost:7013/api/Dashboards/GetAllJobLocations",
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setExperienceLevelsData(response.data);
+        setJobLocationsData(response.data);
       } catch (error) {
         toastError("Something went wrong");
       } finally {
         setIsLoading(false);
       }
     };
-    fetchExperienceLevel();
+    fetchJobLocations();
   }, []);
-  const onClose = () => setIsOpen(false);
-  const openModal = () => setIsOpen(true);
-  const handleCreateExperienceLevel = async () => {
-    try {
-      const response = await axios.post(
-        "https://localhost:7013/api/Dashboards/CreateExperienceLevel",
-        {
-          name: newLevelName,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.status === 200) {
-        const newId = response.data;
-        toastSuccess("Successfully created");
-        setExperienceLevelsData((prevLevels) => [
-          ...prevLevels,
-          { id: newId, levelName: newLevelName },
-        ]);
-        onClose();
-      }
-    } catch (error) {
-      toastError("Something went wrong");
-    }
-  };
-  const handleDeleteExperiencelevel = async (levelId) => {
-    console.log(levelId);
-    try {
-      const response = await axios.delete(
-        `https://localhost:7013/api/Dashboards/RemoveExperienceLevel?levelId=${levelId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.status === 200) {
-        setExperienceLevelsData((prevLevels) =>
-          prevLevels.filter((level) => level.id !== levelId)
-        );
-        toastSuccess("Deleted successfully");
-      }
-    } catch (error) {
-      toastError("Something went wrong");
-    }
-  };
-
   return (
     <Box
       rounded={"lg"}
@@ -138,13 +76,13 @@ export default function ExperienceLevels() {
         bg={"white"}
         bgRepeat="no-repeat"
         bgSize="auto 100%"
-        bgImage={experienceImg}
+        bgImage={joblocationsImg}
         bgPosition="right"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
       >
         <Flex alignItems={"center"} ml={"50px"} width={"100%"} height={"100%"}>
           <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
-            Review experience levels
+            Review Job Locations
           </Heading>
         </Flex>
       </Box>
@@ -158,21 +96,19 @@ export default function ExperienceLevels() {
         <TableContainer>
           <Table variant="simple">
             <TableCaption>
-              Experience levels: {experienceLevelsData.length}
+              {/* Experience levels: {experienceLevelsData.length} */}
             </TableCaption>
             <Thead>
               <Tr>
                 <Th>#</Th>
-                <Th>Level Name</Th>
+                <Th>Location</Th>
                 <Th>Actions</Th>
                 <Th>
-                  <Button colorScheme="blue" onClick={openModal}>
-                    Create new
-                  </Button>
+                  <Button colorScheme="blue">Create new</Button>
                 </Th>
               </Tr>
             </Thead>
-            <Modal isOpen={isOpen} onClose={onClose}>
+            {/* <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
                 <ModalHeader>Create a new experience level</ModalHeader>
@@ -201,8 +137,8 @@ export default function ExperienceLevels() {
                   </Button>
                 </ModalFooter>
               </ModalContent>
-            </Modal>
-            {
+            </Modal> */}
+            {/* {
               <Tbody>
                 {isLoading ? (
                   <Tr fontSize="sm">
@@ -250,32 +186,10 @@ export default function ExperienceLevels() {
                   ))
                 )}
               </Tbody>
-            }
+            } */}
           </Table>
         </TableContainer>
       </Box>
-      {/* <AlertDialog
-            isOpen={isAlertDialogOpen}
-            onClose={() => setAlertDialogOpen(false)}
-          >
-            <AlertDialogOverlay>
-              <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                  Delete User
-                </AlertDialogHeader>
-                <AlertDialogBody>
-                  Are you sure you want to delete this company? This action cannot
-                  be undone.
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                  <Button onClick={() => setAlertDialogOpen(false)}>Cancel</Button>
-                  <Button colorScheme="red" onClick={executeCompanyDeletion} ml={3}>
-                    Delete
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialogOverlay>
-          </AlertDialog> */}
     </Box>
   );
 }
