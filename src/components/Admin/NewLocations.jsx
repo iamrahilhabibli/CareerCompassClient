@@ -72,7 +72,11 @@ export default function NewLocations() {
         });
         setJobLocationsData(response.data);
       } catch (error) {
-        toastError("Something went wrong");
+        console.error(
+          `Error fetching data: ${
+            error.response?.data?.message || error.message
+          }`
+        );
       } finally {
         setIsLoading(false);
       }
@@ -80,11 +84,8 @@ export default function NewLocations() {
     [token]
   );
   useEffect(() => {
-    debouncedFetchJobLocations(searchQuery).then(() => {
-      if (joblocationsData.length === 0) {
-        toastError("No Locations Found");
-      }
-    });
+    setIsLoading(true);
+    debouncedFetchJobLocations(searchQuery);
   }, [searchQuery, debouncedFetchJobLocations]);
 
   const onClose = () => setIsOpen(false);

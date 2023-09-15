@@ -48,6 +48,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import ExperienceLevels from "./components/Admin/ExperienceLevels";
 import NewLocations from "./components/Admin/NewLocations";
+import JobTypes from "./components/Admin/JobTypes";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export function App() {
     "/educationlevels",
     "/experiencelevels",
     "/joblocations",
+    "/jobtypes",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -102,6 +104,7 @@ export function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/educationlevels" element={<EducationLevels />} />
                 <Route path="/joblocations" element={<NewLocations />} />
+                <Route path="/jobtypes" element={<JobTypes />} />
                 <Route
                   path="/experiencelevels"
                   element={<ExperienceLevels />}
