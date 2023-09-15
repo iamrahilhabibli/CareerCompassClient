@@ -1,71 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addIceCandidate,
-  setRemoteDescription,
-  flushIceCandidateQueue,
-} from "../reducers/webRtcSlice";
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
   const [videoConnectionRef, setVideoConnectionRef] = useState(null);
   const dispatch = useDispatch();
-  const remoteDescriptionSet = useSelector(
-    (state) => state.webRTC.remoteDescriptionSet
-  );
 
-  const iceCandidateQueue = useSelector(
-    (state) => state.webRTC.iceCandidateQueue
-  );
-  const updateRemoteDescriptionSet = (value) => {
-    dispatch(setRemoteDescription(value));
-    if (value) {
-      flushIceCandidateQueue();
+  const addIceCandidate = async (candidate) => {
+    if (!peerConnection) {
+      console.error(
+        "PeerConnection is not initialized. Cannot add ICE candidate."
+      );
+      return;
+    }
+    try {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (error) {
+      console.error(`Failed to add ICE candidate: ${error}`);
     }
   };
-
-  const flushIceCandidateQueue = () => {
-    iceCandidateQueue.forEach((candidateJson) => {
-      addIceCandidate(candidateJson);
-    });
-    dispatch(flushIceCandidateQueue());
-  };
-  const handleAddIceCandidate = (candidateJson) => {
-    return new Promise((resolve, reject) => {
-      if (!remoteDescriptionSet) {
-        dispatch(addIceCandidate(candidateJson));
-        reject("Remote description not set.");
-        return;
-      }
-
-      if (!peerConnection) {
-        reject("PeerConnection is not initialized, can't add ICE candidate");
-        return;
-      }
-
-      let candidate;
-      try {
-        candidate = new RTCIceCandidate(
-          typeof candidateJson === "string"
-            ? JSON.parse(candidateJson)
-            : candidateJson
-        );
-      } catch (e) {
-        reject(`Error parsing ICE candidate JSON: ${e.toString()}`);
-        return;
-      }
-
-      peerConnection
-        .addIceCandidate(candidate)
-        .then(() => {
-          resolve();
-        })
-        .catch((e) => {
-          reject(`Failed to add ICE candidate: ${e.toString()}`);
-        });
-    });
-  };
-
   const initializePeerConnection = () => {
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -165,9 +118,6 @@ const useWebRTC = (userId, applicantAppUserId) => {
     error,
     initializePeerConnection,
     addIceCandidate,
-    updateRemoteDescriptionSet,
-    flushIceCandidateQueue,
-    handleAddIceCandidate,
   };
 };
 

@@ -45,6 +45,7 @@ import {
 } from "../../reducers/callSlice";
 import useUserMedia from "../../customhooks/useUserMedia";
 import { FaPhoneSlash } from "react-icons/fa";
+import { clearIceCandidates } from "../../reducers/iceCandidateSlice";
 
 export function JobseekerMessages() {
   const toast = useToast();
@@ -60,6 +61,8 @@ export function JobseekerMessages() {
   const [callerId, setCallerId] = useState(null);
   const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const iceCandidates = useSelector((state) => state.iceCandidate.candidates);
+
   const {
     mediaStream,
     error: mediaError,
@@ -72,10 +75,9 @@ export function JobseekerMessages() {
     peerConnection,
     createAnswer,
     endConnection,
+    error,
     initializePeerConnection,
     addIceCandidate,
-    updateRemoteDescriptionSet,
-    handleAddIceCandidate,
   } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
@@ -128,17 +130,20 @@ export function JobseekerMessages() {
     setIsVideoCallOpen(false);
     initializePeerConnection();
   };
-
-  const handleReceiveCallOffer = async (callerId, recipientId, offer) => {
+  const handleReceiveCallOffer = async (callerId, offer) => {
+    // Initialize default states
     setIsCallDialogOpen(true);
     setCallerId(callerId);
+    console.log(offer);
 
+    // Validate if PeerConnection is ready
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
       showToastError("PeerConnection is not yet initialized.");
       return;
     }
 
+    // Check if PeerConnection is closed
     if (peerConnection.signalingState === "closed") {
       console.error("PeerConnection signalingState is closed.");
       showToastError("PeerConnection signalingState is closed.");
@@ -146,6 +151,7 @@ export function JobseekerMessages() {
     }
 
     try {
+      // Ensure PeerConnection is in a suitable state
       if (peerConnection.signalingState !== "stable") {
         console.warn(
           `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
@@ -153,9 +159,15 @@ export function JobseekerMessages() {
         return;
       }
 
+      // Setting remote description
       const remoteOffer = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteOffer);
-      updateRemoteDescriptionSet(true);
+
+      // Loop through stored ICE candidates and add them to PeerConnection
+      iceCandidates.forEach(async (candidate) => {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      });
+      dispatch(clearIceCandidates());
     } catch (err) {
       showToastError(`Error in handleReceiveCallOffer: ${err.message}`);
     }
@@ -184,9 +196,7 @@ export function JobseekerMessages() {
     handleReceiveCallOffer,
     jobseekerContacts,
     handleCallDeclined,
-    token,
-    addIceCandidate,
-    handleAddIceCandidate
+    token
   );
 
   const handleAccept = async () => {

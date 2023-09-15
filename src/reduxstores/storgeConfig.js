@@ -6,7 +6,7 @@ import jobVacancyReducer from "../reducers/jobVacancySlice";
 import applicantReducer from "../reducers/applicantSlice";
 import messageReducer from "../reducers/messageSlice";
 import callReducer from "../reducers/callSlice";
-import webRTCReducer from "../reducers/webRtcSlice";
+import iceCandidateReducer from "../reducers/iceCandidateSlice";
 export const store = configureStore({
   reducer: {
     searchHistory: searchHistorySlice,
@@ -16,7 +16,7 @@ export const store = configureStore({
     applicant: applicantReducer,
     messages: messageReducer,
     call: callReducer,
-    webRTC: webRTCReducer,
+    iceCandidate: iceCandidateReducer,
   },
   devTools: process.env.NODE_ENV !== "production",
 });

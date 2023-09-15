@@ -5,6 +5,7 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { useDispatch } from "react-redux";
+import { storeIceCandidate } from "../reducers/iceCandidateSlice";
 
 const startConnection = async (connection) => {
   try {
@@ -28,15 +29,14 @@ const setupCallReception = (
   handleReceiveCallOffer,
   handleCallDeclined,
   addIceCandidate,
-  dispatch,
-  handleAddIceCandidate
+  dispatch
 ) => {
   connection.on(
     "ReceiveDirectCall",
     async (callerId, recipientId, offerJson) => {
       if (userId === recipientId) {
         const offer = JSON.parse(offerJson);
-        handleReceiveCallOffer(callerId, recipientId, offer);
+        handleReceiveCallOffer(callerId, offer);
       }
     }
   );
@@ -45,11 +45,10 @@ const setupCallReception = (
       handleCallDeclined();
     }
   });
-
   connection.on("ReceiveIceCandidate", (iceCandidateJson) => {
     try {
       const iceCandidate = JSON.parse(iceCandidateJson);
-      handleAddIceCandidate(iceCandidate);
+      dispatch(storeIceCandidate(iceCandidate));
     } catch (error) {
       console.error("Error handling received ICE candidate:", error);
     }
@@ -92,7 +91,8 @@ export const useSignalRVideo = (
   jobseekerContacts,
   handleCallDeclined,
   token,
-  addIceCandidate
+  addIceCandidate,
+  handleAddIceCandidate
 ) => {
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -135,7 +135,8 @@ export const useSignalRVideo = (
         handleReceiveCallOffer,
         handleCallDeclined,
         addIceCandidate,
-        dispatch
+        dispatch,
+        handleAddIceCandidate
       );
 
       return () => {
