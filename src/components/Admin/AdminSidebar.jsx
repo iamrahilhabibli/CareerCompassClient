@@ -24,6 +24,7 @@ import {
   FiUser,
   FiFileText,
   FiMail,
+  FiAward,
   FiBook,
 } from "react-icons/fi";
 
@@ -34,7 +35,7 @@ const AdminLinkItems = [
   { name: "Review Management", icon: FiMail, path: "/reviewmanagement" },
   { name: "Reports", icon: FiFileText, path: "/reports" },
   { name: "Education Levels", icon: FiBook, path: "/educationlevels" },
-  { name: "Analytics", icon: FiTrendingUp, path: "/analytics" },
+  { name: "Experience Levels", icon: FiAward, path: "/experiencelevels" },
   { name: "Settings", icon: FiSettings, path: "/adminsettings" },
 ];
 

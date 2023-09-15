@@ -202,7 +202,7 @@ export function Messages() {
   const handleStartVideoCall = async (recipientId) => {
     const stream = await startMedia();
     if (stream) {
-      playRingingSound();
+      // playRingingSound();
       startVideoCall(recipientId, stream);
     } else {
       toast({

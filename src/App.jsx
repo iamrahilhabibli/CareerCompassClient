@@ -46,6 +46,7 @@ import EducationLevels from "./components/Admin/EducationLevels";
 import useUser from "./customhooks/useUser";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
+import ExperienceLevels from "./components/Admin/ExperienceLevels";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ export function App() {
     "/reviewmanagement",
     "/reports",
     "/educationlevels",
+    "/experiencelevels",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -97,6 +99,10 @@ export function App() {
                 <Route path="/reviewmanagement" element={<ReviewsList />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/educationlevels" element={<EducationLevels />} />
+                <Route
+                  path="/experiencelevels"
+                  element={<ExperienceLevels />}
+                />
               </Routes>
             </AdminSidebarWithHeader>
           </AdminProtectedRoute>

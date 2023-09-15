@@ -34,12 +34,14 @@ export function Menu() {
 
   const handleLogout = () => {
     const token = localStorage.getItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
     axios
       .post("https://localhost:7013/api/Accounts/Logout", null, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         window.dispatchEvent(new Event("storage"));
         navigate("/");
       })

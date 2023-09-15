@@ -25,23 +25,19 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import React from "react";
-import educationLevels from "../../images/educationLevels.png";
-import { useState } from "react";
-import { useEffect } from "react";
-import axios from "axios";
-import { Tooltip } from "recharts";
+import experienceImg from "../../images/experienceImg.png";
 import useUser from "../../customhooks/useUser";
+import { useState } from "react";
+import axios from "axios";
+import { useEffect } from "react";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-
-export default function EducationLevels() {
-  const [educationLevelsData, setEducationlevelsData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function ExperienceLevels() {
+  const toast = useToast();
   const { token } = useUser();
+  const [experienceLevelsData, setExperienceLevelsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [newLevelName, setNewLevelName] = useState("");
-  const [editingLevel, setEditingLevel] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const toast = useToast();
   const toastSuccess = (message) => {
     toast({
       title: message,
@@ -51,7 +47,6 @@ export default function EducationLevels() {
       position: "top-right",
     });
   };
-
   const toastError = (message) => {
     toast({
       title: message,
@@ -62,32 +57,31 @@ export default function EducationLevels() {
     });
   };
   useEffect(() => {
-    const fetchEducationLevel = async () => {
+    const fetchExperienceLevel = async () => {
       try {
         const response = await axios.get(
-          "https://localhost:7013/api/Dashboards/GetEducationLevels",
+          "https://localhost:7013/api/Dashboards/GetExperienceLevels",
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setEducationlevelsData(response.data);
+        setExperienceLevelsData(response.data);
       } catch (error) {
-        console.log("There was an error fetching the data");
+        toastError("Something went wrong");
       } finally {
         setIsLoading(false);
       }
     };
-    fetchEducationLevel();
+    fetchExperienceLevel();
   }, []);
   const onClose = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
-
-  const handleCreateEducationLevel = async () => {
+  const handleCreateExperienceLevel = async () => {
     try {
       const response = await axios.post(
-        "https://localhost:7013/api/Dashboards/CreateEducationLevel",
+        "https://localhost:7013/api/Dashboards/CreateExperienceLevel",
         {
           name: newLevelName,
         },
@@ -96,10 +90,11 @@ export default function EducationLevels() {
         }
       );
       if (response.status === 200) {
+        const newId = response.data;
         toastSuccess("Successfully created");
-        setEducationlevelsData((prevLevels) => [
+        setExperienceLevelsData((prevLevels) => [
           ...prevLevels,
-          { name: newLevelName },
+          { id: newId, levelName: newLevelName },
         ]);
         onClose();
       }
@@ -107,47 +102,25 @@ export default function EducationLevels() {
       toastError("Something went wrong");
     }
   };
-  const handleDeleteEducationlevel = async (levelId) => {
+
+  console.log(experienceLevelsData);
+  const handleDeleteExperiencelevel = async (levelId) => {
+    console.log(levelId);
     try {
       const response = await axios.delete(
-        `https://localhost:7013/api/Dashboards/RemoveEducationLevel?levelId=${levelId}`,
+        `https://localhost:7013/api/Dashboards/RemoveExperienceLevel?levelId=${levelId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
       if (response.status === 200) {
-        setEducationlevelsData((prevLevels) =>
-          prevLevels.filter((level) => level.levelId !== levelId)
+        setExperienceLevelsData((prevLevels) =>
+          prevLevels.filter((level) => level.id !== levelId)
         );
+        toastSuccess("Deleted successfully");
       }
-      toastSuccess("Deleted successfully");
     } catch (error) {
       toastError("Something went wrong");
-    }
-  };
-  const handleEditEducationLevel = async (levelId, newName) => {
-    try {
-      const response = await axios.patch(
-        "https://localhost:7013/api/Dashboards/UpdateEducationLevel",
-        {
-          levelId: levelId,
-          newName: newName,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setEducationlevelsData((prevLevels) =>
-          prevLevels.map((level) =>
-            level.Id === levelId ? { ...level, name: newName } : level
-          )
-        );
-        toastSuccess("Successfully updated");
-      }
-    } catch (error) {
-      toastError("Something went wrong while updating");
     }
   };
 
@@ -167,13 +140,13 @@ export default function EducationLevels() {
         bg={"white"}
         bgRepeat="no-repeat"
         bgSize="auto 100%"
-        bgImage={educationLevels}
+        bgImage={experienceImg}
         bgPosition="right"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
       >
         <Flex alignItems={"center"} ml={"50px"} width={"100%"} height={"100%"}>
           <Heading color={"#2D2D2D"} fontSize={"28px"} as="h5" size="md">
-            Review education levels
+            Review experience levels
           </Heading>
         </Flex>
       </Box>
@@ -187,7 +160,7 @@ export default function EducationLevels() {
         <TableContainer>
           <Table variant="simple">
             <TableCaption>
-              Education levels: {educationLevelsData.length}
+              Experience levels: {experienceLevelsData.length}
             </TableCaption>
             <Thead>
               <Tr>
@@ -204,7 +177,7 @@ export default function EducationLevels() {
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Create a new education level</ModalHeader>
+                <ModalHeader>Create a new experience level</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <FormControl>
@@ -221,7 +194,7 @@ export default function EducationLevels() {
                   <Button
                     colorScheme="blue"
                     mr={3}
-                    onClick={handleCreateEducationLevel}
+                    onClick={handleCreateExperienceLevel}
                   >
                     Create
                   </Button>
@@ -246,15 +219,15 @@ export default function EducationLevels() {
                       </Flex>
                     </Td>
                   </Tr>
-                ) : educationLevelsData.length === 0 ? (
+                ) : experienceLevelsData.length === 0 ? (
                   <Tr fontSize="sm">
                     <Td colSpan="6">No Levels available</Td>
                   </Tr>
                 ) : (
-                  educationLevelsData.map((level, index) => (
+                  experienceLevelsData.map((level, index) => (
                     <Tr key={index} fontSize="sm">
                       <Td isNumeric>{index + 1}</Td>
-                      <Td>{level.name}</Td>
+                      <Td>{level.levelName}</Td>
                       <Td>
                         <Flex
                           direction="row"
@@ -267,14 +240,14 @@ export default function EducationLevels() {
                             variant="outline"
                             size="xs"
                             borderRadius="full"
-                            onClick={() => {
-                              setEditingLevel(level);
-                              setIsEditModalOpen(true);
-                            }}
+                            // onClick={() => {
+                            //   setEditingLevel(level);
+                            //   setIsEditModalOpen(true);
+                            // }}
                           >
                             <EditIcon />
                           </Button>
-                          <Modal
+                          {/* <Modal
                             isOpen={isEditModalOpen}
                             onClose={() => setIsEditModalOpen(false)}
                           >
@@ -315,7 +288,7 @@ export default function EducationLevels() {
                                 </Button>
                               </ModalFooter>
                             </ModalContent>
-                          </Modal>
+                          </Modal> */}
 
                           <Button
                             colorScheme="red"
@@ -323,7 +296,7 @@ export default function EducationLevels() {
                             size="xs"
                             borderRadius="full"
                             onClick={() =>
-                              handleDeleteEducationlevel(level.levelId)
+                              handleDeleteExperiencelevel(level.id)
                             }
                           >
                             <DeleteIcon />
@@ -339,27 +312,27 @@ export default function EducationLevels() {
         </TableContainer>
       </Box>
       {/* <AlertDialog
-        isOpen={isAlertDialogOpen}
-        onClose={() => setAlertDialogOpen(false)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete User
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              Are you sure you want to delete this company? This action cannot
-              be undone.
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button onClick={() => setAlertDialogOpen(false)}>Cancel</Button>
-              <Button colorScheme="red" onClick={executeCompanyDeletion} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog> */}
+            isOpen={isAlertDialogOpen}
+            onClose={() => setAlertDialogOpen(false)}
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Delete User
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  Are you sure you want to delete this company? This action cannot
+                  be undone.
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button onClick={() => setAlertDialogOpen(false)}>Cancel</Button>
+                  <Button colorScheme="red" onClick={executeCompanyDeletion} ml={3}>
+                    Delete
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog> */}
     </Box>
   );
 }
