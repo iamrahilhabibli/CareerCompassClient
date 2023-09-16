@@ -185,7 +185,7 @@ export default function Users() {
         <Flex align="center" justify="space-between">
           <Input
             bgColor={"white"}
-            placeholder="Search user by email, username, or phone number..."
+            placeholder="Search user by Id, email, username, or phone number..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             padding={2}
