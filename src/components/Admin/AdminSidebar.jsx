@@ -30,6 +30,7 @@ import {
   FiFolder,
   FiBookmark,
   FiType,
+  FiCreditCard,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
@@ -44,6 +45,7 @@ const AdminLinkItems = [
   { name: "Job Types", icon: FiFolder, path: "/jobtypes" },
   { name: "Subscriptions", icon: FiBookmark, path: "/subscriptionslist" },
   { name: "Shifts & Schedules", icon: FiType, path: "/shiftsandschedules" },
+  { name: "Payments", icon: FiCreditCard, path: "/listpayments" },
   { name: "Settings", icon: FiSettings, path: "/adminsettings" },
 ];
 

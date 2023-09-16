@@ -51,6 +51,7 @@ import NewLocations from "./components/Admin/NewLocations";
 import JobTypes from "./components/Admin/JobTypes";
 import SubscriptionsList from "./components/Admin/SubscriptionsList";
 import ShiftAndSchedules from "./components/Admin/ShiftAndSchedules";
+import PaymentsList from "./components/Admin/PaymentsList";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,6 +75,7 @@ export function App() {
     "/jobtypes",
     "/subscriptionslist",
     "/shiftsandschedules",
+    "/listpayments",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -109,6 +111,7 @@ export function App() {
                 <Route path="/educationlevels" element={<EducationLevels />} />
                 <Route path="/joblocations" element={<NewLocations />} />
                 <Route path="/jobtypes" element={<JobTypes />} />
+                <Route path="/listpayments" element={<PaymentsList />} />
                 <Route
                   path="/shiftsandschedules"
                   element={<ShiftAndSchedules />}
