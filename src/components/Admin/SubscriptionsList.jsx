@@ -33,6 +33,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { useFormik } from "formik";
 export default function SubscriptionsList() {
   const [subscriptionsData, setSubscriptionsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,6 +42,61 @@ export default function SubscriptionsList() {
   const [subscriptionPlanName, setSubscriptionPlanName] = useState("");
   const [subscriptionPlanPrice, setSubscriptionPlanPrice] = useState(0.0);
   const [subscriptionPlanPostCount, setSubscriptionPlanPostCount] = useState(0);
+  const [editingSubscriptionId, setEditingSubscriptionId] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState(null);
+
+  const formik = useFormik({
+    initialValues: {
+      id: "",
+      name: "",
+      price: "",
+      postLimit: "",
+    },
+    onSubmit: async (values) => {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const response = await axios.put(
+        "https://localhost:7013/api/Dashboards/UpdateSubscription",
+        values,
+        config
+      );
+
+      if (response.status === 200) {
+        toastSuccess("Successfully updated");
+        setModalOpen(false);
+        const index = subscriptionsData.findIndex(
+          (sub) => sub.id === values.id
+        );
+
+        if (index !== -1) {
+          const updatedSubscriptions = [...subscriptionsData];
+          updatedSubscriptions[index] = {
+            ...updatedSubscriptions[index],
+            ...values,
+          };
+          setSubscriptionsData(updatedSubscriptions);
+        }
+      }
+    },
+  });
+
+  const handleEditIconClick = (sub) => {
+    setEditingSubscription(sub);
+    formik.setValues({
+      id: sub.id,
+      name: sub.name,
+      price: sub.price,
+      postLimit: sub.postLimit,
+    });
+    setModalOpen(true);
+  };
+
   const onClose = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
   const toast = useToast();
@@ -62,7 +118,6 @@ export default function SubscriptionsList() {
       position: "top-right",
     });
   };
-  console.log(subscriptionsData);
   const handleCreateSubscription = async () => {
     try {
       const response = await axios.post(
@@ -95,7 +150,6 @@ export default function SubscriptionsList() {
     }
   };
   const handleDeleteSubscription = async (subscriptionId) => {
-    console.log(subscriptionId);
     try {
       const response = await axios.delete(
         `https://localhost:7013/api/Dashboards/RemoveSubscription?subscriptionId=${subscriptionId}`,
@@ -113,6 +167,7 @@ export default function SubscriptionsList() {
       toastError("Something went wrong");
     }
   };
+
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
@@ -282,7 +337,7 @@ export default function SubscriptionsList() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
-                          //   onClick={() => handleDeleteJobType(type.id)}
+                          onClick={() => handleEditIconClick(sub)}
                         >
                           <EditIcon />
                         </Button>
@@ -294,6 +349,50 @@ export default function SubscriptionsList() {
             </Tbody>
           </Table>
         </TableContainer>
+        <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Edit Subscription</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <form onSubmit={formik.handleSubmit}>
+                <FormControl id="name">
+                  <FormLabel>Name</FormLabel>
+                  <Input
+                    name="name"
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                  />
+                </FormControl>
+
+                <FormControl id="price" mt={4}>
+                  <FormLabel>Price</FormLabel>
+                  <Input
+                    name="price"
+                    type="number"
+                    value={formik.values.price}
+                    onChange={formik.handleChange}
+                  />
+                </FormControl>
+
+                <FormControl id="postLimit" mt={4}>
+                  <FormLabel>Post Limit</FormLabel>
+                  <Input
+                    name="postLimit"
+                    type="number"
+                    value={formik.values.postLimit}
+                    onChange={formik.handleChange}
+                  />
+                </FormControl>
+              </form>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" onClick={formik.handleSubmit}>
+                Save Changes
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </Box>
     </Box>
   );
