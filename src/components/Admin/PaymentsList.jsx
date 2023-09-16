@@ -14,6 +14,11 @@ import {
   Thead,
   Text,
   Tr,
+  Radio,
+  Stack,
+  RadioGroup,
+  FormLabel,
+  FormControl,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import paymentsImg from "../../images/paymentsDashboardImg.png";
@@ -28,6 +33,7 @@ export default function PaymentsList() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [totalItems, setTotalItems] = useState(0);
+  const [filterType, setFilterType] = useState("");
   const maxPage = Math.ceil(totalItems / itemsPerPage);
 
   useEffect(() => {
@@ -52,6 +58,9 @@ export default function PaymentsList() {
 
     fetchPayments();
   }, [currentPage]);
+  const handleFilterChange = (e) => {
+    setFilterType(e.target.value);
+  };
   const handleNext = () => {
     setCurrentPage((prevPage) => {
       const newPage = prevPage + 1;
@@ -67,7 +76,9 @@ export default function PaymentsList() {
       return newPage;
     });
   };
-
+  const filteredPaymentsData = filterType
+    ? paymentsData.filter((payment) => payment.paymentType === filterType)
+    : paymentsData;
   return (
     <Box
       rounded={"lg"}
@@ -95,6 +106,24 @@ export default function PaymentsList() {
         </Flex>
       </Box>
       <Box my={4} />
+      <Box my={4}>
+        <FormControl as="fieldset">
+          <FormLabel as="legend">Filter by Type:</FormLabel>
+          <RadioGroup name="type" value={filterType} onChange={setFilterType}>
+            <Stack direction="row">
+              <Radio value="" colorScheme="blue" id="all">
+                All
+              </Radio>
+              <Radio value="Subscription" colorScheme="blue" id="subscription">
+                Subscription
+              </Radio>
+              <Radio value="Resume" colorScheme="blue" id="resume">
+                Resume
+              </Radio>
+            </Stack>
+          </RadioGroup>
+        </FormControl>
+      </Box>
       <Box
         borderWidth={"1px"}
         rounded={"lg"}
@@ -127,12 +156,12 @@ export default function PaymentsList() {
                     </Flex>
                   </Td>
                 </Tr>
-              ) : paymentsData.length === 0 ? (
+              ) : filteredPaymentsData.length === 0 ? (
                 <Tr fontSize="sm">
                   <Td colSpan="6">No payments available</Td>
                 </Tr>
               ) : (
-                paymentsData?.map((payment, index) => (
+                filteredPaymentsData.map((payment, index) => (
                   <Tr key={index} fontSize="sm">
                     <Td>{payment.paymentId}</Td>
                     <Td>{payment.payersId}</Td>
