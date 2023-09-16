@@ -10,8 +10,11 @@ import {
   ListItem,
   Text,
   useToast,
+  SimpleGrid,
+  Badge,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
+import ccLogoLarge from "../images/cclogolarge.png";
 import { useCombobox } from "downshift";
 import workPlaceImg from "../images/workplace.png";
 import { fetchCompanyDetails } from "../services/getCompanies";
@@ -19,6 +22,7 @@ import { debounce } from "lodash";
 import { useLocation, useNavigate } from "react-router-dom";
 import useUser from "../customhooks/useUser";
 import axios from "axios";
+import { FaStar } from "react-icons/fa";
 
 export function Companies() {
   const { userId } = useUser();
@@ -30,6 +34,19 @@ export function Companies() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("https://localhost:7013/api/Companies/GetHighestRated")
+      .then((response) => {
+        setCompanies(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the data", error);
+      });
+  }, []);
+
   const debouncedFetchCompanyDetails = debounce(async (input) => {
     if (input) {
       const results = await fetchCompanyDetails(input);
@@ -342,6 +359,72 @@ export function Companies() {
             ))}
           </Box>
         )}
+        <Box mt={100}>
+          <Heading as="h4" size="lg" textAlign="left">
+            Popular Companies
+          </Heading>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
+            {companies.map((company, index) => (
+              <Box
+                key={index}
+                p={5}
+                shadow="md"
+                borderWidth="1px"
+                borderRadius="lg"
+              >
+                <Image
+                  boxSize="100px"
+                  objectFit="cover"
+                  src={company.logoUrl || ccLogoLarge}
+                  alt={`${company.companyName} logo`}
+                  borderRadius="12px"
+                  boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = ccLogoLarge;
+                  }}
+                />
+
+                <Text
+                  fontSize={"16px"}
+                  color={"#2557a7"}
+                  fontWeight={"700"}
+                  _hover={{ textDecoration: "underline" }}
+                  cursor={"pointer"}
+                  onClick={() =>
+                    navigate(`/companies/${company.companyId}`, {
+                      state: { company },
+                    })
+                  }
+                >
+                  {company.companyName.length > 20
+                    ? `${company.companyName.substring(0, 17)}...`
+                    : company.companyName}
+                </Text>
+
+                <Box
+                  style={{ display: "flex", flexDirection: "row" }}
+                  mt={2}
+                  alignItems="center"
+                >
+                  {Array(5)
+                    .fill("")
+                    .map((_, i) => (
+                      <span key={i}>
+                        <FaStar
+                          color={i < company.rating ? "#FFD700" : "#B0C4DE"}
+                          style={{ marginRight: "4px" }}
+                        />
+                      </span>
+                    ))}
+                  <Badge ml="2" fontSize="0.8em" colorScheme="blue">
+                    {company.reviewsCount} reviews
+                  </Badge>
+                </Box>
+              </Box>
+            ))}
+          </SimpleGrid>
+        </Box>
       </Box>
     </>
   );

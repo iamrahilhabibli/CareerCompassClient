@@ -7,8 +7,6 @@ import {
   IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
-// import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-// import { BiMailSend } from "react-icons/bi";
 
 export const Footer = () => {
   return (
@@ -29,19 +27,16 @@ export const Footer = () => {
             <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
               About Us
             </Text>
-            {/* Put your content here for "About Us" section */}
           </Stack>
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
               Products
             </Text>
-            {/* Put your content here for "Products" section */}
           </Stack>
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
               Useful Links
             </Text>
-            {/* Put your content here for "Useful Links" section */}
           </Stack>
           <Stack align={"flex-start"}>
             <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
@@ -94,7 +89,7 @@ export const Footer = () => {
           justify={{ base: "center", md: "space-between" }}
           align={{ base: "center", md: "center" }}
         >
-          <Text>© 2023 Brand. All rights reserved</Text>
+          <Text>© 2023 Career Compass. All rights reserved</Text>
           <Stack direction={"row"} spacing={6}>
             {/* Insert any additional links if you have here */}
           </Stack>
