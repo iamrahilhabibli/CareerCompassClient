@@ -12,37 +12,62 @@ import {
   Td,
   Th,
   Thead,
+  Text,
   Tr,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import paymentsImg from "../../images/paymentsDashboardImg.png";
 import useUser from "../../customhooks/useUser";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export default function PaymentsList() {
   const [paymentsData, setPaymentsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { token } = useUser();
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [totalItems, setTotalItems] = useState(0);
+  const maxPage = Math.ceil(totalItems / itemsPerPage);
+
   useEffect(() => {
     const fetchPayments = async () => {
       try {
         const response = await axios.get(
-          "https://localhost:7013/api/Dashboards/GetAllPayments",
+          `https://localhost:7013/api/Dashboards/GetAllPayments?page=${currentPage}&pageSize=${itemsPerPage}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setPaymentsData(response.data);
-        console.log(response.data);
+        setPaymentsData(response.data?.items || []);
+        setTotalItems(response.data?.totalItems || 0);
       } catch (error) {
         console.log("There was an error fetching the data");
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchPayments();
-  }, []);
+  }, [currentPage]);
+  const handleNext = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = prevPage + 1;
+      navigate(`/listpayments?page=${newPage}`);
+      return newPage;
+    });
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = Math.max(prevPage - 1, 1);
+      navigate(`/listpayments?page=${newPage}`);
+      return newPage;
+    });
+  };
+
   return (
     <Box
       rounded={"lg"}
@@ -114,30 +139,38 @@ export default function PaymentsList() {
                     <Td>{payment.paymentType}</Td>
                     <Td>{payment.paymentAmount}</Td>
                     <Td>{payment.dateCreated}</Td>
-                    {/* <Td>
-                      <Flex
-                        direction="row"
-                        spacing={2}
-                        gap={"8px"}
-                        alignItems={"center"}
-                      >
-                        <Button
-                          colorScheme="red"
-                          variant="outline"
-                          size="xs"
-                          borderRadius="full"
-                          onClick={() => handleDeleteShift(shift.id)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Flex>
-                    </Td> */}
                   </Tr>
                 ))
               )}
             </Tbody>
           </Table>
         </TableContainer>
+      </Box>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        bg="blue.50"
+        p={4}
+        rounded="md"
+      >
+        <Button
+          colorScheme="blue"
+          onClick={handlePrevious}
+          isDisabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Text fontSize="xl" color="blue.800">
+          Page {currentPage} of {maxPage}
+        </Text>
+        <Button
+          colorScheme="blue"
+          onClick={handleNext}
+          isDisabled={currentPage >= maxPage}
+        >
+          Next
+        </Button>
       </Box>
     </Box>
   );
