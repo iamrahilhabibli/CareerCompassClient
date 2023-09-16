@@ -94,6 +94,25 @@ export default function SubscriptionsList() {
       toastError("Something went wrong");
     }
   };
+  const handleDeleteSubscription = async (subscriptionId) => {
+    console.log(subscriptionId);
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveSubscription?subscriptionId=${subscriptionId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        setSubscriptionsData((prevLevels) =>
+          prevLevels.filter((sub) => sub.id !== subscriptionId)
+        );
+      }
+      toastSuccess("Deleted successfully");
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
@@ -254,7 +273,7 @@ export default function SubscriptionsList() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
-                          //   onClick={() => handleDeleteJobType(type.id)}
+                          onClick={() => handleDeleteSubscription(sub.id)}
                         >
                           <DeleteIcon />
                         </Button>
