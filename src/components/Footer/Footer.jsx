@@ -7,94 +7,88 @@ import {
   IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { FaInstagram, FaTwitter, FaYoutube, BiMailSend } from "react-icons/fa"; // Import your icons
+import { useNavigate } from "react-router-dom";
 
 export const Footer = () => {
+  const bg = useColorModeValue("gray.50", "gray.900");
+  const color = useColorModeValue("gray.700", "gray.200");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const navigate = useNavigate();
   return (
-    <Box
-      bg={useColorModeValue("gray.50", "gray.900")}
-      color={useColorModeValue("gray.700", "gray.200")}
-    >
+    <Box bg={bg} color={color} py={10}>
+      {" "}
       <Container
         as={Stack}
         maxW={"6xl"}
-        py={4}
-        spacing={4}
+        spacing={6}
         justify={"center"}
         align={"center"}
       >
         <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
+          {["Products", "Useful Links", "Contact"].map((section) => (
+            <Stack key={section} align={"flex-start"}>
+              <Text fontWeight={"700"} fontSize={"lg"} mb={4}>
+                {section}
+              </Text>
+            </Stack>
+          ))}
           <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
+            <Text
+              fontWeight={"700"}
+              fontSize={"lg"}
+              mb={4}
+              onClick={() => navigate("/aboutus")}
+              style={{ cursor: "pointer" }}
+            >
               About Us
             </Text>
           </Stack>
-          <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
-              Products
-            </Text>
-          </Stack>
-          <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
-              Useful Links
-            </Text>
-          </Stack>
-          <Stack align={"flex-start"}>
-            <Text fontWeight={"500"} fontSize={"lg"} mb={2}>
-              Contact
-            </Text>
-            <Stack direction={"row"} spacing={1}>
-              {/* <IconButton
-                as={"a"}
-                href={"#"}
-                aria-label={"Instagram"}
-                icon={<FaInstagram fontSize={"20px"} />}
-                variant={"ghost"}
-              />
-              <IconButton
-                as={"a"}
-                href={"#"}
-                aria-label={"Twitter"}
-                icon={<FaTwitter fontSize={"20px"} />}
-                variant={"ghost"}
-              />
-              <IconButton
-                as={"a"}
-                href={"#"}
-                aria-label={"YouTube"}
-                icon={<FaYoutube fontSize={"20px"} />}
-                variant={"ghost"}
-              /> */}
-              {/* <IconButton
-                as={"a"}
-                href={"#"}
-                aria-label={"Email"}
-                icon={<BiMailSend fontSize={"20px"} />}
-                variant={"ghost"}
-              /> */}
-            </Stack>
+          <Stack direction={"row"} spacing={6}>
+            {" "}
+            <IconButton
+              as={"a"}
+              href={"#"}
+              aria-label={"Instagram"}
+              icon={<FaInstagram fontSize={"20px"} />}
+              variant={"ghost"}
+            />
+            <IconButton
+              as={"a"}
+              href={"#"}
+              aria-label={"Twitter"}
+              icon={<FaTwitter fontSize={"20px"} />}
+              variant={"ghost"}
+            />
+            <IconButton
+              as={"a"}
+              href={"#"}
+              aria-label={"YouTube"}
+              icon={<FaYoutube fontSize={"20px"} />}
+              variant={"ghost"}
+            />
           </Stack>
         </SimpleGrid>
-      </Container>
-      <Box
-        borderTopWidth={1}
-        borderStyle={"solid"}
-        borderColor={useColorModeValue("gray.200", "gray.700")}
-      >
-        <Container
-          as={Stack}
-          maxW={"6xl"}
-          py={4}
-          direction={{ base: "column", md: "row" }}
-          spacing={4}
-          justify={{ base: "center", md: "space-between" }}
-          align={{ base: "center", md: "center" }}
+        <Box
+          borderTopWidth={1}
+          borderStyle={"solid"}
+          borderColor={borderColor}
+          pt={6}
         >
-          <Text>© 2023 Career Compass. All rights reserved</Text>
-          <Stack direction={"row"} spacing={6}>
-            {/* Insert any additional links if you have here */}
-          </Stack>
-        </Container>
-      </Box>
+          <Container
+            as={Stack}
+            maxW={"6xl"}
+            py={4}
+            direction={{ base: "column", md: "row" }}
+            spacing={4}
+            justify={{ base: "center", md: "space-between" }}
+            align={{ base: "center", md: "center" }}
+          >
+            <Text>© 2023 Career Compass. All rights reserved</Text>
+            <Stack direction={"row"} spacing={6}></Stack>
+          </Container>
+        </Box>
+      </Container>
     </Box>
   );
 };

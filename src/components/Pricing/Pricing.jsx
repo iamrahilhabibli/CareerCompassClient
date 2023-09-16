@@ -185,7 +185,15 @@ export default function ThreeTierPricing() {
         py={10}
       >
         {plans.map((plan, index) => (
-          <Box key={index} bg="white" borderRadius="lg" boxShadow="md" p={4}>
+          <Box
+            key={index}
+            bg="white"
+            borderRadius="lg"
+            boxShadow="lg"
+            p={4}
+            minHeight="300px"
+            width={{ base: "100%", md: "300px" }}
+          >
             <PriceWrapper isPopular={plan.isPopular}>
               <Box py={4} px={12}>
                 <Text fontWeight="500" fontSize="2xl">
