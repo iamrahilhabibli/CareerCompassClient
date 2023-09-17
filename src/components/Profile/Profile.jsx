@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import profile from "../../images/profile.png";
 import useUser from "../../customhooks/useUser";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 export function Profile() {
@@ -124,7 +124,6 @@ export function Profile() {
           />
         </Flex>
       </Box>
-
       <VStack
         spacing={4}
         padding="20px"
@@ -205,6 +204,14 @@ export function Profile() {
                   }}
                 >
                   Change Password
+                </Button>
+                <Button>
+                  <Link
+                    to={`/resumebuild/${userId}`}
+                    _hover={{ color: "#2557a7", textDecoration: "underline" }}
+                  >
+                    Build your Resume
+                  </Link>
                 </Button>
               </Flex>
             </VStack>

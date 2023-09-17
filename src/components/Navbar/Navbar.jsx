@@ -126,16 +126,16 @@ export function Navbar() {
             Company Reviews
           </Link>
           <Link
-            to={`/resumebuild/${userId}`}
-            _hover={{ color: "#2557a7", textDecoration: "underline" }}
-          >
-            Build your Resume
-          </Link>
-          <Link
             to="/pricing"
             _hover={{ color: "#2557a7", textDecoration: "underline" }}
           >
             Pricing
+          </Link>
+          <Link
+            to="/aboutus"
+            _hover={{ color: "#2557a7", textDecoration: "underline" }}
+          >
+            About us
           </Link>
         </HStack>
       </Flex>

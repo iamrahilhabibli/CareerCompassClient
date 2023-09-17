@@ -53,6 +53,7 @@ import SubscriptionsList from "./components/Admin/SubscriptionsList";
 import ShiftAndSchedules from "./components/Admin/ShiftAndSchedules";
 import PaymentsList from "./components/Admin/PaymentsList";
 import Aboutus from "./components/AboutUs/Aboutus";
+import UserFeedback from "./components/Feedback/UserFeedback";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -143,6 +144,7 @@ export function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/signin" element={<Signin />} />
               <Route path="/aboutus" element={<Aboutus />} />
+              <Route path="/feedback/:userId" element={<UserFeedback />} />
               <Route path="/companydetailform" element={<Multistep />} />
               <Route path="/companydetails" element={<Details />} />
               <Route path="/profile/:userId" element={<Profile />} />

@@ -100,9 +100,40 @@ export default function Aboutus() {
             Our Mission
           </Heading>
           <Text mt={4}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas
-            lacinia malesuada mi vitae tristique. Donec fringilla ullamcorper
-            nulla sed gravida. Duis fermentum, sapien et.
+            Welcome to our platform, where our mission is more than just words;
+            it's our driving force. At Career Compass, we are on a quest to
+            bridge the gap between talent and opportunity, weaving a tapestry of
+            success stories along the way.
+          </Text>
+          <br />
+          <Heading as="h4" size="md">
+            Unlocking Potential
+          </Heading>
+          <Text mt={4}>
+            We believe that every individual possesses unique talents and
+            potential waiting to be unlocked. Our mission is to empower these
+            talents, providing a platform where they can shine and grow.
+          </Text>
+          <br />
+          <Heading as="h4" size="md">
+            Creating Synergy
+          </Heading>
+          <Text mt={4}>
+            In a world where opportunities are abundant yet often elusive, we
+            serve as the catalyst for synergy. We connect passionate, skilled
+            individuals with the organizations and roles that need their
+            expertise.
+          </Text>
+          <br />
+          <Heading as="h4" size="md">
+            Join Us
+          </Heading>
+          <Text mt={4}>
+            Join us in this mission to unite talents with opportunities.
+            Together, we will create a world where individuals flourish,
+            organizations thrive, and dreams become reality. Thank you for being
+            a part of the Career Compass community. Together, we will shape a
+            brighter future.
           </Text>
         </Box>
 

@@ -9,11 +9,13 @@ import {
 } from "@chakra-ui/react";
 import { FaInstagram, FaTwitter, FaYoutube, BiMailSend } from "react-icons/fa"; // Import your icons
 import { useNavigate } from "react-router-dom";
+import useUser from "../../customhooks/useUser";
 
 export const Footer = () => {
   const bg = useColorModeValue("gray.50", "gray.900");
   const color = useColorModeValue("gray.700", "gray.200");
   const borderColor = useColorModeValue("gray.200", "gray.700");
+  const { userId } = useUser();
   const navigate = useNavigate();
   return (
     <Box bg={bg} color={color} py={10}>
@@ -26,13 +28,6 @@ export const Footer = () => {
         align={"center"}
       >
         <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
-          {["Products", "Useful Links", "Contact"].map((section) => (
-            <Stack key={section} align={"flex-start"}>
-              <Text fontWeight={"700"} fontSize={"lg"} mb={4}>
-                {section}
-              </Text>
-            </Stack>
-          ))}
           <Stack align={"flex-start"}>
             <Text
               fontWeight={"700"}
@@ -42,6 +37,28 @@ export const Footer = () => {
               style={{ cursor: "pointer" }}
             >
               About Us
+            </Text>
+          </Stack>
+          <Stack align={"flex-start"}>
+            <Text
+              fontWeight={"700"}
+              fontSize={"lg"}
+              mb={4}
+              onClick={() => navigate(`/feedback/${userId}`)}
+              style={{ cursor: "pointer" }}
+            >
+              Leave a Feedback
+            </Text>
+          </Stack>
+          <Stack align={"flex-start"}>
+            <Text
+              fontWeight={"700"}
+              fontSize={"lg"}
+              mb={4}
+              onClick={() => navigate("/contact")}
+              style={{ cursor: "pointer" }}
+            >
+              Contact
             </Text>
           </Stack>
           <Stack direction={"row"} spacing={6}>
