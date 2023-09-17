@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Heading,
@@ -9,82 +9,103 @@ import {
 } from "@chakra-ui/react";
 import styles from "./Aboutus.module.css";
 import { useState } from "react";
+import axios from "axios";
 
 export default function Aboutus() {
-  const teamMembers = [
-    {
-      name: "Alice",
-      surname: "Smith",
-      position: "Developer",
-      imgSrc: "path/to/image",
-      description: "Alice loves coding in Python and JavaScript.",
-    },
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
+  // State to hold the fetched team members
+  const [teamMembers, setTeamMembers] = useState([]);
 
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-
-    {
-      name: "Jane",
-      surname: "Doe",
-      position: "CTO",
-      imgSrc: "path/to/img2.jpg",
-    },
-  ];
+  // State for the flipped card logic remains the same
   const [flippedState, setFlippedState] = useState({});
+
+  useEffect(() => {
+    axios
+      .get("https://localhost:7013/api/TeamMembers/GetMembers")
+      .then((response) => {
+        console.log(response.data);
+        setTeamMembers(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching team members: ", error);
+      });
+  }, []);
   const toggleFlip = (index) => {
     setFlippedState({ ...flippedState, [index]: !flippedState[index] });
   };
   return (
     <Box p={8}>
+      <Box
+        rounded={"lg"}
+        maxWidth={800}
+        m="20px auto"
+        borderRadius={"15px"}
+        p={6}
+        bg={"gradient(to-r, gray.200, gray.100)"}
+        borderWidth={"1px"}
+        shadow="0px 5px 10px rgba(0,0,0,0.2)"
+      >
+        <Heading as="h2" size="2xl" color="teal.500" fontWeight="bold">
+          Our Team
+        </Heading>
+        <Text mt={4} color="gray.600">
+          Meet our dedicated team members who make everything possible.
+        </Text>
+        <SimpleGrid columns={3} spacing={10} mt={6}>
+          {teamMembers.map((member, index) => (
+            <Box
+              key={member.memberId}
+              onClick={() => toggleFlip(index)}
+              className={`${styles.flipCard} ${
+                flippedState[index] ? styles.flipped : ""
+              }`}
+              borderRadius="md"
+              boxShadow="lg"
+              bg="white"
+              overflow="hidden"
+              borderWidth={1}
+              borderColor="gray.300"
+              height="300px"
+            >
+              <Box className={styles.flipCardInner}>
+                <Box className={styles.flipCardFront}>
+                  <Image
+                    boxSize="100px"
+                    objectFit="cover"
+                    src={member.imageUrl}
+                    alt={`${member.firstName} ${member.lastName}`}
+                    mb={3}
+                    mx="auto"
+                    display="block"
+                  />
+                  <Text fontWeight="bold" textAlign="center">
+                    {member.firstName} {member.lastName}
+                  </Text>
+                  <Text
+                    mt={2}
+                    color="teal.500"
+                    fontWeight="medium"
+                    textAlign="center"
+                  >
+                    {member.position}
+                  </Text>
+                </Box>
+                <Box className={styles.flipCardBack}>
+                  <Text mt={5} textAlign="center">
+                    {member.description}
+                  </Text>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+        </SimpleGrid>
+        <Text mt={6} textAlign="center" fontWeight="medium" color="gray.700">
+          Do you believe you have what it takes to be part of our team?{" "}
+          <Text as="span" fontWeight="bold" color="teal.600">
+            Message us!
+          </Text>
+        </Text>
+      </Box>
+
       <VStack spacing={6}>
         <Box
           rounded={"lg"}
@@ -134,60 +155,6 @@ export default function Aboutus() {
             organizations thrive, and dreams become reality. Thank you for being
             a part of the Career Compass community. Together, we will shape a
             brighter future.
-          </Text>
-        </Box>
-
-        <Box
-          rounded={"lg"}
-          maxWidth={800}
-          m="10px auto"
-          borderRadius={"12px"}
-          p={5}
-          bg={"transparent"}
-          borderWidth={"1px"}
-          shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        >
-          <Heading as="h2" size="xl">
-            Our Team
-          </Heading>
-          <Text mt={4}>
-            Meet our dedicated team members who make everything possible.
-          </Text>
-          <SimpleGrid columns={3} spacing={10} mt={6}>
-            {teamMembers.map((member, index) => (
-              <Box
-                key={index}
-                onClick={() => toggleFlip(index)}
-                className={`${styles.flipCard} ${
-                  flippedState[index] ? styles.flipped : ""
-                }`}
-              >
-                <Box className={styles.flipCardInner}>
-                  <Box className={styles.flipCardFront}>
-                    <Image
-                      boxSize="100px"
-                      objectFit="cover"
-                      src={member.imgSrc}
-                      alt={`${member.name} ${member.surname}`}
-                      mb={3}
-                    />
-                    <Text fontWeight="bold">
-                      {member.name} {member.surname}
-                    </Text>
-                    <Text mt={2}>{member.position}</Text>
-                  </Box>
-                  <Box className={styles.flipCardBack}>
-                    <Text mt={5}>{member.description}</Text>
-                  </Box>
-                </Box>
-              </Box>
-            ))}
-          </SimpleGrid>
-          <Text mt={6} textAlign="center">
-            Do you believe you have what it takes to be part of our team?{" "}
-            <Text as="span" fontWeight="bold">
-              Message us!
-            </Text>
           </Text>
         </Box>
       </VStack>

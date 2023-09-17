@@ -6,7 +6,6 @@
 .notification {
   border: 1px solid #e0e0e0;
   border-radius: 5px;
-  padding: 15px;
   margin: 10px 0;
   background-color: #f9f9f9;
 }
@@ -29,9 +28,7 @@
   font-size: 0.8rem;
   color: #777;
 }
-.unread {
-  border: 1px solid blue;
-}
+
 .notificationTitle {
   font-size: 14px;
   font-weight: bold;

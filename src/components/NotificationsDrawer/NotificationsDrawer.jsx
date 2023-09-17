@@ -63,7 +63,7 @@ export function NotificationsDrawer({ isOpen, onClose, notifications }) {
         </DrawerHeader>
         <DrawerBody>
           {unreadNotifications?.length > 0 ? (
-            <Accordion allowMultiple>
+            <Accordion allowMultiple style={{ width: "100%" }}>
               {unreadNotifications.map((notification) => {
                 const localDate = new Date(
                   new Date(notification.dateCreated).getTime() - offset

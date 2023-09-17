@@ -171,9 +171,14 @@ export default function ThreeTierPricing() {
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
 
   return (
-    <Box py={12} bg="white" borderRadius="xl" boxShadow="md">
+    <Box
+      py={12}
+      bgGradient="linear(to-r, blue.200, teal.400)"
+      borderRadius="xl"
+      boxShadow="md"
+    >
       <VStack spacing={2} textAlign="center">
-        <Heading as="h1" fontSize="4xl">
+        <Heading as="h1" fontSize="4xl" color="white">
           Plans that fit your need
         </Heading>
       </VStack>
@@ -189,57 +194,51 @@ export default function ThreeTierPricing() {
             key={index}
             bg="white"
             borderRadius="lg"
-            boxShadow="lg"
-            p={4}
-            minHeight="300px"
-            width={{ base: "100%", md: "300px" }}
+            boxShadow="xl"
+            p={6}
+            minHeight="360px"
+            width={{ base: "100%", md: "340px" }}
+            transition="all 0.3s"
+            _hover={{ boxShadow: "2xl", transform: "scale(1.02)" }}
           >
-            <PriceWrapper isPopular={plan.isPopular}>
-              <Box py={4} px={12}>
-                <Text fontWeight="500" fontSize="2xl">
-                  {plan.name}
+            <VStack spacing={4}>
+              <Text fontWeight="600" fontSize="2xl">
+                {plan.name}
+              </Text>
+              <HStack justifyContent="center">
+                <Text fontSize="4xl" fontWeight="700" color="teal.500">
+                  ${plan.price}
                 </Text>
-                <HStack justifyContent="center">
-                  <Text fontSize="3xl" fontWeight="600">
-                    $
-                  </Text>
-                  <Text fontSize="5xl" fontWeight="900">
-                    {plan.price}
-                  </Text>
-                  <Text fontSize="16px" color="gray.500">
-                    /per month
-                  </Text>
-                </HStack>
-              </Box>
-              <VStack bg={backgroundColor} py={4} borderBottomRadius="xl">
-                <List spacing={3} textAlign="start" px={12}>
-                  <ListItem>
-                    <ListIcon as={FaCheckCircle} color="green.500" />
-                    {plan.limit}
-                  </ListItem>
-                </List>
-                <Box w="80%" pt={7}>
-                  <Button
-                    w="full"
-                    colorScheme="red"
-                    variant="outline"
-                    onClick={() => handleStartTrialClick(plan)}
-                    isDisabled={
-                      plan.isFree ||
-                      (isSubscribed && !isJobSeeker()) ||
-                      !isAuthenticated
-                    }
-                    _disabled={{
-                      color: "gray.400",
-                      cursor: "not-allowed",
-                      backgroundColor: "gray.100",
-                    }}
-                  >
-                    Start trial
-                  </Button>
-                </Box>
-              </VStack>
-            </PriceWrapper>
+                <Text fontSize="xl" color="gray.500">
+                  /per month
+                </Text>
+              </HStack>
+            </VStack>
+            <List spacing={3} textAlign="start" pt={4}>
+              <ListItem>
+                <ListIcon as={FaCheckCircle} color="green.500" />
+                {plan.limit}
+              </ListItem>
+            </List>
+            <Button
+              mt={6}
+              w="full"
+              colorScheme="blue"
+              variant="solid"
+              onClick={() => handleStartTrialClick(plan)}
+              isDisabled={
+                plan.isFree ||
+                (isSubscribed && !isJobSeeker()) ||
+                !isAuthenticated
+              }
+              _disabled={{
+                color: "gray.400",
+                cursor: "not-allowed",
+                backgroundColor: "gray.100",
+              }}
+            >
+              Start Trial
+            </Button>
           </Box>
         ))}
       </Stack>

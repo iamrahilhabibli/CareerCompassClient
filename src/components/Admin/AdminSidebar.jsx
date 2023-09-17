@@ -49,6 +49,7 @@ const AdminLinkItems = [
   { name: "Shifts & Schedules", icon: FiType, path: "/shiftsandschedules" },
   { name: "Payments", icon: FiCreditCard, path: "/listpayments" },
   { name: "Feedbacks", icon: FiMessageCircle, path: "/testimonialfeedbacks" },
+  { name: "About Mission Info", icon: FiInfo, path: "/aboutmission" },
   {
     name: "About Company Team",
     icon: FiInfo,

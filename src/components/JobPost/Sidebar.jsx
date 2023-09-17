@@ -32,7 +32,6 @@ const LinkItems = [
   { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
   { name: "Messages", icon: FiMessageSquare, path: "/messages" },
   { name: "Applicants", icon: FiStar, path: "/applicants" },
-  { name: "Settings", icon: FiSettings },
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => (
