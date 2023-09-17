@@ -14,6 +14,7 @@ import * as Yup from "yup";
 import userFeedbackImg from "../../images/userFeedback.png";
 import useUser from "../../customhooks/useUser";
 import axios from "axios";
+import { useState } from "react";
 
 const initialValues = {
   avatar: undefined,
@@ -31,7 +32,7 @@ const validationSchema = Yup.object({
 });
 
 const UserFeedback = () => {
-  const [avatarPreview, setAvatarPreview] = React.useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const { userId, userRole } = useUser();
 
   const uploadImageToServer = async (file, userId, userRole) => {
@@ -79,7 +80,6 @@ const UserFeedback = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting, setFieldError }) => {
-    console.log("handleSubmit called");
     try {
       const uploadedImageURL = await uploadImageToServer(
         values.avatar,

@@ -55,6 +55,7 @@ import PaymentsList from "./components/Admin/PaymentsList";
 import Aboutus from "./components/AboutUs/Aboutus";
 import UserFeedback from "./components/Feedback/UserFeedback";
 import TestimonialFeedbacks from "./components/Admin/TestimonialFeedbacks";
+import AboutCompany from "./components/Admin/AboutCompany";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ export function App() {
     "/shiftsandschedules",
     "/listpayments",
     "/testimonialfeedbacks",
+    "/aboutcompanyteam",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -116,6 +118,7 @@ export function App() {
                 <Route path="/joblocations" element={<NewLocations />} />
                 <Route path="/jobtypes" element={<JobTypes />} />
                 <Route path="/listpayments" element={<PaymentsList />} />
+                <Route path="/aboutcompanyteam" element={<AboutCompany />} />
                 <Route
                   path="/testimonialfeedbacks"
                   element={<TestimonialFeedbacks />}
