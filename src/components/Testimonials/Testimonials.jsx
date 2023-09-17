@@ -105,13 +105,27 @@ export default function WithSpeechBubbles() {
         console.error("There was an error fetching the testimonials:", error);
       });
   }, []);
+
   return (
     <Box
       bgGradient={useColorModeValue(
         "linear(to-b, gray.100, gray.300)",
-        "linear(to-b, gray.100, black)"
+        "linear(to-b, gray.800, black)"
       )}
+      pos={"relative"}
     >
+      <Box
+        pos={"absolute"}
+        top={0}
+        left={0}
+        right={0}
+        height={"2em"}
+        bgGradient={useColorModeValue(
+          "linear(to-b, white, transparent)",
+          "linear(to-b, gray.800, transparent)"
+        )}
+        zIndex={1}
+      ></Box>
       <Container maxW={"7xl"} py={16} as={Stack} spacing={12}>
         <Stack spacing={4} align={"center"}>
           <Box
