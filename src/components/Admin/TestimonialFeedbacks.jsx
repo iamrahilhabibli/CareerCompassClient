@@ -23,7 +23,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import useUser from "../../customhooks/useUser";
 import { Link, useNavigate } from "react-router-dom";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
 
 export default function TestimonialFeedbacks() {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -112,6 +112,26 @@ export default function TestimonialFeedbacks() {
       toastError("Something went wrong");
     }
   };
+  const handleSetIsActive = async (feedbackId) => {
+    try {
+      const response = await axios.post(
+        `https://localhost:7013/api/Dashboards/SetIsActive?feedbackId=${feedbackId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toastSuccess("Successfully activated");
+      }
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
+
   return (
     <Box
       rounded={"lg"}
@@ -212,6 +232,19 @@ export default function TestimonialFeedbacks() {
                         gap={"8px"}
                         alignItems={"center"}
                       >
+                        {!feedback.isActive && (
+                          <Button
+                            colorScheme="green"
+                            variant="outline"
+                            size="xs"
+                            borderRadius="full"
+                            onClick={() =>
+                              handleSetIsActive(feedback.feedbackId)
+                            }
+                          >
+                            <CheckIcon />
+                          </Button>
+                        )}
                         <Button
                           colorScheme="red"
                           variant="outline"
@@ -222,15 +255,6 @@ export default function TestimonialFeedbacks() {
                           }
                         >
                           <DeleteIcon />
-                        </Button>
-                        <Button
-                          colorScheme="blue"
-                          variant="outline"
-                          size="xs"
-                          borderRadius="full"
-                          //   onClick={() => handleSetDisplay(feedback.id)}
-                        >
-                          Set Display
                         </Button>
                       </Flex>
                     </Td>
