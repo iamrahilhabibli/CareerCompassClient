@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -9,9 +9,22 @@ import {
   Avatar,
   useColorModeValue,
 } from "@chakra-ui/react";
+import axios from "axios";
 
 export const Testimonial = (props) => {
-  return <Box>{props.children}</Box>;
+  return (
+    <Flex
+      w={"full"}
+      maxW={"350px"}
+      mx={"auto"}
+      _hover={{
+        transform: "scale(1.05)",
+        transition: "transform 0.3s ease-in-out",
+      }}
+    >
+      {props.children}
+    </Flex>
+  );
 };
 
 export const TestimonialContent = (props) => {
@@ -19,8 +32,9 @@ export const TestimonialContent = (props) => {
     <Stack
       bg={useColorModeValue("white", "gray.800")}
       boxShadow={"lg"}
+      borderRadius={"md"}
       p={8}
-      rounded={"xl"}
+      w={"full"}
       align={"center"}
       pos={"relative"}
       _after={{
@@ -80,29 +94,24 @@ const TestimonialAvatar = (props) => {
 };
 
 export default function WithSpeechBubbles() {
-  const mockData = [
-    {
-      name: "John Doe",
-      title: "Software Developer",
-      text: "This company is amazing! They transformed my business.",
-      imgSrc: "path/to/image1.jpg",
-    },
-    {
-      name: "Jane Doe",
-      title: "Product Manager",
-      text: "Highly recommend them for any of your business needs.",
-      imgSrc: "path/to/image2.jpg",
-    },
-    {
-      name: "Jane Doe",
-      title: "Product Manager",
-      text: "Highly recommend them for any of your business needs.",
-      imgSrc: "path/to/image2.jpg",
-    },
-  ];
-
+  const [testimonials, setTestimonials] = useState([]);
+  useEffect(() => {
+    axios
+      .get("https://localhost:7013/api/Feedbacks/GetTestimonials")
+      .then((response) => {
+        setTestimonials(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the testimonials:", error);
+      });
+  }, []);
   return (
-    <Box bg={useColorModeValue("blue.100", "blue.250")}>
+    <Box
+      bgGradient={useColorModeValue(
+        "linear(to-b, gray.100, gray.300)",
+        "linear(to-b, gray.100, black)"
+      )}
+    >
       <Container maxW={"7xl"} py={16} as={Stack} spacing={12}>
         <Stack spacing={4} align={"center"}>
           <Box
@@ -115,6 +124,7 @@ export default function WithSpeechBubbles() {
               fontSize={["xl", "2xl"]}
               textTransform="uppercase"
               fontWeight="bold"
+              color={"#2557A7"}
             >
               Our Clients Speak
             </Heading>
@@ -130,24 +140,27 @@ export default function WithSpeechBubbles() {
             Globally
           </Text>
         </Stack>
-        <Stack
+        <Flex
           direction={{ base: "column", md: "row" }}
-          spacing={{ base: 10, md: 4, lg: 10 }}
+          justifyContent={"space-between"}
+          flexWrap={"wrap"}
         >
-          {mockData.map((data, index) => (
+          {testimonials.map((data, index) => (
             <Testimonial key={index}>
               <TestimonialContent>
-                <TestimonialHeading>{data.name}</TestimonialHeading>
-                <TestimonialText>{data.text}</TestimonialText>
+                <TestimonialHeading>
+                  {data.firstName} {data.lastName}
+                </TestimonialHeading>
+                <TestimonialText>{data.feedback}</TestimonialText>
                 <TestimonialAvatar
-                  src={data.imgSrc}
-                  name={data.name}
-                  title={data.title}
+                  src={data.imageUrl}
+                  name={`${data.firstName} ${data.lastName}`}
+                  title={data.jobTitle}
                 />
               </TestimonialContent>
             </Testimonial>
           ))}
-        </Stack>
+        </Flex>
       </Container>
     </Box>
   );
