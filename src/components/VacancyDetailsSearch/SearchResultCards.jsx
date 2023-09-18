@@ -59,7 +59,7 @@ export function SearchResultCards({ searchResults }) {
   const [jobSeekerId, setJobSeekerId] = useState(null);
   const { userId, token, isAuthenticated, userRole } = useUser();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const toast = useToast();
   const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
@@ -236,7 +236,13 @@ export function SearchResultCards({ searchResults }) {
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+        width="100vw"
+      >
         <Spinner
           size="xl"
           thickness="4px"
@@ -247,22 +253,47 @@ export function SearchResultCards({ searchResults }) {
       </Box>
     );
   }
+
   if (isError) {
     navigate("/somethingwentwrong");
   }
   return (
     <>
-      <Box>
-        <Button onClick={toggleSortOrder}>Date Created</Button>
-        <select onChange={(e) => handleJobTypeChange(e.target.value)}>
-          <option value="">Select Job Type</option>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        bg="gray.100"
+        p={4}
+        borderRadius="md"
+        shadow="md"
+      >
+        <Button
+          onClick={toggleSortOrder}
+          colorScheme="teal"
+          variant="outline"
+          size="md"
+          px={4}
+        >
+          Date Created
+        </Button>
+        <Select
+          variant="outline"
+          placeholder="Select Job Type"
+          w="200px"
+          borderColor="gray.300"
+          onChange={(e) => handleJobTypeChange(e.target.value)}
+          value={jobType}
+        >
+          <option value="All">All</option>
           <option value="PartTime">Part-Time</option>
           <option value="FullTime">Full-Time</option>
           <option value="Contract">Contract</option>
           <option value="Temporary">Temporary</option>
           <option value="Internship">Internship</option>
-        </select>
+        </Select>
       </Box>
+
       <Flex flexDirection={"column"} maxWidth={"60%"}>
         <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={6}>
           {displayedVacancies?.map((result) => (
@@ -273,6 +304,7 @@ export function SearchResultCards({ searchResults }) {
               borderRadius="lg"
               overflow="hidden"
               m={4}
+              boxShadow="0px 4px 6px #d1d5db"
               onClick={() => {
                 setSelectedVacancy(result);
                 onOpen();
@@ -285,7 +317,11 @@ export function SearchResultCards({ searchResults }) {
                   fontWeight="600"
                   mt="1"
                   lineHeight="tight"
-                  isTruncated
+                  bg="teal.600"
+                  color="white"
+                  p={2}
+                  boxShadow="0px 2px 4px #319795"
+                  borderRadius="md"
                   _hover={{ textDecoration: "underline" }}
                 >
                   {result.jobTitle}
@@ -317,7 +353,6 @@ export function SearchResultCards({ searchResults }) {
                     {jobType}
                   </Badge>
                 ))}
-
                 <div
                   className={styles.Description}
                   dangerouslySetInnerHTML={{
@@ -341,17 +376,35 @@ export function SearchResultCards({ searchResults }) {
           ))}
         </Box>
       </Flex>
-      <Flex justifyContent="center" mt={4}>
-        <Button onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}>
+
+      <Flex
+        justifyContent="center"
+        mt={4}
+        bg="gray.100"
+        p={4}
+        borderRadius="md"
+        shadow="md"
+      >
+        <Button
+          onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))}
+          colorScheme="teal"
+          variant="outline"
+          size="md"
+          isDisabled={currentPage === 1}
+        >
           Previous
         </Button>
-        <Text mx={4}>
+        <Text mx={4} fontSize="xl" fontWeight="bold">
           Page {currentPage} of {pageCount}
         </Text>
         <Button
           onClick={() =>
             setCurrentPage((page) => Math.min(page + 1, pageCount))
           }
+          colorScheme="teal"
+          variant="outline"
+          size="md"
+          isDisabled={currentPage === pageCount}
         >
           Next
         </Button>
@@ -360,18 +413,19 @@ export function SearchResultCards({ searchResults }) {
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay>
           <DrawerContent>
-            <DrawerHeader>{selectedVacancy?.jobTitle}</DrawerHeader>
-            <DrawerBody>
-              <Text fontSize="16px" color="gray.500" fontWeight={300}>
+            <DrawerHeader bg="teal.500" color="white">
+              {selectedVacancy?.jobTitle}
+            </DrawerHeader>
+            <DrawerBody py={4} px={6}>
+              <Text fontSize="16px" color="gray.600" fontWeight={500} mb={3}>
                 {selectedVacancy?.companyName}
               </Text>
               <Divider my={3} />
-              <Text fontSize="16px" color="gray.500" fontWeight={300}>
+              <Text fontSize="16px" color="gray.600" fontWeight={500} mb={3}>
                 {selectedVacancy?.locationName}
               </Text>
-              {/* <Text>{selectedVacancy?.id}</Text> */}
               <Divider my={3} />
-              <Badge fontWeight={600} mr={1} mb={3} colorScheme="gray" p={2}>
+              <Badge fontWeight={600} colorScheme="blue" p={2}>
                 ${selectedVacancy?.salary}
               </Badge>
               <Divider my={3} />
@@ -381,7 +435,7 @@ export function SearchResultCards({ searchResults }) {
                   key={index}
                   mr={1}
                   mb={3}
-                  colorScheme="gray"
+                  colorScheme="green"
                   p={2}
                 >
                   {jobType}
@@ -398,23 +452,28 @@ export function SearchResultCards({ searchResults }) {
                 }}
               />
             </DrawerBody>
-            <DrawerFooter display={"flex"} justifyContent={"space-between"}>
+            <DrawerFooter
+              display={"flex"}
+              justifyContent={"space-between"}
+              py={4}
+            >
               <Button
                 colorScheme="blue"
-                variant={"outline"}
+                variant={"solid"}
                 mr={3}
                 onClick={onModalOpen}
                 isDisabled={currentApplicationCount >= applicationLimit}
               >
                 Apply
               </Button>
-              <Button variant="outline" mr={3} onClick={onClose}>
+              <Button variant="outline" colorScheme="gray" onClick={onClose}>
                 Close
               </Button>
             </DrawerFooter>
           </DrawerContent>
         </DrawerOverlay>
       </Drawer>
+
       <Modal isOpen={isModalOpen} onClose={onModalClose}>
         <ModalOverlay />
         <ModalContent>
