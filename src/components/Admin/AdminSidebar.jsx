@@ -33,10 +33,12 @@ import {
   FiCreditCard,
   FiMessageCircle,
   FiInfo,
+  FiClock,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
   { name: "Home", icon: FiHome, path: "/home" },
+  { name: "Hangfire", icon: FiClock, path: "/hangfirejobs" },
   { name: "User Management", icon: FiUser, path: "/usermanagement" },
   { name: "Company Management", icon: FiBriefcase, path: "/companymanagement" },
   { name: "Review Management", icon: FiMail, path: "/reviewmanagement" },

@@ -57,6 +57,7 @@ import UserFeedback from "./components/Feedback/UserFeedback";
 import TestimonialFeedbacks from "./components/Admin/TestimonialFeedbacks";
 import AboutCompany from "./components/Admin/AboutCompany";
 import OurMissionInfo from "./components/Admin/OurMissionInfo";
+import Hangfire from "./components/Admin/Hangfire";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,6 +85,7 @@ export function App() {
     "/testimonialfeedbacks",
     "/aboutcompanyteam",
     "/aboutmission",
+    "/hangfirejobs",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -122,6 +124,7 @@ export function App() {
                 <Route path="/listpayments" element={<PaymentsList />} />
                 <Route path="/aboutcompanyteam" element={<AboutCompany />} />
                 <Route path="/aboutmission" element={<OurMissionInfo />} />
+                <Route path="/hangfirejobs" element={<Hangfire />} />
                 <Route
                   path="/testimonialfeedbacks"
                   element={<TestimonialFeedbacks />}
