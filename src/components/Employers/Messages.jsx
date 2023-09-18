@@ -560,6 +560,9 @@ export function Messages() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>
+            <Box p={2} fontStyle="italic" fontSize="sm" color="red.600">
+              Your chat history will only remain for 3 days.
+            </Box>
             <Box
               flex="1"
               bg="gray.100"
