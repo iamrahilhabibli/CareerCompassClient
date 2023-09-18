@@ -3,8 +3,17 @@ import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
   Table,
   TableContainer,
@@ -14,6 +23,7 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
@@ -24,8 +34,12 @@ export default function Hangfire() {
   const [daysToDeleteOldMessages, setDaysToDeleteOldMessages] = useState(null);
   const [daysToDeleteOldNotifications, setDaysToDeleteOldNotifications] =
     useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedSetting, setSelectedSetting] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [settingsData, setSettingsData] = useState([]);
+  const [newSettingValue, setNewSettingValue] = useState("");
+
   const { token } = useUser();
   const toast = useToast();
   const toastSuccess = (message) => {
@@ -46,6 +60,44 @@ export default function Hangfire() {
       position: "top-right",
     });
   };
+  const handleEditClick = (setting) => {
+    setSelectedSetting(setting);
+    onOpen();
+  };
+  const handleUpdateSetting = async () => {
+    if (selectedSetting) {
+      try {
+        const updatePayload = {
+          settingId: selectedSetting.settingId,
+          settingValue: newSettingValue,
+        };
+
+        await axios.put(
+          "https://localhost:7013/api/AppSettings/UpdateValue",
+          updatePayload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const updatedSettings = settingsData.map((setting) => {
+          if (setting.settingId === selectedSetting.settingId) {
+            return { ...setting, settingValue: newSettingValue };
+          }
+          return setting;
+        });
+
+        setSettingsData(updatedSettings);
+
+        toastSuccess("Setting updated successfully");
+      } catch (error) {
+        toastError("Failed to update setting");
+      }
+    }
+    onClose();
+  };
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -101,36 +153,36 @@ export default function Hangfire() {
                 <Th>Setting Value</Th>
               </Tr>
             </Thead>
-            {/* <Modal isOpen={isOpen} onClose={onClose}>
+            <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>Create a new experience level</ModalHeader>
+                <ModalHeader>Update Setting</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <FormControl>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{selectedSetting?.settingName}</FormLabel>
                     <Input
-                      placeholder="Enter new level name"
-                      value={newLevelName}
-                      onChange={(e) => setNewLevelName(e.target.value)}
+                      placeholder="Enter new setting value"
+                      value={newSettingValue}
+                      onChange={(e) => setNewSettingValue(e.target.value)}
                     />
                   </FormControl>
                 </ModalBody>
-
                 <ModalFooter>
                   <Button
                     colorScheme="blue"
                     mr={3}
-                    onClick={handleCreateExperienceLevel}
+                    onClick={handleUpdateSetting}
                   >
-                    Create
+                    Confirm
                   </Button>
                   <Button variant="ghost" onClick={onClose}>
                     Cancel
                   </Button>
                 </ModalFooter>
               </ModalContent>
-            </Modal> */}
+            </Modal>
+
             {
               <Tbody>
                 {isLoading ? (
@@ -168,6 +220,7 @@ export default function Hangfire() {
                             variant="outline"
                             size="xs"
                             borderRadius="full"
+                            onClick={() => handleEditClick(setting)}
                           >
                             <EditIcon />
                           </Button>
@@ -181,6 +234,7 @@ export default function Hangfire() {
           </Table>
         </TableContainer>
       </Box>
+      <Box mt={5}></Box>
       <Box
         as="iframe"
         src="https://localhost:7013/hangfire"
