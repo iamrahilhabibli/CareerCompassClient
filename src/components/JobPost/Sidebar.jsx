@@ -23,6 +23,7 @@ import {
   FiMessageSquare,
   FiMap,
   FiPlus,
+  FiBookmark,
 } from "react-icons/fi";
 
 const LinkItems = [
@@ -31,6 +32,7 @@ const LinkItems = [
   { name: "Main", icon: FiMap, path: "/employerscareercompass" },
   { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
   { name: "Messages", icon: FiMessageSquare, path: "/messages" },
+  { name: "Planner", icon: FiBookmark, path: "/planner" },
   { name: "Applicants", icon: FiStar, path: "/applicants" },
 ];
 

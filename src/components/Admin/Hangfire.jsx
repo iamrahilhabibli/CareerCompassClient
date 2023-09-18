@@ -29,7 +29,8 @@ import {
 import React, { useEffect, useState } from "react";
 import useUser from "../../customhooks/useUser";
 import axios from "axios";
-
+import backgroundCleaningImg from "../../images/backgroundCleaningImg.png";
+import hangfireImg from "../../images/hangfireImg.png";
 export default function Hangfire() {
   const [daysToDeleteOldMessages, setDaysToDeleteOldMessages] = useState(null);
   const [daysToDeleteOldNotifications, setDaysToDeleteOldNotifications] =
@@ -127,7 +128,7 @@ export default function Hangfire() {
         bg={"white"}
         bgRepeat="no-repeat"
         bgSize="auto 100%"
-        // bgImage={experienceImg}
+        bgImage={hangfireImg}
         bgPosition="right"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
       >

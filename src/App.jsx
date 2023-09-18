@@ -58,6 +58,7 @@ import TestimonialFeedbacks from "./components/Admin/TestimonialFeedbacks";
 import AboutCompany from "./components/Admin/AboutCompany";
 import OurMissionInfo from "./components/Admin/OurMissionInfo";
 import Hangfire from "./components/Admin/Hangfire";
+import InterviewPlanner from "./components/Employers/InterviewPlanner";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export function App() {
     "/vacancieslist",
     "/applicants",
     "/messages",
+    "/planner",
   ];
   const pathsForAdminLayout = [
     "/dashboard",
@@ -105,6 +107,7 @@ export function App() {
                 <Route path="/vacancieslist" element={<PostedJobs />} />
                 <Route path="/applicants" element={<Applicants />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/planner" element={<InterviewPlanner />} />
               </Routes>
             </ProtectedRoute>
           </SidebarWithHeader>
