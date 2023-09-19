@@ -40,14 +40,18 @@ import {
 } from "@chakra-ui/react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { useFormik } from "formik";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "react-query";
 import axios from "axios";
 import useUser from "../customhooks/useUser";
 import { fetchCompanyDetails } from "../services/fetchCompanyDetails";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { StarIcon } from "@chakra-ui/icons";
-import * as signalR from "@microsoft/signalr";
 export function ReviewCompanyDetails() {
   const { companyId } = useParams();
   const [company, setCompany] = useState(null);
@@ -59,6 +63,7 @@ export function ReviewCompanyDetails() {
   const toast = useToast();
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [counter, setCounter] = useState(5);
+  const [pageIndex, setPageIndex] = useState(1);
   const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
@@ -125,33 +130,35 @@ export function ReviewCompanyDetails() {
     },
   });
 
-  // useEffect(() => {
-  //   connection.on("ReviewApproved", () => {
-  //     queryClient.invalidateQueries("reviews");
-  //   });
+  const pageSize = 10;
 
-  //   return () => {
-  //     connection.off("ReviewApproved");
-  //   };
-  // }, [queryClient]);
-  const {
-    data: { reviews, averageRating } = {},
-    isLoading,
-    isError,
-  } = useQuery(
-    ["reviews", companyId],
-    () =>
-      axios
-        .get(
-          `https://localhost:7013/api/Reviews/GetAllByCompanyId?companyId=${companyId}`
-        )
-        .then((res) => res.data),
-    {
-      staleTime: 1000 * 60,
-      refetchInterval: 1000 * 60,
-      retry: 1,
-    }
-  );
+  const { data, isLoading, isError, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery(
+      ["reviews", companyId],
+      async ({ pageParam = 1 }) => {
+        const res = await axios.get(
+          `https://localhost:7013/api/Reviews/GetAllByCompanyId?companyId=${companyId}&pageIndex=${pageParam}&pageSize=${pageSize}`
+        );
+        const data = res.data;
+        if (data.averageRating != null) {
+          data.averageRating = parseFloat(data.averageRating.toFixed(1));
+        }
+        return data;
+      },
+      {
+        getNextPageParam: (lastPage, allPages) => {
+          const fetchedReviews = allPages.flatMap(
+            (page) => page.reviews
+          ).length;
+          return fetchedReviews < lastPage.totalReviews
+            ? allPages.length + 1
+            : undefined;
+        },
+      }
+    );
+
+  const allReviews = data ? data.pages.flatMap((page) => page.reviews) : [];
+  const averageRating = data ? data.pages[0]?.averageRating : 0;
 
   const onClose = () => setIsOpen(false);
   useEffect(() => {
@@ -375,7 +382,7 @@ export function ReviewCompanyDetails() {
                   ) : isError ? (
                     <Text>Something went wrong...</Text>
                   ) : (
-                    reviews.map((review, index) => (
+                    allReviews.map((review, index) => (
                       <AccordionItem key={index}>
                         <h2>
                           <AccordionButton>
@@ -407,11 +414,22 @@ export function ReviewCompanyDetails() {
                     ))
                   )}
                 </Accordion>
+                <Button
+                  isLoading={isFetchingNextPage}
+                  onClick={() => {
+                    console.log("Fetching next page...");
+                    fetchNextPage();
+                  }}
+                  mt={4}
+                >
+                  Load More
+                </Button>
               </Box>
             </DrawerBody>
           </DrawerContent>
         </DrawerOverlay>
       </Drawer>
+
       <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent as="form" onSubmit={formik.handleSubmit}>

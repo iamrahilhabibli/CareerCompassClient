@@ -363,7 +363,7 @@ export function Companies() {
           <Heading as="h4" size="lg" textAlign="left">
             Popular Companies
           </Heading>
-          <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
+          <SimpleGrid mt={50} columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
             {companies.map((company, index) => (
               <Box
                 key={index}
