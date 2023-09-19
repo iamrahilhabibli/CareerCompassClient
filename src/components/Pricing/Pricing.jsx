@@ -15,7 +15,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import useUser from "../../customhooks/useUser";
@@ -148,7 +148,6 @@ export default function ThreeTierPricing() {
         });
     });
   };
-
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -159,6 +158,9 @@ export default function ThreeTierPricing() {
           name: plan.name,
           price: plan.price,
           limit: `${plan.postLimit} posts per month`,
+          isChatAvailable: plan.isChatAvailable,
+          isPlannerAvailable: plan.isPlannerAvailable,
+          isVideoAvailable: plan.isVideoAvailable,
         }));
         setPlans(fetchedPlans);
       } catch (error) {
@@ -169,7 +171,7 @@ export default function ThreeTierPricing() {
     fetchPlans();
   }, []);
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
-
+  console.log("Plans:", plans);
   return (
     <Box
       py={12}
@@ -219,7 +221,29 @@ export default function ThreeTierPricing() {
                 <ListIcon as={FaCheckCircle} color="green.500" />
                 {plan.limit}
               </ListItem>
+              <ListItem>
+                <ListIcon
+                  as={plan.isChatAvailable ? FaCheckCircle : FaTimesCircle}
+                  color={plan.isChatAvailable ? "green.500" : "red.500"}
+                />
+                Chat Available
+              </ListItem>
+              <ListItem>
+                <ListIcon
+                  as={plan.isPlannerAvailable ? FaCheckCircle : FaTimesCircle}
+                  color={plan.isPlannerAvailable ? "green.500" : "red.500"}
+                />
+                Planner Available
+              </ListItem>
+              <ListItem>
+                <ListIcon
+                  as={plan.isVideoAvailable ? FaCheckCircle : FaTimesCircle}
+                  color={plan.isVideoAvailable ? "green.500" : "red.500"}
+                />
+                Video Available
+              </ListItem>
             </List>
+
             <Button
               mt={6}
               w="full"
