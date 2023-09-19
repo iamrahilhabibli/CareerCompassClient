@@ -143,7 +143,7 @@ export function Details() {
     );
   }
   return (
-    <Box width="70%" mx="auto" mt={10} p={5}>
+    <Box width="100%" height={"100vh"} mx="auto" mt={10} p={5}>
       <Box
         borderWidth="1px"
         rounded="lg"

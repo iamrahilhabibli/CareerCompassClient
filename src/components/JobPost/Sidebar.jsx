@@ -13,6 +13,7 @@ import {
   DrawerContent,
   useDisclosure,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import {
   FiHome,
@@ -25,46 +26,52 @@ import {
   FiPlus,
   FiBookmark,
 } from "react-icons/fi";
+import useUser from "../../customhooks/useUser";
+import React, { useEffect, useRef, useState } from "react";
 
-const LinkItems = [
-  { name: "Home", icon: FiHome, path: "/home" },
-  { name: "Post a Job", icon: FiPlus, path: "/postjob" },
-  { name: "Main", icon: FiMap, path: "/employerscareercompass" },
-  { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
-  { name: "Messages", icon: FiMessageSquare, path: "/messages" },
-  { name: "Planner", icon: FiBookmark, path: "/planner" },
-  { name: "Applicants", icon: FiStar, path: "/applicants" },
-];
+const SidebarContent = ({ onClose, ...rest }) => {
+  const { userId } = useUser();
 
-const SidebarContent = ({ onClose, ...rest }) => (
-  <Box
-    transition="3s ease"
-    bg={"blue.900"}
-    borderRight="1px"
-    borderRightColor={useColorModeValue("gray.200", "gray.700")}
-    w={{ base: "full", md: 60 }}
-    pos="fixed"
-    h="full"
-    {...rest}
-  >
-    <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-      <Text
-        color={"white"}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold"
-      >
-        Recruiter Dashboard
-      </Text>
-      <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
-    </Flex>
-    {LinkItems.map((link) => (
-      <NavItem key={link.name} icon={link.icon} path={link.path}>
-        {link.name}
-      </NavItem>
-    ))}
-  </Box>
-);
+  const LinkItems = [
+    { name: "Home", icon: FiHome, path: "/home" },
+    { name: "Post a Job", icon: FiPlus, path: "/postjob" },
+    { name: "Main", icon: FiMap, path: "/employerscareercompass" },
+    { name: "Jobs", icon: FiBriefcase, path: "/vacancieslist" },
+    { name: "Messages", icon: FiMessageSquare, path: `/messages` },
+    { name: "Planner", icon: FiBookmark, path: "/planner" },
+    { name: "Applicants", icon: FiStar, path: "/applicants" },
+  ];
+
+  return (
+    <Box
+      transition="3s ease"
+      bg={"blue.900"}
+      borderRight="1px"
+      borderRightColor={useColorModeValue("gray.200", "gray.700")}
+      w={{ base: "full", md: 60 }}
+      pos="fixed"
+      h="full"
+      {...rest}
+    >
+      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
+        <Text
+          color={"white"}
+          fontSize="2xl"
+          fontFamily="monospace"
+          fontWeight="bold"
+        >
+          Recruiter Dashboard
+        </Text>
+        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+      </Flex>
+      {LinkItems.map((link) => (
+        <NavItem key={link.name} icon={link.icon} path={link.path}>
+          {link.name}
+        </NavItem>
+      ))}
+    </Box>
+  );
+};
 
 const NavItem = ({ icon, children, path, ...rest }) => (
   <Link to={path || "#"} style={{ textDecoration: "none" }}>

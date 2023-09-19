@@ -293,106 +293,107 @@ export function SearchResultCards({ searchResults }) {
           <option value="Internship">Internship</option>
         </Select>
       </Box>
-
-      <Flex flexDirection={"column"} maxWidth={"60%"}>
-        <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={6}>
-          {displayedVacancies?.length > 0 ? (
-            displayedVacancies.map((result) => (
-              <Box
-                key={result.id}
-                borderWidth="1px"
-                borderRadius="lg"
-                overflow="hidden"
-                m={4}
-                boxShadow="0px 4px 6px #d1d5db"
-                cursor="pointer"
-                onClick={() => {
-                  setSelectedVacancy(result);
-                  onOpen();
-                }}
-              >
-                <Box p="6">
-                  <Text
-                    fontSize="18px"
-                    fontWeight="600"
-                    mt="1"
-                    lineHeight="tight"
-                    bg="teal.600"
-                    color="white"
-                    p={2}
-                    boxShadow="0px 2px 4px #319795"
-                    borderRadius="md"
-                    _hover={{ textDecoration: "underline" }}
-                  >
-                    {result.jobTitle}
-                  </Text>
-                  <Text fontSize="16px" color="gray.500" fontWeight={300}>
-                    {result.companyName}
-                  </Text>
-                  <Text
-                    fontSize="16px"
-                    color="gray.500"
-                    fontWeight={300}
-                    mb={3}
-                  >
-                    {result.locationName}
-                  </Text>
-                  <Badge
-                    fontWeight={600}
-                    mr={1}
-                    mb={3}
-                    colorScheme="gray"
-                    p={2}
-                  >
-                    ${result.salary}
-                  </Badge>
-                  <br />
-                  {result.jobTypeIds.map((jobType, index) => (
+      <Box height={"100vh"} width={"100%"}>
+        <Flex flexDirection={"column"} maxWidth={"80%"}>
+          <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={6}>
+            {displayedVacancies?.length > 0 ? (
+              displayedVacancies.map((result) => (
+                <Box
+                  key={result.id}
+                  borderWidth="1px"
+                  borderRadius="lg"
+                  overflow="hidden"
+                  m={4}
+                  boxShadow="0px 4px 6px #d1d5db"
+                  cursor="pointer"
+                  onClick={() => {
+                    setSelectedVacancy(result);
+                    onOpen();
+                  }}
+                >
+                  <Box p="6">
+                    <Text
+                      fontSize="18px"
+                      fontWeight="600"
+                      mt="1"
+                      lineHeight="tight"
+                      bg="teal.600"
+                      color="white"
+                      p={2}
+                      boxShadow="0px 2px 4px #319795"
+                      borderRadius="md"
+                      _hover={{ textDecoration: "underline" }}
+                    >
+                      {result.jobTitle}
+                    </Text>
+                    <Text fontSize="16px" color="gray.500" fontWeight={300}>
+                      {result.companyName}
+                    </Text>
+                    <Text
+                      fontSize="16px"
+                      color="gray.500"
+                      fontWeight={300}
+                      mb={3}
+                    >
+                      {result.locationName}
+                    </Text>
                     <Badge
                       fontWeight={600}
-                      key={index}
                       mr={1}
                       mb={3}
                       colorScheme="gray"
                       p={2}
                     >
-                      {jobType}
+                      ${result.salary}
                     </Badge>
-                  ))}
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: `${result.description.substring(0, 50)}`,
-                    }}
-                  />
-                  <ChakraLink
-                    color="blue.400"
-                    href={result.companyLink}
-                    isExternal
-                  >
-                    <ExternalLinkIcon mx="2px" />
-                  </ChakraLink>
-                  <Flex justifyContent="space-between">
-                    <Text fontSize="xs" color="gray.500">
-                      {moment(result.dateCreated).local().fromNow()}
-                    </Text>
-                  </Flex>
+                    <br />
+                    {result.jobTypeIds.map((jobType, index) => (
+                      <Badge
+                        fontWeight={600}
+                        key={index}
+                        mr={1}
+                        mb={3}
+                        colorScheme="gray"
+                        p={2}
+                      >
+                        {jobType}
+                      </Badge>
+                    ))}
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: `${result.description.substring(0, 50)}`,
+                      }}
+                    />
+                    <ChakraLink
+                      color="blue.400"
+                      href={result.companyLink}
+                      isExternal
+                    >
+                      <ExternalLinkIcon mx="2px" />
+                    </ChakraLink>
+                    <Flex justifyContent="space-between">
+                      <Text fontSize="xs" color="gray.500">
+                        {moment(result.dateCreated).local().fromNow()}
+                      </Text>
+                    </Flex>
+                  </Box>
                 </Box>
+              ))
+            ) : (
+              <Box
+                display={"flex"}
+                justifyContent={"center"}
+                width="100vw"
+                height="100vh"
+              >
+                <Text fontSize="xl" color="gray.500">
+                  <Heading>No Search Results Found</Heading>
+                </Text>
               </Box>
-            ))
-          ) : (
-            <Box
-              display={"flex"}
-              justifyContent={"center"}
-              width="100vw"
-              height="100vh"
-            >
-              <Text fontSize="xl" color="gray.500">
-                <Heading>No Search Results Found</Heading>
-              </Text>
-            </Box>
-          )}
-        </Box>
-      </Flex>
+            )}
+          </Box>
+        </Flex>
+      </Box>
 
       <Flex
         justifyContent="center"

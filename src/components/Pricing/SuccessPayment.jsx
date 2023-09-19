@@ -61,7 +61,7 @@ export default function SuccessPayment() {
   };
 
   return (
-    <Box textAlign="center" py={10} px={6}>
+    <Box width={"100%"} height={"100vh"} textAlign="center" py={10} px={6}>
       {loading ? (
         <Spinner color="blue.500" size="xl" />
       ) : (
@@ -73,9 +73,11 @@ export default function SuccessPayment() {
           <Text color={"gray.500"} fontSize={"lg"}>
             Thank you for your purchase!
           </Text>
-          <Button onClick={downloadResumeAsPDF} colorScheme="blue" mt={6}>
-            Download Resume
-          </Button>
+          {localContent && (
+            <Button onClick={downloadResumeAsPDF} colorScheme="blue" mt={6}>
+              Download Resume
+            </Button>
+          )}
         </>
       )}
     </Box>

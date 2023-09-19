@@ -86,6 +86,7 @@ export function Profile() {
     <Box
       width={{ base: "100%", md: "70%" }}
       mx="auto"
+      height={"100vh"}
       mt={10}
       p={5}
       maxWidth={800}
@@ -172,6 +173,7 @@ export function Profile() {
                 >
                   Email: {userDetails?.email}
                 </Text>
+                <Text>Subscription Plan: {userDetails?.subscriptionName}</Text>
                 <Button
                   size={buttonSize}
                   colorScheme="blue"

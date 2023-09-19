@@ -63,6 +63,7 @@ export function Messages() {
   const [addedTrackIds, setAddedTrackIds] = useState(new Set());
   const [isVideoConnectionReady, setVideoConnectionReady] = useState(false);
   const audio = new Audio(audioFile);
+
   const showToastError = (errorMessage) => {
     toast({
       title: "An error occurred.",
@@ -176,7 +177,6 @@ export function Messages() {
     refetchOnWindowFocus: false,
     enabled: !!userId,
   });
-
   const videoConnectionRef = useRef(null);
 
   const {

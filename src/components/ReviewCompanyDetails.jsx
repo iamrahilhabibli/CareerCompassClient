@@ -45,7 +45,7 @@ import axios from "axios";
 import useUser from "../customhooks/useUser";
 import { fetchCompanyDetails } from "../services/fetchCompanyDetails";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { StarIcon } from "@chakra-ui/icons";
 import * as signalR from "@microsoft/signalr";
 export function ReviewCompanyDetails() {
@@ -58,7 +58,8 @@ export function ReviewCompanyDetails() {
   const initialRef = useRef();
   const toast = useToast();
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-
+  const [counter, setCounter] = useState(5);
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -153,13 +154,48 @@ export function ReviewCompanyDetails() {
   );
 
   const onClose = () => setIsOpen(false);
+  useEffect(() => {
+    if (!token) {
+      const timerId = setInterval(() => {
+        setCounter((prevCounter) => prevCounter - 1);
+      }, 1000);
 
+      setTimeout(() => {
+        clearInterval(timerId);
+        navigate("/signin");
+      }, 5000);
+
+      return () => clearInterval(timerId);
+    }
+  }, [token, navigate]);
+
+  if (!token) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        width="100%"
+        height="100vh"
+        bg="gray.200"
+      >
+        <Text fontSize="xl" mb={4}>
+          Please sign in to continue.
+        </Text>
+        <Text fontSize="md" mb={2}>
+          Redirecting you in {counter} seconds...
+        </Text>
+        <Spinner />
+      </Box>
+    );
+  }
   return (
     <Box
       display="flex"
       flexWrap={{ base: "wrap", md: "nowrap" }}
       width="100%"
-      height="100%"
+      height="100vh"
     >
       <Box
         flex="1"
@@ -234,6 +270,7 @@ export function ReviewCompanyDetails() {
               display="flex"
               justifyContent="center"
               alignItems="center"
+              alignContent={"center"}
               mt={"50px"}
             >
               <Grid templateColumns="repeat(2, 1fr)" gap={5}>
@@ -275,7 +312,21 @@ export function ReviewCompanyDetails() {
             </Box>
           </>
         ) : (
-          <Spinner />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+            width="100vw"
+          >
+            <Spinner
+              size="xl"
+              thickness="4px"
+              speed="0.5s"
+              emptyColor="gray.200"
+              color="blue.500"
+            />
+          </Box>
         )}
       </Box>
       <Button color={"#2557A7"} onClick={() => setDrawerOpen(true)}>

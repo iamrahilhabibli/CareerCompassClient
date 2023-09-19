@@ -62,6 +62,7 @@ import InterviewPlanner from "./components/Employers/InterviewPlanner";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const { userId, isAuthenticated, userRole } = useUser();
   const pathsForSpecialLayout = [
     "/employerscareercompass",
