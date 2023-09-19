@@ -40,7 +40,7 @@ export default function Aboutus() {
         m="20px auto"
         borderRadius={"15px"}
         p={6}
-        bg={"gradient(to-r, gray.200, gray.100)"}
+        bg={"gradient(to-r, blue.800, gray.600)"}
         borderWidth={"1px"}
         shadow="0px 5px 10px rgba(0,0,0,0.2)"
       >
@@ -71,9 +71,10 @@ export default function Aboutus() {
                   <Image
                     boxSize="100px"
                     objectFit="cover"
+                    borderRadius={"50%"}
                     src={member.imageUrl}
                     alt={`${member.firstName} ${member.lastName}`}
-                    mb={3}
+                    m={(0, 2)}
                     mx="auto"
                     display="block"
                   />
@@ -90,7 +91,7 @@ export default function Aboutus() {
                   </Text>
                 </Box>
                 <Box className={styles.flipCardBack}>
-                  <Text mt={5} textAlign="center">
+                  <Text fontSize={"13px"} mt={5} textAlign="center">
                     {member.description}
                   </Text>
                 </Box>

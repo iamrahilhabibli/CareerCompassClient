@@ -195,7 +195,7 @@ export function ReviewCompanyDetails() {
       display="flex"
       flexWrap={{ base: "wrap", md: "nowrap" }}
       width="100%"
-      height="100vh"
+      height="100%"
     >
       <Box
         flex="1"
@@ -207,12 +207,12 @@ export function ReviewCompanyDetails() {
         {company ? (
           <>
             <Box
-              display={"flex"}
+              display="flex"
               flexDirection={{ base: "column", md: "row" }}
-              alignItems={"center"}
-              justifyContent={"center"}
-              gap={"20px"}
-              mt={"25px"}
+              alignItems="center"
+              justifyContent="center"
+              gap="20px"
+              mt="25px"
             >
               <Image
                 boxSize={{ base: "150px", md: "200px" }}
@@ -223,11 +223,11 @@ export function ReviewCompanyDetails() {
                 alt={`${company.companyName} logo`}
               />
               <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
-                alignItems={"center"}
-                gap={"20px"}
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                gap="20px"
               >
                 <Heading mt={{ base: "10px", md: "20px" }}>
                   {company.name}
@@ -270,45 +270,65 @@ export function ReviewCompanyDetails() {
               display="flex"
               justifyContent="center"
               alignItems="center"
-              alignContent={"center"}
-              mt={"50px"}
+              alignContent="center"
+              mt="50px"
             >
-              <Grid templateColumns="repeat(2, 1fr)" gap={5}>
-                <GridItem>
-                  <Text fontWeight="bold" color="#2557A7">
-                    Industry:
-                  </Text>
-                  <Text>{company.industry}</Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">Date Founded:</Text>
-                  <Text>{company.dateFounded}</Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">Company Size:</Text>
-                  <Text>{company.companySize}</Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">CEO:</Text>
-                  <Text>{company.ceoName}</Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">Address:</Text>
-                  <Text>{company.address}</Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">Website:</Text>
-                  <Link href={company.webLink} isExternal>
-                    {company.webLink}
-                  </Link>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="bold">Description:</Text>
-                  <Box height="100px" overflowY="auto">
-                    <Text>{company.description}</Text>
-                  </Box>
-                </GridItem>
-              </Grid>
+              <Box
+                maxWidth="90%"
+                width="100%"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      Industry:
+                    </Text>
+                    <Text mt={2}>{company.industry}</Text>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      Date Founded:
+                    </Text>
+                    <Text mt={2}>{company.dateFounded}</Text>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      Company Size:
+                    </Text>
+                    <Text mt={2}>{company.companySize}</Text>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      CEO:
+                    </Text>
+                    <Text mt={2}>{company.ceoName}</Text>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      Address:
+                    </Text>
+                    <Text mt={2}>{company.address}</Text>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      Website:
+                    </Text>
+                    <Link mt={2} href={company.webLink} isExternal>
+                      {company.webLink}
+                    </Link>
+                  </GridItem>
+                  <GridItem>
+                    <Text fontWeight="bold" fontSize="xl" color="blue.600">
+                      About:
+                    </Text>
+                    <Box mt={2} height="100px" overflowY="auto">
+                      <Text>{company.description}</Text>
+                    </Box>
+                  </GridItem>
+                </Grid>
+              </Box>
             </Box>
           </>
         ) : (
