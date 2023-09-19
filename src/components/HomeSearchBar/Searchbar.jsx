@@ -132,7 +132,7 @@ export function Searchbar() {
               color: "#2d2d2d",
               _hover: { borderColor: "#2557a7", outline: "none" },
               _focus: { borderColor: "#2557a7", outline: "none" },
-              placeholder: "Job title or Company name",
+              placeholder: "Job title",
             })}
           />
           <List

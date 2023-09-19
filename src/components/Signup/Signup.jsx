@@ -23,6 +23,8 @@ import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useMutation } from "react-query";
 import { useFormik } from "formik";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import axios from "axios";
 export function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -136,11 +138,12 @@ export function Signup() {
               </FormControl>
               <FormControl id="phoneNumber" isRequired>
                 <FormLabel>Phone number</FormLabel>
-                <Input
-                  type="phoneNumber"
-                  {...formik.getFieldProps("phoneNumber")}
-                  isInvalid={
-                    formik.touched.phoneNumber && !!formik.errors.phoneNumber
+                <PhoneInput
+                  international
+                  countryCallingCodeEditable={false}
+                  value={formik.values.phoneNumber}
+                  onChange={(value) =>
+                    formik.setFieldValue("phoneNumber", value)
                   }
                 />
               </FormControl>

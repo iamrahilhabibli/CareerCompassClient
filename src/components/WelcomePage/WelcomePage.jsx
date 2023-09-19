@@ -20,7 +20,7 @@ export function WelcomePage() {
 
   return (
     <>
-      <Box width="100vw">
+      <Box width="100vw" height="100vh">
         <Slider {...settings}>
           <Box
             p={4}
@@ -28,6 +28,7 @@ export function WelcomePage() {
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide1}
+            height="100vh"
           >
             <Heading as="h3" size="lg" color="white">
               Connecting Talent
@@ -41,6 +42,7 @@ export function WelcomePage() {
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide2}
+            height="100vh"
           >
             <Heading as="h3" size="lg" color="white">
               Streamlining Recruitment,
@@ -54,6 +56,7 @@ export function WelcomePage() {
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide3}
+            height="100vh"
           >
             <Heading as="h3" size="lg" color="white">
               Find Your Perfect Fit,

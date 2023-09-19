@@ -165,7 +165,7 @@ export function Applicants() {
                     <Td>{applicant.lastName}</Td>
                     <Td>{applicant.jobTitle}</Td>
                     <Td>
-                      <a href={applicant.Resume} download>
+                      <a href={applicant.resumeLink} download>
                         <DownloadIcon
                           size={"24px"}
                           style={{ cursor: "pointer" }}

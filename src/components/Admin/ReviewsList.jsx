@@ -163,28 +163,6 @@ export default function ReviewsList() {
         </Flex>
       </Box>
       <Box my={4} />
-      {/* <Box mb={4}>
-        <Flex align="center" justify="space-between">
-          <Input
-            bgColor={"white"}
-            placeholder="Search by location or company name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            padding={2}
-            width={"300px"}
-            borderRadius="md"
-            fontSize="sm"
-            boxShadow="sm"
-          />
-          <Button
-            onClick={() => setSearchQuery(searchQuery)}
-            colorScheme="blue"
-            ml={4}
-          >
-            Search
-          </Button>
-        </Flex>
-      </Box> */}
 
       <Box
         borderWidth={"1px"}

@@ -119,7 +119,6 @@ export function Signin() {
                     align={"start"}
                     justify={"space-between"}
                   >
-                    <Checkbox>Remember me</Checkbox>
                     <Text
                       cursor={"pointer"}
                       onClick={() => navigate("/forgotpassword")}

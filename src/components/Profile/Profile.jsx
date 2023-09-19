@@ -16,12 +16,11 @@ import axios from "axios";
 
 export function Profile() {
   const { userId } = useParams();
-  const { userDetails, userDetailsLoading, token } = useUser(userId);
+  const { userDetails, userDetailsLoading, token, userRole } = useUser(userId);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const navigate = useNavigate();
   const buttonSize = useBreakpointValue({ base: "xs", md: "sm" });
   const fileInputRef = useRef(null);
-
   useEffect(() => {
     setAvatarUrl(userDetails?.avatarUrl);
   }, [userDetails]);
@@ -205,6 +204,8 @@ export function Profile() {
                 >
                   Change Password
                 </Button>
+              </Flex>
+              {userRole === "JobSeeker" && (
                 <Button>
                   <Link
                     to={`/resumebuild/${userId}`}
@@ -213,7 +214,7 @@ export function Profile() {
                     Build your Resume
                   </Link>
                 </Button>
-              </Flex>
+              )}
             </VStack>
           </>
         )}

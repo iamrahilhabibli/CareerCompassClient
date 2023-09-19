@@ -126,6 +126,12 @@ export default function TestimonialFeedbacks() {
 
       if (response.status === 200) {
         toastSuccess("Successfully activated");
+        const updatedFeedbacks = feedbackData.map((feedback) =>
+          feedback.feedbackId === feedbackId
+            ? { ...feedback, isActive: true }
+            : feedback
+        );
+        setFeedbackData(updatedFeedbacks);
       }
     } catch (error) {
       toastError("Something went wrong");
@@ -196,7 +202,7 @@ export default function TestimonialFeedbacks() {
                 </Tr>
               ) : feedbackData.length === 0 ? (
                 <Tr fontSize="sm">
-                  <Td colSpan="6">No job type available</Td>
+                  <Td colSpan="6">No feedback available</Td>
                 </Tr>
               ) : (
                 feedbackData.map((feedback, index) => (
