@@ -81,8 +81,6 @@ export function JobseekerMessages() {
   } = useWebRTC(userId, callerId);
   const openChatWithContact = async (contact) => {
     setCurrentRecipientId(contact.recruiterAppUserId);
-    console.log(contact.recruiterAppUserId);
-    console.log(userId);
     setCurrentContact(contact);
     try {
       await connectionRef.current.invoke(
@@ -131,19 +129,14 @@ export function JobseekerMessages() {
     initializePeerConnection();
   };
   const handleReceiveCallOffer = async (callerId, offer) => {
-    // Initialize default states
     setIsCallDialogOpen(true);
     setCallerId(callerId);
     console.log(offer);
-
-    // Validate if PeerConnection is ready
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
       showToastError("PeerConnection is not yet initialized.");
       return;
     }
-
-    // Check if PeerConnection is closed
     if (peerConnection.signalingState === "closed") {
       console.error("PeerConnection signalingState is closed.");
       showToastError("PeerConnection signalingState is closed.");
@@ -151,19 +144,14 @@ export function JobseekerMessages() {
     }
 
     try {
-      // Ensure PeerConnection is in a suitable state
       if (peerConnection.signalingState !== "stable") {
         console.warn(
           `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
         );
         return;
       }
-
-      // Setting remote description
       const remoteOffer = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteOffer);
-
-      // Loop through stored ICE candidates and add them to PeerConnection
       iceCandidates.forEach(async (candidate) => {
         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
       });
@@ -412,6 +400,7 @@ export function JobseekerMessages() {
           )}
         </Box>
       </Box>
+      {console.log(messages)}
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent maxW="800px">
@@ -433,25 +422,27 @@ export function JobseekerMessages() {
               maxHeight="400px"
               overflowY="auto"
             >
-              {messages[currentRecipientId]?.map((message, index) => (
-                <Flex
-                  key={index}
-                  p={2}
-                  flexDirection={
-                    message.senderId === userId ? "row-reverse" : "row"
-                  }
-                >
-                  <Box
-                    bg={message.senderId === userId ? "blue.400" : "gray.300"}
-                    p={3}
-                    borderRadius="lg"
-                    color={message.senderId === userId ? "white" : "black"}
-                    maxWidth="70%"
+              {[...(messages[currentRecipientId] || [])]
+                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                .map((message, index) => (
+                  <Flex
+                    key={index}
+                    p={2}
+                    flexDirection={
+                      message.senderId === userId ? "row-reverse" : "row"
+                    }
                   >
-                    {message.content}
-                  </Box>
-                </Flex>
-              ))}
+                    <Box
+                      bg={message.senderId === userId ? "blue.400" : "gray.300"}
+                      p={3}
+                      borderRadius="lg"
+                      color={message.senderId === userId ? "white" : "black"}
+                      maxWidth="70%"
+                    >
+                      {message.content}
+                    </Box>
+                  </Flex>
+                ))}
             </Box>
           </ModalBody>
           <ModalFooter p={2} bg="gray.200">
@@ -516,7 +507,6 @@ export function JobseekerMessages() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
       <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
         <ModalOverlay />
         <ModalContent maxWidth="80%">

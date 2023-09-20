@@ -14,6 +14,7 @@ export const messageSlice = createSlice({
         content: message.content,
         isRead: message.isRead,
         messageType: message.messageType,
+        timestamp: message.timestamp || new Date().toISOString(),
       };
 
       if (!state[recipientId]) {

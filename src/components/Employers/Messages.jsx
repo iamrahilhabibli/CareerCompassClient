@@ -571,25 +571,27 @@ export function Messages() {
               height={"400px"}
               overflowY="auto"
             >
-              {messages[currentRecipientId]?.map((message, index) => (
-                <Flex
-                  key={index}
-                  p={2}
-                  flexDirection={
-                    message.senderId === userId ? "row-reverse" : "row"
-                  }
-                >
-                  <Box
-                    bg={message.senderId === userId ? "blue.400" : "gray.300"}
-                    p={3}
-                    borderRadius="lg"
-                    color={message.senderId === userId ? "white" : "black"}
-                    maxWidth="70%"
+              {[...(messages[currentRecipientId] || [])]
+                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                .map((message, index) => (
+                  <Flex
+                    key={index}
+                    p={2}
+                    flexDirection={
+                      message.senderId === userId ? "row-reverse" : "row"
+                    }
                   >
-                    {message.content}
-                  </Box>
-                </Flex>
-              ))}
+                    <Box
+                      bg={message.senderId === userId ? "blue.400" : "gray.300"}
+                      p={3}
+                      borderRadius="lg"
+                      color={message.senderId === userId ? "white" : "black"}
+                      maxWidth="70%"
+                    >
+                      {message.content}
+                    </Box>
+                  </Flex>
+                ))}
             </Box>
           </ModalBody>
           <ModalFooter p={2} bg="gray.200">
