@@ -81,8 +81,10 @@ export function Messages() {
   } = useUserMedia({ video: true, audio: true });
   const messages = useSelector((state) => state.messages);
   const openChatWithApplicant = async (applicant) => {
+    console.log("Opening chat with applicant...");
     setCurrentRecipientId(applicant.applicantAppUserId);
     setCurrentApplicant(applicant);
+
     try {
       await connectionRef.current.invoke(
         "JoinGroup",
@@ -91,24 +93,27 @@ export function Messages() {
       );
       console.log("Joined group.");
 
-      fetch(
+      const response = await fetch(
         `https://localhost:7013/api/Messages/GetMessages?senderId=${userId}&receiverId=${applicant.applicantAppUserId}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          dispatch(
-            loadInitialMessages({
-              recipientId: applicant.applicantAppUserId,
-              messages: data,
-            })
-          );
-        })
+      );
+      console.log("Fetching messages...");
 
-        .catch((error) => console.error("Error fetching messages:", error));
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Messages fetched:", data);
+        dispatch(
+          loadInitialMessages({
+            recipientId: applicant.applicantAppUserId,
+            messages: data,
+          })
+        );
+        setIsOpen(true);
+      } else {
+        console.log("Error fetching messages:", await response.json());
+      }
     } catch (err) {
-      console.error("Error joining group: ", err);
+      console.error("Error:", err);
     }
-    setIsOpen(true);
   };
 
   //   try {

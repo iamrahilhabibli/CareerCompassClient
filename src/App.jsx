@@ -59,6 +59,7 @@ import AboutCompany from "./components/Admin/AboutCompany";
 import OurMissionInfo from "./components/Admin/OurMissionInfo";
 import Hangfire from "./components/Admin/Hangfire";
 import InterviewPlanner from "./components/Employers/InterviewPlanner";
+import ResumeControl from "./components/Admin/ResumeControl";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,6 +90,7 @@ export function App() {
     "/aboutcompanyteam",
     "/aboutmission",
     "/hangfirejobs",
+    "/resumemanagement",
   ];
 
   const useSpecialLayout = pathsForSpecialLayout.includes(location.pathname);
@@ -129,6 +131,7 @@ export function App() {
                 <Route path="/aboutcompanyteam" element={<AboutCompany />} />
                 <Route path="/aboutmission" element={<OurMissionInfo />} />
                 <Route path="/hangfirejobs" element={<Hangfire />} />
+                <Route path="/resumemanagement" element={<ResumeControl />} />
                 <Route
                   path="/testimonialfeedbacks"
                   element={<TestimonialFeedbacks />}

@@ -34,6 +34,7 @@ import {
   FiMessageCircle,
   FiInfo,
   FiClock,
+  FiFilePlus,
 } from "react-icons/fi";
 
 const AdminLinkItems = [
@@ -42,6 +43,7 @@ const AdminLinkItems = [
   { name: "User Management", icon: FiUser, path: "/usermanagement" },
   { name: "Company Management", icon: FiBriefcase, path: "/companymanagement" },
   { name: "Review Management", icon: FiMail, path: "/reviewmanagement" },
+  { name: "Resumes", icon: FiFilePlus, path: "/resumemanagement" },
   { name: "Reports", icon: FiFileText, path: "/reports" },
   { name: "Education Levels", icon: FiBook, path: "/educationlevels" },
   { name: "Experience Levels", icon: FiAward, path: "/experiencelevels" },
