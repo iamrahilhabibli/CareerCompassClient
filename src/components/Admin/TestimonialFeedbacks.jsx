@@ -81,8 +81,8 @@ export default function TestimonialFeedbacks() {
   }, [currentPage]);
   const handleNext = () => {
     setCurrentPage((prevPage) => {
-      const newPage = prevPage + 1;
-      navigate(`/testimonialfeedbacks?page=${newPage}`);
+      const newPage = Math.min(prevPage + 1, maxPage);
+      navigate(`/payments?page=${newPage}`);
       return newPage;
     });
   };
@@ -90,10 +90,11 @@ export default function TestimonialFeedbacks() {
   const handlePrevious = () => {
     setCurrentPage((prevPage) => {
       const newPage = Math.max(prevPage - 1, 1);
-      navigate(`/testimonialfeedbacks?page=${newPage}`);
+      navigate(`/payments?page=${newPage}`);
       return newPage;
     });
   };
+
   const handleDeleteFeedback = async (feedbackId) => {
     try {
       const response = await axios.delete(

@@ -13,6 +13,7 @@ import {
   Text,
   Spinner,
   IconButton,
+  Button,
 } from "@chakra-ui/react";
 import React from "react";
 import { jsPDF } from "jspdf";
@@ -27,6 +28,11 @@ export function Payments() {
   const [payments, setPayments] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const maxPage = Math.ceil(totalItems / itemsPerPage);
   const { userId } = useUser();
 
   const downloadPDF = async () => {
@@ -39,21 +45,31 @@ export function Payments() {
   };
   useEffect(() => {
     const fetchData = async () => {
-      setIsError(false);
       setIsLoading(true);
-
       try {
         const response = await axios.get(
-          `https://localhost:7013/api/Payments/GetPayments/${userId}`
+          `https://localhost:7013/api/Payments/GetPayments/${userId}?currentPage=${currentPage}&pageSize=${itemsPerPage}`
         );
-        setPayments(response.data);
+        if (response.data && response.data.items) {
+          setPayments(response.data.items);
+          setTotalItems(response.data.totalItems || 0);
+        }
       } catch (error) {
         setIsError(true);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
+
     fetchData();
-  }, [userId]);
+  }, [userId, currentPage]);
+  const handleNext = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, maxPage));
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
   return (
     <>
       <Box
@@ -160,6 +176,25 @@ export function Payments() {
               </Tbody>
             </Table>
           </TableContainer>
+        </Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Button
+            colorScheme="blue"
+            onClick={handlePrevious}
+            isDisabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Text fontSize="xl">
+            Page {currentPage} of {maxPage}
+          </Text>
+          <Button
+            colorScheme="blue"
+            onClick={handleNext}
+            isDisabled={currentPage >= maxPage}
+          >
+            Next
+          </Button>
         </Box>
       </Box>
     </>
