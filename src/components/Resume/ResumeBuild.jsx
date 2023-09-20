@@ -29,11 +29,13 @@ import { useNavigate } from "react-router-dom";
 export function ResumeBuild() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { userId, token } = useUser();
   const [educationLevels, setEducationLevels] = useState([]);
   const [isResumeCreated, setIsResumeCreated] = useState(false);
   const [localState, setLocalState] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [resumeCreated, setResumeCreated] = useState(false);
+  const [resumeData, setResumeData] = useState([]);
   const { content, download: triggerDownload } = useSelector(
     (state) => state.resume
   );
@@ -44,7 +46,7 @@ export function ResumeBuild() {
   const handleCreateResume = () => {
     setResumeCreated(true);
   };
-  const { userId, token } = useUser();
+
   const YearsOfExperienceOptions = [
     { label: "Less Than 1", value: 0 },
     { label: "1 to 3", value: 1 },
@@ -56,9 +58,41 @@ export function ResumeBuild() {
     { label: "19 to 20", value: 7 },
     { label: "20 Plus", value: 8 },
   ];
-  const resumePlans = [
-    { name: "Basic", price: "14.99", description: "Basic Resume Plan" },
-  ];
+  const fetchResumes = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7013/api/Resumes/GetResumes"
+      );
+      setResumeData(response.data);
+    } catch (error) {
+      toastError("Something went wrong please try again");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchResumes();
+  }, []);
+  console.log(resumeData);
+  const toastSuccess = (message) => {
+    toast({
+      title: message,
+      status: "success",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+  const toastError = (message) => {
+    toast({
+      title: message,
+      status: "error",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
   useEffect(() => {
     const fetchEducationLevels = async () => {
       try {
@@ -73,32 +107,7 @@ export function ResumeBuild() {
 
     fetchEducationLevels();
   }, []);
-  // useEffect(() => {
-  //   const checkAuthentication = async () => {
-  //     if (!userId) {
-  //       navigate("/signin");
-  //       toast({
-  //         title: "Warning",
-  //         description: "Please sign in to create your resume.",
-  //         status: "warning",
-  //         duration: 5000,
-  //         isClosable: true,
-  //         position: "top-right",
-  //       });
-  //     } else {
-  //       const details = await fetchJobSeekerDetails(userId, token);
-  //       if (details) {
-  //         formik.setFieldValue("firstName", details.firstName);
-  //         formik.setFieldValue("lastName", details.lastName);
-  //         formik.setFieldValue("email", details.email);
-  //         formik.setFieldValue("phoneNumber", details.phoneNumber);
-  //       }
-  //       setIsLoading(false);
-  //     }
-  //   };
 
-  //   checkAuthentication();
-  // }, [userId, token]);
   useEffect(() => {
     if (content && resumePreviewRef.current) {
       resumePreviewRef.current.innerHTML = content;
@@ -440,8 +449,14 @@ export function ResumeBuild() {
           </form>
 
           {resumeCreated &&
-            resumePlans.map((plan, index) => (
-              <Button key={index} onClick={() => initiatePaymentProcess(plan)}>
+            resumeData.map((plan, index) => (
+              <Button
+                key={index}
+                onClick={() => {
+                  sessionStorage.setItem("selectedPlanId", plan.id);
+                  initiatePaymentProcess(plan);
+                }}
+              >
                 Pay and Download {plan.name} for {plan.price}
               </Button>
             ))}

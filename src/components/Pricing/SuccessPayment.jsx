@@ -4,12 +4,15 @@ import { CheckCircleIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import html2pdf from "html2pdf.js";
 import { setDownload } from "../../reducers/resumeSlice";
+import axios from "axios";
 
 export default function SuccessPayment() {
   const dispatch = useDispatch();
   const content = useSelector((state) => state.resume.content);
   const loading = useSelector((state) => state.resume.loading);
   const [localContent, setLocalContent] = useState(null);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [resumeStructure, setResumeStructure] = useState(null);
 
   useEffect(() => {
     if (!content) {
@@ -19,7 +22,26 @@ export default function SuccessPayment() {
       setLocalContent(localStoredContent);
     }
   }, [content]);
-
+  useEffect(() => {
+    const selectedPlanId = sessionStorage.getItem("selectedPlanId");
+    if (selectedPlanId) {
+      fetchSelectedResume(selectedPlanId);
+    }
+  }, []);
+  const fetchSelectedResume = async (planId) => {
+    try {
+      const response = await axios.get(
+        `https://localhost:7013/api/Resumes/GetResumeById?id=${planId}`
+      );
+      const textArea = document.createElement("textarea");
+      textArea.innerHTML = response.data.structure;
+      const decodedHTML = textArea.value;
+      setResumeStructure(decodedHTML);
+    } catch (error) {
+      console.error("Failed to fetch resume details:", error);
+    }
+  };
+  console.log(resumeStructure);
   const downloadResumeAsPDF = () => {
     const contentToUse = content || localContent;
 
@@ -28,19 +50,32 @@ export default function SuccessPayment() {
       return;
     }
 
-    const formattedContent = `
-    <div style="font-family: Arial, sans-serif;">
-      <h1>${contentToUse.firstName} ${contentToUse.lastName}</h1>
-      <hr/>
-      <div style="display: flex; justify-content: space-between;">
-        <p><strong>Email:</strong> ${contentToUse.email}</p>
-        <p><strong>Phone:</strong> ${contentToUse.phoneNumber}</p>
+    let formattedContent =
+      resumeStructure ||
+      `
+      <div style="font-family: Arial, sans-serif;">
+        <h1>${contentToUse.firstName} ${contentToUse.lastName}</h1>
+        <hr/>
+        <div style="display: flex; justify-content: space-between;">
+          <p><strong>Email:</strong> ${contentToUse.email}</p>
+          <p><strong>Phone:</strong> ${contentToUse.phoneNumber}</p>
+        </div>
+        <h2><strong>Experience:</strong> ${contentToUse.experience} years</h2>
+        <h2><strong>Education:</strong> ${contentToUse.education}</h2>
+        <div>${contentToUse.description}</div>
       </div>
-      <h2><strong>Experience:</strong> ${contentToUse.experience} years</h2>
-      <h2><strong>Education:</strong> ${contentToUse.education}</h2>
-      <div>${contentToUse.description}</div>
-    </div>
-  `;
+    `;
+
+    if (resumeStructure) {
+      formattedContent = formattedContent
+        .replace(/{{firstName}}/g, contentToUse.firstName)
+        .replace(/{{lastName}}/g, contentToUse.lastName)
+        .replace(/{{email}}/g, contentToUse.email)
+        .replace(/{{phoneNumber}}/g, contentToUse.phoneNumber)
+        .replace(/{{experience}}/g, contentToUse.experience)
+        .replace(/{{education}}/g, contentToUse.education)
+        .replace(/{{description}}/g, contentToUse.description);
+    }
 
     const opt = {
       margin: 10,

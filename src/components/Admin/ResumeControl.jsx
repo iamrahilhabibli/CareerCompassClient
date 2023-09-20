@@ -24,6 +24,7 @@ import {
   Tr,
   useToast,
   CloseButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import resumeImg from "../../images/resumeImg.png";
@@ -98,7 +99,7 @@ export default function ResumeControl() {
         {
           name: newResumeName,
           price: newResumePrice,
-          desciption: newResumeDescription,
+          description: newResumeDescription,
           structure: newResumeStructure,
         },
         {
@@ -108,12 +109,13 @@ export default function ResumeControl() {
       if (response.status === 200) {
         const newId = response.data;
         toastSuccess("Successfully created");
+        setIsBoxOpen(false);
         setResumeData((resume) => [
           ...resume,
           {
             name: newResumeName,
             price: newResumePrice,
-            desciption: newResumeDescription,
+            description: newResumeDescription,
             structure: newResumeStructure,
           },
         ]);
@@ -121,8 +123,10 @@ export default function ResumeControl() {
       }
     } catch (error) {
       toastError("Something went wrong");
+      console.log(error.response || error.message);
     }
   };
+
   return (
     <Box
       rounded={"lg"}
@@ -275,9 +279,17 @@ export default function ResumeControl() {
                 resumeData.map((resume, index) => (
                   <Tr key={index} fontSize="sm">
                     <Td isNumeric>{index + 1}</Td>
-                    <Td>{resume.firstName}</Td>
-                    <Td>{resume.lastName}</Td>
-                    <Td>{resume.position}</Td>
+                    <Td>{resume.name}</Td>
+                    <Td>{resume.price}</Td>
+                    <Td>{resume.description}</Td>
+                    <Td>
+                      <Tooltip label={resume.structure} placement="top">
+                        <span>
+                          {resume.structure.substring(0, 20)}{" "}
+                          {resume.structure.length > 20 && "..."}{" "}
+                        </span>
+                      </Tooltip>
+                    </Td>
                     {/* <Td>
                       <Tooltip
                         label={resume.description}
