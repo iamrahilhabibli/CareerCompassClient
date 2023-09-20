@@ -1,18 +1,30 @@
 import React, { useRef, useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { Box, Flex, useToast } from "@chakra-ui/react";
 
 export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const [error, setError] = useState(null);
   const [focusedVideo, setFocusedVideo] = useState("remote");
+  const toast = useToast();
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "An error occurred.",
+        description: error,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [error, toast]);
 
   useEffect(() => {
     if (!mediaStream) {
-      console.log("Error: No media stream available."); // Debug line
-      setError("No media stream available.");
+      // setError("No media stream available.");
     } else if (localVideoRef.current) {
-      console.log("Setting local media stream."); // Debug line
       localVideoRef.current.srcObject = mediaStream;
     }
 
@@ -23,13 +35,8 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
 
   useEffect(() => {
     if (peerConnection) {
-      console.log("Peer connection available."); // Debug line
-
       const handleTrackEvent = (event) => {
-        console.log("Received track event:", event); // Debug line
-
         if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
-          console.log("Setting remote media stream."); // Debug line
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
@@ -40,74 +47,65 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         peerConnection.ontrack = null;
       };
     } else {
-      console.log("Error: No peer connection available."); // Debug line
-      setError("No peer connection available.");
+      // setError("No peer connection available.");
     }
   }, [peerConnection]);
 
   return (
-    <div className="video-call-wrapper">
-      {error && <div className="error">{error}</div>}
-      <video
+    <Flex
+      className="video-call-wrapper"
+      height="100%"
+      maxWidth={"100%"}
+      borderRadius="15px"
+      justify="space-between"
+      overflow="hidden"
+      align="center"
+    >
+      {error && (
+        <Box
+          position="absolute"
+          top={0}
+          left="50%"
+          color="white"
+          bg="red.500"
+          borderRadius="md"
+          p={2}
+        >
+          {error}
+        </Box>
+      )}
+      <Box
+        as="video"
         ref={localVideoRef}
         autoPlay
         muted
-        className={`video ${
-          focusedVideo === "local" ? "focused" : ""
-        } local-video`}
+        maxWidth="48%"
+        maxHeight="100%"
+        flex={focusedVideo === "local" ? 2 : 1}
+        borderRadius="10px"
+        boxShadow="md"
+        m={4}
+        objectFit="cover"
         onClick={() =>
           setFocusedVideo(focusedVideo === "local" ? "remote" : "local")
         }
-      ></video>
-      <video
+      ></Box>
+      <Box
+        as="video"
         ref={remoteVideoRef}
         autoPlay
-        className={`video ${
-          focusedVideo === "remote" ? "focused" : ""
-        } remote-video`}
+        maxWidth="48%"
+        maxHeight="100%"
+        flex={focusedVideo === "remote" ? 2 : 1}
+        borderRadius="10px"
+        boxShadow="md"
+        m={4}
+        objectFit="cover"
         onClick={() =>
           setFocusedVideo(focusedVideo === "remote" ? "local" : "remote")
         }
-      ></video>
-
-      <style>{`
-        .video-call-wrapper {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          height: 100%;
-          border-radius: 15px;
-          overflow: hidden;
-        }
-        .video {
-          flex: 1;
-          border-radius: 10px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          margin: 1rem;
-          object-fit: cover;
-          transition: flex 0.3s ease-in-out;
-        }
-        .focused {
-          flex: 2;
-        }
-        .local-video {
-          // Additional styling specific to local video, if any
-        }
-        .remote-video {
-          // Additional styling specific to remote video, if any
-        }
-        .error {
-          position: absolute;
-          top: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: red;
-          color: white;
-          padding: 0.5rem;
-          border-radius: 5px;
-        }
-      `}</style>
-    </div>
+      ></Box>
+    </Flex>
   );
 }
 

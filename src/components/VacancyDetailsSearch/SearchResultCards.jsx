@@ -59,7 +59,7 @@ export function SearchResultCards({ searchResults }) {
   const [jobSeekerId, setJobSeekerId] = useState(null);
   const { userId, token, isAuthenticated, userRole } = useUser();
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
   const toast = useToast();
   const [locationFilter, setLocationFilter] = useState(null);
   const location = useLocation();
@@ -293,8 +293,14 @@ export function SearchResultCards({ searchResults }) {
           <option value="Internship">Internship</option>
         </Select>
       </Box>
-      <Box height={"100vh"} width={"100%"}>
-        <Flex flexDirection={"column"} maxWidth={"80%"}>
+      <Box
+        height="100%"
+        width="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Flex flexDirection="column" maxWidth="80%" m="auto">
           <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={6}>
             {displayedVacancies?.length > 0 ? (
               displayedVacancies.map((result) => (
