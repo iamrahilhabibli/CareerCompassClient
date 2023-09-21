@@ -44,8 +44,10 @@ export default function InterviewPlanner() {
             title: e.title,
             start: new Date(moment(e.start)),
             end: new Date(moment(e.end)),
-            allDay: false,
+            allDay:
+              moment(e.end).diff(moment(e.start), "days") > 0 ? true : false,
           }));
+
           console.log(fetchedEvents);
           setEvents(fetchedEvents);
         }
@@ -65,14 +67,24 @@ export default function InterviewPlanner() {
         startDate: newEvent.start,
         endDate: newEvent.end,
       };
-      console.log("Final Payload:", eventWithUser);
+
       const response = await axios.post(
         "https://localhost:7013/api/Events/CreateEvent",
         eventWithUser
       );
+
       if (response.data) {
         setShowForm(false);
         toastSuccess("Event created successfully");
+        setEvents((prevEvents) => [
+          ...prevEvents,
+          {
+            title: newEvent.title,
+            start: new Date(moment(newEvent.start)),
+            end: new Date(moment(newEvent.end)),
+            allDay: false,
+          },
+        ]);
       }
     } catch (error) {
       toastError("Something went wrong");
