@@ -283,7 +283,7 @@ export default function Users() {
                     <Td>{user.role}</Td>
                     <Td>
                       <Flex direction="row" spacing={2} gap={"8px"}>
-                        {user.role !== "Admin" && (
+                        {user.role !== "Master" && (
                           <Button
                             colorScheme="teal"
                             variant="solid"

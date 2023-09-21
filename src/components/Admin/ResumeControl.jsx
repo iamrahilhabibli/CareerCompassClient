@@ -84,6 +84,7 @@ export default function ResumeControl() {
           }
         );
         setResumeData(response.data);
+        console.log(resumeData);
       } catch (error) {
         toastError("Something went wrong please try again");
       } finally {
@@ -126,7 +127,24 @@ export default function ResumeControl() {
       console.log(error.response || error.message);
     }
   };
-
+  const handleDeleteResume = async (resumeId) => {
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveResume?resumeId=${resumeId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        setResumeData((prevResumes) =>
+          prevResumes.filter((resume) => resume.id !== resumeId)
+        );
+      }
+      toastSuccess("Deleted successfully");
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
   return (
     <Box
       rounded={"lg"}
@@ -369,9 +387,7 @@ export default function ResumeControl() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
-                          //   onClick={() =>
-                          //     handleDeleteEducationlevel(level.levelId)
-                          //   }
+                          onClick={() => handleDeleteResume(resume.id)}
                         >
                           <DeleteIcon />
                         </Button>
