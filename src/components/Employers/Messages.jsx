@@ -51,6 +51,9 @@ export function Messages() {
   const [applicationIdToDelete, setApplicationIdToDelete] = useState(null);
   const onCloseDeleteDialog = () => setIsDeleteDialogOpen(false);
   const cancelRef = useRef();
+  const [isFeaturesLoading, setIsFeaturesLoading] = useState(true);
+  const [isChatAvailable, setIsChatAvailable] = useState(null);
+  const [isVideoAvailable, setIsVideoAvailable] = useState(null);
 
   const toast = useToast();
   const [isLoadingPeerConnection, setIsLoadingPeerConnection] = useState(true);
@@ -341,6 +344,24 @@ export function Messages() {
     );
   };
   useEffect(() => {
+    const fetchFeatures = async () => {
+      setIsFeaturesLoading(true);
+      try {
+        const response = await axios.get(
+          `https://localhost:7013/api/Recruiters/GetFeatures?appUserId=${userId}`
+        );
+        if (response.data) {
+          setIsChatAvailable(response.data.isChatAvailable);
+          setIsVideoAvailable(response.data.isVideoAvailable);
+        }
+      } catch (error) {
+        // Handle
+      } finally {
+        setIsFeaturesLoading(false);
+      }
+    };
+    fetchFeatures();
+
     videoConnectionRef.current = new HubConnectionBuilder()
       .withUrl(`https://localhost:7013/video?access_token=${token}`, {
         accessTokenFactory: () => token,
@@ -364,7 +385,7 @@ export function Messages() {
         console.log("Error stopping VideoHub connection:", err);
       });
     };
-  }, []);
+  }, [userId]);
 
   const handleReceiveCallAnswer = async (callerId, answer, peerConnection) => {
     stopRingingSound();
@@ -445,7 +466,6 @@ export function Messages() {
       console.error("Error leaving group: ", err);
     }
   };
-  if (isLoading) return <Spinner />;
   if (isError) {
     toast({
       title: "An error occurred.",
@@ -455,6 +475,47 @@ export function Messages() {
       isClosable: true,
     });
     return null;
+  }
+  if (isFeaturesLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  if (!isChatAvailable && !isVideoAvailable) {
+    return (
+      <Box
+        rounded="lg"
+        maxWidth={800}
+        m="10px auto"
+        borderRadius="12px"
+        p={4}
+        bg="white"
+        boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      >
+        <Box p={4} bg="white" rounded="md">
+          <Heading size="lg" mb={4}>
+            Please upgrade your subscription plan to use this feature
+          </Heading>
+        </Box>
+        <Button
+          colorScheme="teal"
+          mt={4}
+          onClick={() =>
+            (window.location.href = "http://localhost:3000/pricing")
+          }
+        >
+          Upgrade Now
+        </Button>
+      </Box>
+    );
   }
 
   return (
@@ -520,17 +581,21 @@ export function Messages() {
                   </Box>
                 </Flex>
                 <Flex justifyContent="space-between" alignItems="center">
-                  <IconButton
-                    aria-label="Start video call"
-                    icon={<FaVideo />}
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      setIsLoadingPeerConnection(true);
-                      await handleStartVideoCall(applicant.applicantAppUserId);
-                      setIsLoadingPeerConnection(false);
-                    }}
-                    m={2}
-                  />
+                  {isVideoAvailable && (
+                    <IconButton
+                      aria-label="Start video call"
+                      icon={<FaVideo />}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setIsLoadingPeerConnection(true);
+                        await handleStartVideoCall(
+                          applicant.applicantAppUserId
+                        );
+                        setIsLoadingPeerConnection(false);
+                      }}
+                      m={2}
+                    />
+                  )}
                   <Button
                     colorScheme="red"
                     size="sm"

@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Flex, Heading, Input, Button, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Input,
+  Button,
+  useToast,
+  Spinner,
+} from "@chakra-ui/react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -11,6 +19,8 @@ const localizer = momentLocalizer(moment);
 export default function InterviewPlanner() {
   const { userId } = useUser();
   const [showForm, setShowForm] = useState(false);
+  const [isPlannerAvailable, setIsPlannerAvailable] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
   const [events, setEvents] = useState([]);
   const toast = useToast();
@@ -47,16 +57,31 @@ export default function InterviewPlanner() {
             allDay:
               moment(e.end).diff(moment(e.start), "days") > 0 ? true : false,
           }));
-
-          console.log(fetchedEvents);
           setEvents(fetchedEvents);
         }
       } catch (error) {
+        console.error("Error fetching events:", error);
         toastError("Something went wrong while fetching events");
       }
     };
 
+    const checkFeatures = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `https://localhost:7013/api/Recruiters/GetFeatures?appUserId=${userId}`
+        );
+        if (response.data && response.data.isPlannerAvailable !== undefined) {
+          setIsPlannerAvailable(response.data.isPlannerAvailable);
+        }
+      } catch (error) {
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchEvents();
+    checkFeatures();
   }, [userId]);
 
   const handleAddEvent = async () => {
@@ -90,6 +115,47 @@ export default function InterviewPlanner() {
       toastError("Something went wrong");
     }
   };
+  if (isLoading) {
+    return (
+      <Flex
+        height="100vh"
+        width="100%"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
+
+  if (!isPlannerAvailable) {
+    return (
+      <Box
+        rounded="lg"
+        maxWidth={800}
+        m="10px auto"
+        borderRadius="12px"
+        p={4}
+        bg="white"
+        boxShadow="0 4px 6px rgba(0,0,0,0.1)"
+      >
+        <Box p={4} bg="transparent" rounded="md">
+          <Heading size="lg" mb={4}>
+            Please upgrade your subscription plan to use this feature
+          </Heading>
+        </Box>
+        <Button
+          colorScheme="teal"
+          mt={4}
+          onClick={() =>
+            (window.location.href = "http://localhost:3000/pricing")
+          }
+        >
+          Upgrade Now
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box
