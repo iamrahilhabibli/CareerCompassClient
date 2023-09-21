@@ -65,13 +65,11 @@ export function PostedJobs() {
     console.error("Error fetching vacancies:", vacanciesError);
   }
   const handleDelete = async (vacancyId) => {
-    console.log("Trying to delete vacancy with ID:", vacancyId);
     try {
       const response = await axios.delete(
         `https://localhost:7013/api/Vacancies/${vacancyId}`
       );
       if (response.status === 204) {
-        // Remove the deleted vacancy from the list
         setVacanciesList((prevVacanciesList) =>
           prevVacanciesList.filter((vacancy) => vacancy.id !== vacancyId)
         );
@@ -97,13 +95,25 @@ export function PostedJobs() {
 
   if (isLoading) {
     return (
-      <Spinner
-        size="xl"
-        thickness="4px"
-        speed="0.5s"
-        emptyColor="gray.200"
-        color="blue.500"
-      />
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        backgroundColor="rgba(255, 255, 255, 0.8)"
+      >
+        <Spinner
+          size="xl"
+          thickness="4px"
+          speed="0.5s"
+          emptyColor="gray.200"
+          color="blue.500"
+        />
+      </Box>
     );
   }
   return (
