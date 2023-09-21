@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Flex, Heading, Input, Button, useToast } from "@chakra-ui/react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
@@ -12,6 +12,7 @@ export default function InterviewPlanner() {
   const { userId } = useUser();
   const [showForm, setShowForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
+  const [events, setEvents] = useState([]);
   const toast = useToast();
   const toastSuccess = (message) => {
     toast({
@@ -32,13 +33,29 @@ export default function InterviewPlanner() {
       position: "top-right",
     });
   };
-  const myEventsList = [
-    {
-      start: new Date(),
-      end: new Date(moment().add(1, "hour")),
-      title: "Interview with Rahil",
-    },
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(
+          `https://localhost:7013/api/Events/GetEvents?userId=${userId}`
+        );
+        if (response.data) {
+          const fetchedEvents = response.data.map((e) => ({
+            title: e.title,
+            start: new Date(moment(e.start)),
+            end: new Date(moment(e.end)),
+            allDay: false,
+          }));
+          console.log(fetchedEvents);
+          setEvents(fetchedEvents);
+        }
+      } catch (error) {
+        toastError("Something went wrong while fetching events");
+      }
+    };
+
+    fetchEvents();
+  }, [userId]);
 
   const handleAddEvent = async () => {
     try {
@@ -137,7 +154,7 @@ export default function InterviewPlanner() {
       >
         <Calendar
           localizer={localizer}
-          events={myEventsList}
+          events={events}
           startAccessor="start"
           endAccessor="end"
         />
