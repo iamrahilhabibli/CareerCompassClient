@@ -68,56 +68,56 @@ export function VacancyFinal({ formik }) {
         ) : (
           <>
             <Text>{formik.values.jobTitle}</Text>
-            <EditIcon
+            {/* <EditIcon
               onClick={() => setEditing({ ...editing, jobTitle: true })}
               cursor="pointer"
-            />
+            /> */}
           </>
         )}
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Experience Level:</Text>
         <Text>{experienceLevelName}</Text>
-        <EditIcon
+        {/* <EditIcon
           onClick={() => setEditing({ ...editing, experienceLevel: true })}
           cursor="pointer"
-        />
+        /> */}
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Location:</Text>
         <Text>{jobLocationName}</Text>
-        <EditIcon
+        {/* <EditIcon
           onClick={() => setEditing({ ...editing, location: true })}
           cursor="pointer"
-        />
+        /> */}
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Types:</Text>
         <Text>{jobTypeNames}</Text>
-        <EditIcon
+        {/* <EditIcon
           onClick={() => setEditing({ ...editing, jobTypes: true })}
           cursor="pointer"
-        />
+        /> */}
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Shifts:</Text>
         <Text>{shiftNames}</Text>
-        <EditIcon
+        {/* <EditIcon
           onClick={() => setEditing({ ...editing, shifts: true })}
           cursor="pointer"
-        />
+        /> */}
       </Box>
       <Box d="flex" alignItems="center">
         <Text fontWeight="bold">Job Description:</Text>
         <div dangerouslySetInnerHTML={{ __html: formik.values.description }} />
-        <EditIcon
+        {/* <EditIcon
           onClick={() => setEditing({ ...editing, description: true })}
           cursor="pointer"
-        />
+        /> */}
       </Box>
-      <Button colorScheme="blue" onClick={saveChanges}>
+      {/* <Button colorScheme="blue" onClick={saveChanges}>
         Save Changes
-      </Button>
+      </Button> */}
     </VStack>
   );
 }

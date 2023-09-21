@@ -275,9 +275,9 @@ export function ReviewCompanyDetails() {
 
             <Box
               display="flex"
-              justifyContent="center"
-              alignItems="center"
-              alignContent="center"
+              justifyContent="right"
+              alignItems="right"
+              alignContent="right"
               mt="50px"
             >
               <Box
