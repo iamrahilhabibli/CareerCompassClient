@@ -8,6 +8,7 @@ import {
   Table,
   TableCaption,
   TableContainer,
+  Text,
   Tbody,
   Td,
   Th,
@@ -30,6 +31,7 @@ import {
 import axios from "axios";
 import useUser from "../../customhooks/useUser";
 import { debounce } from "lodash";
+import { useNavigate } from "react-router-dom";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -41,15 +43,25 @@ export default function Users() {
   const { userId, token, userRole } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const toast = useToast();
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [maxPage, setMaxPage] = useState(1);
+  const pageSize = 10;
+  const navigate = useNavigate();
 
-  const debouncedSave = debounce(async (query) => {
-    let url = "/GetAllUsers";
-    if (query) {
-      url = `${url}?searchQuery=${query}`;
+  const debouncedSave = debounce(async () => {
+    let url = `https://localhost:7013/api/Dashboards/GetAllUsers?pageNumber=${currentPage}&pageSize=${pageSize}`;
+    if (searchQuery) {
+      url += `&searchQuery=${searchQuery}`;
     }
+    setIsLoading(true);
+
     try {
       const { data } = await api.get(url);
-      setUsers(data);
+      if (data && data.items && typeof data.totalItems === "number") {
+        setUsers(data.items);
+        setMaxPage(Math.ceil(data.totalItems / pageSize));
+      }
     } catch (error) {
       console.error(
         `Error fetching data: ${error.response?.data?.message || error.message}`
@@ -59,10 +71,25 @@ export default function Users() {
     }
   }, 1000);
 
+  const handleNext = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = prevPage + 1;
+      navigate(`/usermanagement?page=${newPage}`, { replace: true });
+      return newPage;
+    });
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = Math.max(prevPage - 1, 1);
+      navigate(`/usermanagement?page=${newPage}`, { replace: true });
+      return newPage;
+    });
+  };
+
   useEffect(() => {
-    setIsLoading(true);
-    debouncedSave(searchQuery);
-  }, [searchQuery]);
+    debouncedSave();
+  }, [searchQuery, currentPage]);
 
   const promptToDelete = (id) => {
     setUserIdToDelete(id);
@@ -153,7 +180,7 @@ export default function Users() {
       position: "top-right",
     });
   };
-
+  console.log(users);
   return (
     <Box
       rounded={"lg"}
@@ -212,12 +239,7 @@ export default function Users() {
       >
         <TableContainer>
           <Table variant="simple">
-            <TableCaption>
-              Registered Users Total : {users.length} | Total JobSeekers:{" "}
-              {users.filter((user) => user.role === "JobSeeker").length} | Total
-              Recruiters:{" "}
-              {users.filter((user) => user.role === "Recruiter").length}
-            </TableCaption>
+            <TableCaption>Registered Users</TableCaption>
 
             <Thead>
               <Tr>
@@ -340,6 +362,24 @@ export default function Users() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        bg="blue.50"
+        p={4}
+        rounded="md"
+      >
+        <Button onClick={handlePrevious} disabled={currentPage === 1}>
+          Previous
+        </Button>
+        <Text fontSize="xl" color="blue.800">
+          Page {currentPage} of {maxPage}
+        </Text>
+        <Button onClick={handleNext} disabled={currentPage >= maxPage}>
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 }
