@@ -180,7 +180,7 @@ export default function Users() {
       position: "top-right",
     });
   };
-  console.log(users);
+
   return (
     <Box
       rounded={"lg"}

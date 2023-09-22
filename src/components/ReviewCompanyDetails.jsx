@@ -37,6 +37,8 @@ import {
   DrawerHeader,
   DrawerBody,
   Flex,
+  VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { useFormik } from "formik";
@@ -65,6 +67,12 @@ export function ReviewCompanyDetails() {
   const [counter, setCounter] = useState(5);
   const [pageIndex, setPageIndex] = useState(1);
   const navigate = useNavigate();
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
+  } = useDisclosure();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -197,6 +205,7 @@ export function ReviewCompanyDetails() {
       </Box>
     );
   }
+
   return (
     <Box
       display="flex"
@@ -356,79 +365,63 @@ export function ReviewCompanyDetails() {
           </Box>
         )}
       </Box>
-      <Button color={"#2557A7"} onClick={() => setDrawerOpen(true)}>
+      <Button color={"#2557A7"} onClick={onModalOpen}>
         See Reviews
       </Button>
-      <Drawer
-        isOpen={isDrawerOpen}
-        placement="right"
-        onClose={() => setDrawerOpen(false)}
-      >
-        <DrawerOverlay>
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader color={"#2557A7"}>Reviews</DrawerHeader>
-            <DrawerBody>
-              <Box flex="1" bg="gray.100">
-                <Divider
-                  borderColor="#2557A7"
-                  borderWidth="1px"
-                  mx="1px"
-                  flex="1"
-                />
-                <Accordion allowToggle>
-                  {isLoading ? (
-                    <Spinner />
-                  ) : isError ? (
-                    <Text>Something went wrong...</Text>
-                  ) : (
-                    allReviews.map((review, index) => (
-                      <AccordionItem key={index}>
-                        <h2>
-                          <AccordionButton>
-                            <Box flex="1" textAlign="left">
-                              <Flex alignItems="center">
-                                <Avatar
-                                  name={`${review.firstName} ${review.lastName}`}
-                                />
-                                <Text ml={4}>{review.title}</Text>
-                              </Flex>
-                            </Box>
-                            <Box>
-                              {[...Array(5)].map((_, i) => (
-                                <StarIcon
-                                  key={i}
-                                  color={
-                                    i < review.rating ? "#2557A7" : "gray.300"
-                                  }
-                                />
-                              ))}
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                        </h2>
-                        <AccordionPanel pb={4}>
-                          <Text>{review.description}</Text>
-                        </AccordionPanel>
-                      </AccordionItem>
-                    ))
-                  )}
-                </Accordion>
-                <Button
-                  isLoading={isFetchingNextPage}
-                  onClick={() => {
-                    console.log("Fetching next page...");
-                    fetchNextPage();
-                  }}
-                  mt={4}
-                >
-                  Load More
-                </Button>
-              </Box>
-            </DrawerBody>
-          </DrawerContent>
-        </DrawerOverlay>
-      </Drawer>
+      <Modal isOpen={isModalOpen} onClose={onModalClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalHeader color="#2557A7">Reviews</ModalHeader>
+          <ModalBody>
+            <VStack spacing={4} overflowY="auto" maxHeight="80vh">
+              {isLoading ? (
+                <Spinner />
+              ) : isError ? (
+                <Text>Something went wrong...</Text>
+              ) : (
+                allReviews.map((review, index) => (
+                  <Box
+                    key={index}
+                    p={4}
+                    w="100%"
+                    borderWidth={1}
+                    borderRadius="md"
+                    boxShadow="sm"
+                  >
+                    <Flex alignItems="center">
+                      <Avatar name={`${review.firstName} ${review.lastName}`} />
+                      <Text ml={4} fontWeight="bold">
+                        {review.title}
+                      </Text>
+                    </Flex>
+                    <Text mt={2}>
+                      {[...Array(5)].map((_, i) => (
+                        <StarIcon
+                          key={i}
+                          color={i < review.rating ? "#2557A7" : "gray.300"}
+                        />
+                      ))}
+                    </Text>
+                    <Divider my={2} />
+                    <Text>{review.description}</Text>
+                  </Box>
+                ))
+              )}
+            </VStack>
+            <Button
+              isLoading={isFetchingNextPage}
+              onClick={() => {
+                console.log("Fetching next page...");
+                fetchNextPage();
+              }}
+              mt={4}
+            >
+              Load More
+            </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
 
       <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
