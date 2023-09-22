@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { ViewIcon } from "@chakra-ui/icons";
+import ReactHtmlParser from "html-react-parser";
+import he from "he";
 import {
   Box,
   Stack,
@@ -13,6 +16,12 @@ import {
   Button,
   useToast,
   Tooltip,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody,
+  Flex,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
@@ -59,7 +68,11 @@ export default function ThreeTierPricing() {
   const toast = useToast();
   const { userId, token, userRole, isAuthenticated } = useUser();
   const [plans, setPlans] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [previewContent, setPreviewContent] = useState("");
+  const [resumeData, setResumeData] = useState([]);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const navigate = useNavigate();
   const isSubscriptionActive = (startDate) => {
     const subscriptionEndDate = new Date(startDate);
@@ -148,6 +161,53 @@ export default function ThreeTierPricing() {
         });
     });
   };
+
+  const toastSuccess = (message) => {
+    toast({
+      title: message,
+      status: "success",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+  const toastError = (message) => {
+    toast({
+      title: message,
+      status: "error",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+  const defaultData = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@gmail.com",
+    phoneNumber: "0501111111",
+    experience: "10+ years",
+    education: "Code Academy Baku",
+    description:
+      "I am a highly skilled C# and ASP.NET developer with over 10 years of experience in building scalable web applications. My expertise includes designing robust backend systems, crafting efficient database structures, and implementing responsive front-end interfaces using technologies like ReactJS. I am passionate about delivering high-quality software solutions that meet and exceed client expectations. With a solid foundation in software engineering principles, I excel in problem-solving and collaborating with cross-functional teams to bring innovative ideas to life. I am committed to continuous learning, staying updated with the latest industry trends, and adapting to new technologies to deliver cutting-edge solutions.",
+  };
+
+  const prepareStructure = (structure) => {
+    if (!structure || typeof structure !== "string") {
+      return structure;
+    }
+
+    const replacedStructure = structure
+      .replace("{{firstName}}", defaultData.firstName)
+      .replace("{{lastName}}", defaultData.lastName)
+      .replace("{{email}}", defaultData.email)
+      .replace("{{phoneNumber}}", defaultData.phoneNumber)
+      .replace("{{experience}}", defaultData.experience)
+      .replace("{{education}}", defaultData.education)
+      .replace("{{description}}", defaultData.description);
+
+    return ReactHtmlParser(replacedStructure);
+  };
+
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -170,8 +230,37 @@ export default function ThreeTierPricing() {
 
     fetchPlans();
   }, []);
+  const fetchResumes = async () => {
+    try {
+      const response = await axios.get(
+        "https://localhost:7013/api/Resumes/GetResumes"
+      );
+      const decodedResumes = response.data.map((resume) => {
+        const decodedStructure = he.decode(resume.structure);
+
+        if (typeof decodedStructure === "string") {
+          const filledStructure = prepareStructure(decodedStructure); // Assuming prepareStructure is a function that takes a string and replaces placeholders
+          return {
+            ...resume,
+            structure: filledStructure,
+          };
+        }
+        return resume;
+      });
+
+      setResumeData(decodedResumes);
+    } catch (error) {
+      toastError("Something went wrong please try again");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResumes();
+  }, []);
   const backgroundColor = useColorModeValue("gray.50", "gray.700");
-  console.log("Plans:", plans);
   return (
     <Box
       py={12}
@@ -266,6 +355,42 @@ export default function ThreeTierPricing() {
           </Box>
         ))}
       </Stack>
+      <VStack spacing={10} textAlign="center" mt={10}>
+        <Heading as="h1" fontSize="4xl" color="white">
+          Your Resumes
+        </Heading>
+
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          textAlign="center"
+          justify="center"
+          align="center"
+          flexWrap="wrap"
+          spacing={{ base: 4, lg: 10 }}
+          py={10}
+        >
+          {resumeData.map((resume, index) => (
+            <Box
+              key={index}
+              bg="white"
+              borderRadius="lg"
+              boxShadow="xl"
+              p={6}
+              width={{ base: "100%", md: "600px" }}
+              mb={4}
+              transition="all 0.3s"
+              _hover={{ boxShadow: "2xl", transform: "scale(1.02)" }}
+            >
+              <VStack spacing={4}>
+                <Text fontWeight="600" fontSize="2xl">
+                  {resume.name}
+                </Text>
+              </VStack>
+              <div>{prepareStructure(resume.structure)}</div>
+            </Box>
+          ))}
+        </Flex>
+      </VStack>
     </Box>
   );
 }

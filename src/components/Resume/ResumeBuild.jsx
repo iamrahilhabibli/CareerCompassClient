@@ -1,11 +1,22 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Spinner, useToast } from "@chakra-ui/react";
+import {
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  Spinner,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
+
 import { useFormik } from "formik";
 import resumeImg from "../../images/resumecreate.png";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import { loadStripe } from "@stripe/stripe-js";
 import { Editor } from "@tinymce/tinymce-react";
+
 import {
   Box,
   Center,
@@ -36,6 +47,7 @@ export function ResumeBuild() {
   const [showPreview, setShowPreview] = useState(false);
   const [resumeCreated, setResumeCreated] = useState(false);
   const [resumeData, setResumeData] = useState([]);
+
   const { content, download: triggerDownload } = useSelector(
     (state) => state.resume
   );
@@ -45,6 +57,11 @@ export function ResumeBuild() {
   const toast = useToast();
   const handleCreateResume = () => {
     setResumeCreated(true);
+  };
+  const replacePlaceholders = (html, data) => {
+    return html.replace(/{{(.*?)}}/g, (match, key) => {
+      return data[key.trim()] || "";
+    });
   };
 
   const YearsOfExperienceOptions = [
@@ -74,7 +91,27 @@ export function ResumeBuild() {
   useEffect(() => {
     fetchResumes();
   }, []);
-  console.log(resumeData);
+  const defaultData = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@gmail.com",
+    phoneNumber: "0501111111",
+    experience: "10+ years",
+    education: "Code Academy Baku",
+    description:
+      "I am a C# and ASP.NET developer with over 10 years of experience in building scalable web applications.",
+  };
+  const prepareStructure = (structure) => {
+    return structure
+      .replace("{{firstName}}", defaultData.firstName)
+      .replace("{{lastName}}", defaultData.lastName)
+      .replace("{{email}}", defaultData.email)
+      .replace("{{phoneNumber}}", defaultData.phoneNumber)
+      .replace("{{experience}}", defaultData.experience)
+      .replace("{{education}}", defaultData.education)
+      .replace("{{description}}", defaultData.description);
+  };
+
   const toastSuccess = (message) => {
     toast({
       title: message,

@@ -86,7 +86,7 @@ export function Profile() {
     <Box
       width={{ base: "100%", md: "70%" }}
       mx="auto"
-      height={"100vh"}
+      height={"100%"}
       mt={10}
       p={5}
       maxWidth={800}
