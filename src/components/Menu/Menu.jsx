@@ -78,11 +78,6 @@ export function Menu() {
           </MenuItem>
         </MenuGroup>
         <MenuDivider />
-        <MenuGroup title="Help">
-          <MenuItem>Docs</MenuItem>
-          <MenuItem>FAQ</MenuItem>
-        </MenuGroup>
-        <MenuDivider />
         <MenuItem color="#2557a7" onClick={handleLogout}>
           Sign out
         </MenuItem>

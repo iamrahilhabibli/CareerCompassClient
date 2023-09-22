@@ -10,6 +10,7 @@ import {
   Flex,
   Heading,
   Input,
+  Text,
   Spinner,
   Table,
   TableCaption,
@@ -39,7 +40,10 @@ export default function CompaniesList() {
   const [companyIdToDelete, setcompanyIdToDelete] = useState(null);
   const navigate = useNavigate();
   const toast = useToast();
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [pageSize] = useState(10);
+  const maxPage = Math.ceil(totalItems / pageSize);
   const toastSuccess = (message) => {
     toast({
       title: message,
@@ -108,18 +112,39 @@ export default function CompaniesList() {
       setAlertDialogOpen(false);
     }
   };
+
+  const handleNext = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = prevPage + 1;
+      navigate(`/companymanagement?page=${newPage}`, {
+        replace: true,
+      });
+      return newPage;
+    });
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage((prevPage) => {
+      const newPage = Math.max(prevPage - 1, 1);
+      navigate(`/companymanagement?page=${newPage}`, {
+        replace: true,
+      });
+      return newPage;
+    });
+  };
+
   const debouncedFetchCompanies = debounce(async () => {
     const sortOrdersString = Object.keys(sortOrders)
       .map((key) => `${key}_${sortOrders[key]}`)
       .join("|");
 
-    let url = "https://localhost:7013/api/Dashboards/GetAllCompanies";
+    let url = `https://localhost:7013/api/Dashboards/GetAllCompanies?page=${currentPage}&pageSize=${pageSize}`;
+
     if (sortOrdersString) {
-      url += `?sortOrder=${sortOrdersString}`;
+      url += `&sortOrder=${sortOrdersString}`;
     }
     if (searchQuery) {
-      const separator = sortOrdersString ? "&" : "?";
-      url += `${separator}searchQuery=${searchQuery}`;
+      url += `&searchQuery=${searchQuery}`;
     }
 
     const config = {
@@ -130,17 +155,24 @@ export default function CompaniesList() {
 
     try {
       const { data } = await axios.get(url, config);
-      setCompanies(data);
+
+      if (data && data.items) {
+        setCompanies(data.items);
+        setTotalItems(data.totalItems);
+      } else {
+        console.warn("Received unexpected data format", data);
+      }
+
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching", error);
     }
   }, 1000);
+
   useEffect(() => {
     setIsLoading(true);
     debouncedFetchCompanies();
-  }, [sortOrders, searchQuery]);
-
+  }, [sortOrders, searchQuery, currentPage]);
   return (
     <Box
       rounded={"lg"}
@@ -252,7 +284,7 @@ export default function CompaniesList() {
                       </Flex>
                     </Td>
                   </Tr>
-                ) : companies.length === 0 ? (
+                ) : (companies?.length ?? 0) === 0 ? (
                   <Tr fontSize="sm">
                     <Td colSpan="6">No companies available</Td>
                   </Tr>
@@ -314,6 +346,24 @@ export default function CompaniesList() {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        bg="blue.50"
+        p={4}
+        rounded="md"
+      >
+        <Button onClick={handlePrevious} disabled={currentPage === 1}>
+          Previous
+        </Button>
+        <Text fontSize="xl" color="blue.800">
+          Page {currentPage} of {maxPage}
+        </Text>
+        <Button onClick={handleNext} disabled={currentPage >= maxPage}>
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 }
