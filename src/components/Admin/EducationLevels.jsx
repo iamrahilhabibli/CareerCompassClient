@@ -34,7 +34,7 @@ import useUser from "../../customhooks/useUser";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 export default function EducationLevels() {
-  const [educationLevelsData, setEducationlevelsData] = useState([]);
+  const [educationLevelsData, setEducationLevelsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { token } = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function EducationLevels() {
             },
           }
         );
-        setEducationlevelsData(response.data);
+        setEducationLevelsData(response.data);
       } catch (error) {
         console.log("There was an error fetching the data");
       } finally {
@@ -99,7 +99,7 @@ export default function EducationLevels() {
         const newId = response.data;
 
         toastSuccess("Successfully created");
-        setEducationlevelsData((prevLevels) => [
+        setEducationLevelsData((prevLevels) => [
           ...prevLevels,
           { levelId: newId, name: newLevelName },
         ]);
@@ -109,7 +109,7 @@ export default function EducationLevels() {
       toastError("Something went wrong");
     }
   };
-  console.log(educationLevelsData);
+
   const handleDeleteEducationlevel = async (levelId) => {
     try {
       const response = await axios.delete(
@@ -119,7 +119,7 @@ export default function EducationLevels() {
         }
       );
       if (response.status === 200) {
-        setEducationlevelsData((prevLevels) =>
+        setEducationLevelsData((prevLevels) =>
           prevLevels.filter((level) => level.levelId !== levelId)
         );
       }
@@ -142,12 +142,18 @@ export default function EducationLevels() {
       );
 
       if (response.status === 200) {
-        setEducationlevelsData((prevLevels) =>
-          prevLevels.map((level) =>
-            level.Id === levelId ? { ...level, name: newName } : level
-          )
-        );
+        console.log("Before updating state: ", educationLevelsData);
+
+        setEducationLevelsData((prevLevels) => {
+          return prevLevels.map((level) => {
+            if (level.levelId === levelId) {
+              return { ...level, name: newName };
+            }
+            return level;
+          });
+        });
         toastSuccess("Successfully updated");
+        setIsEditModalOpen(false);
       }
     } catch (error) {
       toastError("Something went wrong while updating");
@@ -234,6 +240,46 @@ export default function EducationLevels() {
                 </ModalFooter>
               </ModalContent>
             </Modal>
+            <Modal
+              isOpen={isEditModalOpen}
+              onClose={() => setIsEditModalOpen(false)}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Edit Education Level</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <FormControl>
+                    <FormLabel>Name</FormLabel>
+                    <Input
+                      placeholder="Enter new level name"
+                      value={newLevelName}
+                      onChange={(e) => setNewLevelName(e.target.value)}
+                    />
+                  </FormControl>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    colorScheme="blue"
+                    mr={3}
+                    onClick={() =>
+                      handleEditEducationLevel(
+                        editingLevel.levelId,
+                        newLevelName
+                      )
+                    }
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
             {
               <Tbody>
                 {isLoading ? (
@@ -277,48 +323,6 @@ export default function EducationLevels() {
                           >
                             <EditIcon />
                           </Button>
-                          <Modal
-                            isOpen={isEditModalOpen}
-                            onClose={() => setIsEditModalOpen(false)}
-                          >
-                            <ModalOverlay />
-                            <ModalContent>
-                              <ModalHeader>Edit Education Level</ModalHeader>
-                              <ModalCloseButton />
-                              <ModalBody>
-                                <FormControl>
-                                  <FormLabel>Name</FormLabel>
-                                  <Input
-                                    placeholder="Enter new level name"
-                                    value={newLevelName}
-                                    onChange={(e) =>
-                                      setNewLevelName(e.target.value)
-                                    }
-                                  />
-                                </FormControl>
-                              </ModalBody>
-                              <ModalFooter>
-                                <Button
-                                  colorScheme="blue"
-                                  mr={3}
-                                  onClick={() =>
-                                    handleEditEducationLevel(
-                                      editingLevel.levelId,
-                                      newLevelName
-                                    )
-                                  }
-                                >
-                                  Update
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  onClick={() => setIsEditModalOpen(false)}
-                                >
-                                  Cancel
-                                </Button>
-                              </ModalFooter>
-                            </ModalContent>
-                          </Modal>
 
                           <Button
                             colorScheme="red"

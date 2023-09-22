@@ -341,48 +341,6 @@ export default function ResumeControl() {
                         >
                           <EditIcon />
                         </Button>
-                        {/* <Modal
-                        //   isOpen={isEditModalOpen}
-                        //   onClose={() => setIsEditModalOpen(false)}
-                        >
-                          <ModalOverlay />
-                          <ModalContent>
-                            <ModalHeader>Edit Member</ModalHeader>
-                            <ModalCloseButton />
-                            <ModalBody>
-                              <FormControl>
-                                <FormLabel>Name</FormLabel>
-                                <Input
-                                  placeholder="Enter new level name"
-                                  //   value={newLevelName}
-                                  //   onChange={(e) =>
-                                  //     setNewLevelName(e.target.value)
-                                  //   }
-                                />
-                              </FormControl>
-                            </ModalBody>
-                            <ModalFooter>
-                              <Button
-                                colorScheme="blue"
-                                mr={3}
-                                // onClick={() =>
-                                //   handleEditEducationLevel(
-                                //     editingLevel.levelId,
-                                //     newLevelName
-                                //   )
-                                // }
-                              >
-                                Update
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                // onClick={() => setIsEditModalOpen(false)}
-                              >
-                                Cancel
-                              </Button>
-                            </ModalFooter>
-                          </ModalContent>
-                        </Modal> */}
 
                         <Button
                           colorScheme="red"

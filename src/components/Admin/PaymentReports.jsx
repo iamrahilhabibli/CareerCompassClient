@@ -19,21 +19,19 @@ import {
   Checkbox,
   CheckboxGroup,
 } from "@chakra-ui/react";
-import PaymentReports from "./PaymentReports";
 
-export default function Reports() {
+export default function PaymentReports() {
   const [chartData, setChartData] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [filters, setFilters] = useState({
-    showTotalUsers: true,
-    showJobSeekers: true,
-    showRecruiters: true,
+    showSubscriptions: true,
+    showResumes: true,
   });
 
   const fetchData = () => {
     if (startDate && endDate) {
-      const url = `https://localhost:7013/api/Dashboards/GetUserStats?startDate=${startDate}&endDate=${endDate}`;
+      const url = `https://localhost:7013/api/Payments/GetPaymentStats?startDate=${startDate}&endDate=${endDate}`;
       axios
         .get(url)
         .then((response) => {
@@ -48,6 +46,10 @@ export default function Reports() {
   useEffect(() => {
     fetchData();
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    console.log("Chart Data:", chartData);
+  }, [chartData]);
 
   return (
     <div>
@@ -77,33 +79,25 @@ export default function Reports() {
           mt={"auto"}
         ></Button>
       </Box>
+
       <CheckboxGroup colorScheme="blue">
         <Checkbox
-          isChecked={filters.showTotalUsers}
+          isChecked={filters.showSubscriptions}
           onChange={(e) =>
-            setFilters({ ...filters, showTotalUsers: e.target.checked })
+            setFilters({ ...filters, showSubscriptions: e.target.checked })
           }
         >
-          Total Users
+          Subscriptions
         </Checkbox>
         <Checkbox
-          isChecked={filters.showJobSeekers}
+          isChecked={filters.showResumes}
           onChange={(e) =>
-            setFilters({ ...filters, showJobSeekers: e.target.checked })
+            setFilters({ ...filters, showResumes: e.target.checked })
           }
         >
-          Job Seekers
-        </Checkbox>
-        <Checkbox
-          isChecked={filters.showRecruiters}
-          onChange={(e) =>
-            setFilters({ ...filters, showRecruiters: e.target.checked })
-          }
-        >
-          Recruiters
+          Resumes
         </Checkbox>
       </CheckboxGroup>
-
       <Box bg="white" borderRadius="md" boxShadow="md" p={4} width={650}>
         <LineChart
           width={600}
@@ -111,14 +105,15 @@ export default function Reports() {
           data={chartData}
           margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
         >
-          {filters.showTotalUsers && (
-            <Line type="monotone" dataKey="totalUsers" stroke="#8884d8" />
+          {filters.showSubscriptions && (
+            <Line
+              type="monotone"
+              dataKey="subscriptionCount"
+              stroke="#8884d8"
+            />
           )}
-          {filters.showJobSeekers && (
-            <Line type="monotone" dataKey="jobSeekers" stroke="#82ca9d" />
-          )}
-          {filters.showRecruiters && (
-            <Line type="monotone" dataKey="recruiters" stroke="#ffc658" />
+          {filters.showResumes && (
+            <Line type="monotone" dataKey="resumeCount" stroke="#82ca9d" />
           )}
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <XAxis
@@ -135,7 +130,6 @@ export default function Reports() {
           <Legend />
         </LineChart>
       </Box>
-      <PaymentReports />
     </div>
   );
 }
