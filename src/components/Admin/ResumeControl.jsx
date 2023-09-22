@@ -108,12 +108,14 @@ export default function ResumeControl() {
         }
       );
       if (response.status === 200) {
+        console.log(response.data);
         const newId = response.data;
         toastSuccess("Successfully created");
         setIsBoxOpen(false);
         setResumeData((resume) => [
           ...resume,
           {
+            id: newId,
             name: newResumeName,
             price: newResumePrice,
             description: newResumeDescription,
