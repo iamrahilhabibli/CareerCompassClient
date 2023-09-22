@@ -22,6 +22,7 @@ import {
   ModalCloseButton,
   ModalBody,
   Flex,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
@@ -360,14 +361,11 @@ export default function ThreeTierPricing() {
           Your Resumes
         </Heading>
 
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          textAlign="center"
-          justify="center"
-          align="center"
-          flexWrap="wrap"
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
           spacing={{ base: 4, lg: 10 }}
           py={10}
+          width="100%"
         >
           {resumeData.map((resume, index) => (
             <Box
@@ -376,8 +374,8 @@ export default function ThreeTierPricing() {
               borderRadius="lg"
               boxShadow="xl"
               p={6}
-              width={{ base: "100%", md: "600px" }}
-              mb={4}
+              minHeight="360px"
+              width="100%" // Make sure the box takes the full width of the grid column
               transition="all 0.3s"
               _hover={{ boxShadow: "2xl", transform: "scale(1.02)" }}
             >
@@ -389,7 +387,7 @@ export default function ThreeTierPricing() {
               <div>{prepareStructure(resume.structure)}</div>
             </Box>
           ))}
-        </Flex>
+        </SimpleGrid>
       </VStack>
     </Box>
   );
