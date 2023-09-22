@@ -93,6 +93,7 @@ export default function JobTypes() {
       );
       if (response.status === 200) {
         const newId = response.data;
+        console.log("responsedata", response.data);
 
         toastSuccess("Successfully created");
         setJobTypeData((prevLevels) => [
@@ -105,6 +106,7 @@ export default function JobTypes() {
       toastError("Something went wrong");
     }
   };
+  console.log("After Create", jobTypeData);
   const handleDeleteJobType = async (typeId) => {
     console.log(typeId);
     try {
