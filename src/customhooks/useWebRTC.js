@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 const useWebRTC = (userId, applicantAppUserId) => {
   const [peerConnection, setPeerConnection] = useState(null);
   const [error, setError] = useState(null);
-  const [videoConnectionRef, setVideoConnectionRef] = useState(null);
+  const videoConnectionRef = useRef(null);
   const dispatch = useDispatch();
 
   const addIceCandidate = async (candidate) => {
@@ -19,17 +20,17 @@ const useWebRTC = (userId, applicantAppUserId) => {
       console.error(`Failed to add ICE candidate: ${error}`);
     }
   };
+
   const initializePeerConnection = () => {
     const configuration = {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     };
     const pc = new RTCPeerConnection(configuration);
-    pc.debugId = Math.random().toString();
 
     pc.onicecandidate = async (event) => {
       if (event.candidate) {
         console.log("ICE candidate generated:", event.candidate);
-        if (videoConnectionRef && videoConnectionRef.current) {
+        if (videoConnectionRef.current) {
           try {
             await videoConnectionRef.current.invoke(
               "SendIceCandidate",
@@ -48,6 +49,12 @@ const useWebRTC = (userId, applicantAppUserId) => {
         console.warn("event.candidate is null");
       }
     };
+
+    pc.ontrack = (event) => {
+      console.log("Received remote track", event.track);
+      // Here, you'd typically attach this track to a <video> or <audio> HTML element
+    };
+
     setPeerConnection(pc);
   };
 
@@ -60,7 +67,6 @@ const useWebRTC = (userId, applicantAppUserId) => {
 
   const createOffer = async () => {
     setError(null);
-
     if (!peerConnection) {
       setError("Peer connection is not initialized.");
       return null;
@@ -98,12 +104,15 @@ const useWebRTC = (userId, applicantAppUserId) => {
   };
 
   const endConnection = () => {
-    console.log("Endconnection called");
+    console.log("EndConnection called");
+
     if (peerConnection) {
-      peerConnection.getSenders().forEach((sender) => {
+      const senders = peerConnection.getSenders();
+      senders.forEach((sender) => {
         if (sender.track) {
           sender.track.stop();
         }
+        peerConnection.removeTrack(sender);
       });
       peerConnection.close();
     }

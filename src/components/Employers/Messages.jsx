@@ -193,12 +193,7 @@ export function Messages() {
     endConnection,
     initializePeerConnection,
     addIceCandidate,
-  } = useWebRTC(
-    userId,
-    currentRecipientId,
-    videoConnectionRef,
-    isVideoConnectionReady
-  );
+  } = useWebRTC(userId, currentRecipientId);
   useEffect(() => {
     if (peerConnection) {
       setIsLoadingPeerConnection(false);
@@ -253,7 +248,7 @@ export function Messages() {
       });
 
       const offer = await createOffer();
-
+      console.log("Generated Offer", offer);
       if (!offer) {
         toast({
           title: "Something went wrong!",
@@ -296,9 +291,6 @@ export function Messages() {
   const endCall = async () => {
     endConnection();
     if (videoConnectionRef.current.state === HubConnectionState.Connected) {
-      console.log("UserId before invoke: ", userId);
-      console.log("RecipientId before invoke: ", currentRecipientId);
-
       try {
         await videoConnectionRef.current.invoke(
           "NotifyCallDeclined",

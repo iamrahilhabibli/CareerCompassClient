@@ -9,6 +9,10 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const [focusedVideo, setFocusedVideo] = useState("remote");
   const toast = useToast();
 
+  const handleError = (message) => {
+    setError(message);
+  };
+
   useEffect(() => {
     if (error) {
       toast({
@@ -19,13 +23,16 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         isClosable: true,
       });
     }
-  }, [error, toast]);
+  }, [error]);
 
   useEffect(() => {
-    if (!mediaStream) {
-      // setError("No media stream available.");
-    } else if (localVideoRef.current) {
+    if (mediaStream && localVideoRef.current) {
+      // Debug log 1: Checking if media stream has tracks
+      console.log("Media stream tracks: ", mediaStream.getTracks());
+
       localVideoRef.current.srcObject = mediaStream;
+    } else if (!mediaStream) {
+      handleError("No media stream available.");
     }
 
     return () => {
@@ -35,19 +42,55 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
 
   useEffect(() => {
     if (peerConnection) {
+      console.log("PeerConnection State: ", peerConnection.connectionState);
+      console.log(
+        "PeerConnection IceConnectionState: ",
+        peerConnection.iceConnectionState
+      );
+
       const handleTrackEvent = (event) => {
-        if (remoteVideoRef.current && !remoteVideoRef.current.srcObject) {
+        console.log("Event tracks: ", event.streams[0].getTracks());
+        if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
 
+      const handleIceConnectionStateChange = () => {
+        console.log(
+          "ICE Connection State Change:",
+          peerConnection.iceConnectionState
+        );
+      };
+
+      const handleIceCandidate = (event) => {
+        if (event.candidate) {
+          console.log("ICE candidate:", event.candidate);
+        }
+      };
+
+      const handleNegotiationNeeded = async () => {
+        console.log("Negotiation needed");
+      };
+
+      const handleConnectionStateChange = () => {
+        console.log("Connection State Change:", peerConnection.connectionState);
+      };
       peerConnection.ontrack = handleTrackEvent;
+      peerConnection.oniceconnectionstatechange =
+        handleIceConnectionStateChange;
+      peerConnection.onicecandidate = handleIceCandidate;
+      peerConnection.onnegotiationneeded = handleNegotiationNeeded;
+      peerConnection.onconnectionstatechange = handleConnectionStateChange;
 
       return () => {
         peerConnection.ontrack = null;
+        peerConnection.oniceconnectionstatechange = null;
+        peerConnection.onicecandidate = null;
+        peerConnection.onnegotiationneeded = null;
+        peerConnection.onconnectionstatechange = null;
       };
     } else {
-      // setError("No peer connection available.");
+      // handleError("No peer connection available.");
     }
   }, [peerConnection]);
 
@@ -55,7 +98,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
     <Flex
       className="video-call-wrapper"
       height="100%"
-      maxWidth={"100%"}
+      maxWidth="100%"
       borderRadius="15px"
       justify="space-between"
       overflow="hidden"
@@ -89,7 +132,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         onClick={() =>
           setFocusedVideo(focusedVideo === "local" ? "remote" : "local")
         }
-      ></Box>
+      />
       <Box
         as="video"
         ref={remoteVideoRef}
@@ -104,7 +147,7 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         onClick={() =>
           setFocusedVideo(focusedVideo === "remote" ? "local" : "remote")
         }
-      ></Box>
+      />
     </Flex>
   );
 }

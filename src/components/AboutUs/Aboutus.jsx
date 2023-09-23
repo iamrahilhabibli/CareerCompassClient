@@ -10,12 +10,12 @@ import {
 import styles from "./Aboutus.module.css";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Aboutus() {
-  // State to hold the fetched team members
+  const navigate = useNavigate();
   const [teamMembers, setTeamMembers] = useState([]);
 
-  // State for the flipped card logic remains the same
   const [flippedState, setFlippedState] = useState({});
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export default function Aboutus() {
   const toggleFlip = (index) => {
     setFlippedState({ ...flippedState, [index]: !flippedState[index] });
   };
+  console.log(teamMembers);
   return (
     <Box p={8}>
       <Box
@@ -101,7 +102,14 @@ export default function Aboutus() {
         </SimpleGrid>
         <Text mt={6} textAlign="center" fontWeight="medium" color="gray.700">
           Do you believe you have what it takes to be part of our team?{" "}
-          <Text as="span" fontWeight="bold" color="teal.600">
+          <Text
+            onClick={() => navigate("/contact")}
+            cursor={"pointer"}
+            _hover={{ textDecoration: "underline" }}
+            as="span"
+            fontWeight="bold"
+            color="teal.600"
+          >
             Message us!
           </Text>
         </Text>

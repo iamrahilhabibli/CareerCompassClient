@@ -270,7 +270,7 @@ export function SearchResultCards({ searchResults }) {
       >
         <Button
           onClick={toggleSortOrder}
-          colorScheme="teal"
+          colorScheme="blue"
           variant="outline"
           size="md"
           px={4}
@@ -323,10 +323,10 @@ export function SearchResultCards({ searchResults }) {
                       fontWeight="600"
                       mt="1"
                       lineHeight="tight"
-                      bg="teal.600"
+                      bg="blue.600"
                       color="white"
                       p={2}
-                      boxShadow="0px 2px 4px #319795"
+                      boxShadow="0px 2px 4px "
                       borderRadius="md"
                       _hover={{ textDecoration: "underline" }}
                     >

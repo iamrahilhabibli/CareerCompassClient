@@ -59,7 +59,6 @@ const AdminLinkItems = [
     icon: FiInfo,
     path: "/aboutcompanyteam",
   },
-  { name: "Settings", icon: FiSettings, path: "/adminsettings" },
 ];
 
 const AdminSidebarContent = ({ onClose, ...rest }) => (

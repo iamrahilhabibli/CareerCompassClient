@@ -32,6 +32,7 @@ import useUser from "../../customhooks/useUser";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+
 export default function AboutCompany() {
   const [companyTeamData, setCompanyTeamData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +65,8 @@ export default function AboutCompany() {
   const [newPosition, setNewPosition] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [editingMember, setEditinMember] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const uploadImageToServer = async (file, userId, containerName) => {
     const formData = new FormData();
     formData.append("files", file);
@@ -174,7 +177,6 @@ export default function AboutCompany() {
       toastError("Something went wrong");
     }
   };
-  console.log(companyTeamData);
   return (
     <Box
       rounded={"lg"}
@@ -349,22 +351,62 @@ export default function AboutCompany() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
-                          //   onClick={() => {
-                          //     setEditingLevel(level);
-                          //     setIsEditModalOpen(true);
-                          //   }}
+                          onClick={() => {
+                            setCompanyTeamData(member);
+                            setIsEditModalOpen(true);
+                          }}
                         >
                           <EditIcon />
                         </Button>
                         <Modal
-                        //   isOpen={isEditModalOpen}
-                        //   onClose={() => setIsEditModalOpen(false)}
+                          isOpen={isEditModalOpen}
+                          onClose={() => setIsEditModalOpen(false)}
                         >
                           <ModalOverlay />
                           <ModalContent>
                             <ModalHeader>Edit Member</ModalHeader>
                             <ModalCloseButton />
                             <ModalBody>
+                              <FormControl>
+                                <FormLabel>Name</FormLabel>
+                                <Input
+                                  placeholder="Enter new level name"
+                                  //   value={newLevelName}
+                                  //   onChange={(e) =>
+                                  //     setNewLevelName(e.target.value)
+                                  //   }
+                                />
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel>Name</FormLabel>
+                                <Input
+                                  placeholder="Enter new level name"
+                                  //   value={newLevelName}
+                                  //   onChange={(e) =>
+                                  //     setNewLevelName(e.target.value)
+                                  //   }
+                                />
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel>Name</FormLabel>
+                                <Input
+                                  placeholder="Enter new level name"
+                                  //   value={newLevelName}
+                                  //   onChange={(e) =>
+                                  //     setNewLevelName(e.target.value)
+                                  //   }
+                                />
+                              </FormControl>
+                              <FormControl>
+                                <FormLabel>Name</FormLabel>
+                                <Input
+                                  placeholder="Enter new level name"
+                                  //   value={newLevelName}
+                                  //   onChange={(e) =>
+                                  //     setNewLevelName(e.target.value)
+                                  //   }
+                                />
+                              </FormControl>
                               <FormControl>
                                 <FormLabel>Name</FormLabel>
                                 <Input
@@ -398,7 +440,6 @@ export default function AboutCompany() {
                             </ModalFooter>
                           </ModalContent>
                         </Modal>
-
                         <Button
                           colorScheme="red"
                           variant="outline"

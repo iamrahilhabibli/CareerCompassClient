@@ -12,6 +12,7 @@ import {
   useToast,
   SimpleGrid,
   Badge,
+  Spinner,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import ccLogoLarge from "../images/cclogolarge.png";
@@ -26,6 +27,7 @@ import { FaStar } from "react-icons/fa";
 
 export function Companies() {
   const { userId } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
   const [followingCompanies, setFollowingCompanies] = useState([]);
   const [followedCompanies, setFollowedCompanies] = useState([]);
   const [companyItems, setCompanyItems] = useState([]);
@@ -37,13 +39,16 @@ export function Companies() {
   const [companies, setCompanies] = useState([]);
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get("https://localhost:7013/api/Companies/GetHighestRated")
       .then((response) => {
         setCompanies(response.data);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("There was an error fetching the data", error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -363,67 +368,71 @@ export function Companies() {
           <Heading as="h4" size="lg" textAlign="left">
             Popular Companies
           </Heading>
-          <SimpleGrid mt={50} columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
-            {companies.map((company, index) => (
-              <Box
-                key={index}
-                p={5}
-                shadow="md"
-                borderWidth="1px"
-                borderRadius="lg"
-              >
-                <Image
-                  boxSize="100px"
-                  objectFit="cover"
-                  src={company.logoUrl || ccLogoLarge}
-                  alt={`${company.companyName} logo`}
-                  borderRadius="12px"
-                  boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = ccLogoLarge;
-                  }}
-                />
-
-                <Text
-                  fontSize={"16px"}
-                  color={"#2557a7"}
-                  fontWeight={"700"}
-                  _hover={{ textDecoration: "underline" }}
-                  cursor={"pointer"}
-                  onClick={() =>
-                    navigate(`/companies/${company.companyId}`, {
-                      state: { company },
-                    })
-                  }
-                >
-                  {company.companyName.length > 20
-                    ? `${company.companyName.substring(0, 17)}...`
-                    : company.companyName}
-                </Text>
-
+          {isLoading ? (
+            <Spinner size="xl" mt={50} />
+          ) : (
+            <SimpleGrid mt={50} columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
+              {companies.map((company, index) => (
                 <Box
-                  style={{ display: "flex", flexDirection: "row" }}
-                  mt={2}
-                  alignItems="center"
+                  key={index}
+                  p={5}
+                  shadow="md"
+                  borderWidth="1px"
+                  borderRadius="lg"
                 >
-                  {Array(5)
-                    .fill("")
-                    .map((_, i) => (
-                      <span key={i}>
-                        <FaStar
-                          color={i < company.rating ? "#FFD700" : "#B0C4DE"}
-                          style={{ marginRight: "4px" }}
-                        />
-                      </span>
-                    ))}
-                  <Badge ml="2" fontSize="0.8em" colorScheme="blue">
-                    {company.reviewsCount} reviews
-                  </Badge>
+                  <Image
+                    boxSize="100px"
+                    objectFit="cover"
+                    src={company.logoUrl || ccLogoLarge}
+                    alt={`${company.companyName} logo`}
+                    borderRadius="12px"
+                    boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = ccLogoLarge;
+                    }}
+                  />
+
+                  <Text
+                    fontSize={"16px"}
+                    color={"#2557a7"}
+                    fontWeight={"700"}
+                    _hover={{ textDecoration: "underline" }}
+                    cursor={"pointer"}
+                    onClick={() =>
+                      navigate(`/companies/${company.companyId}`, {
+                        state: { company },
+                      })
+                    }
+                  >
+                    {company.companyName.length > 20
+                      ? `${company.companyName.substring(0, 17)}...`
+                      : company.companyName}
+                  </Text>
+
+                  <Box
+                    style={{ display: "flex", flexDirection: "row" }}
+                    mt={2}
+                    alignItems="center"
+                  >
+                    {Array(5)
+                      .fill("")
+                      .map((_, i) => (
+                        <span key={i}>
+                          <FaStar
+                            color={i < company.rating ? "#FFD700" : "#B0C4DE"}
+                            style={{ marginRight: "4px" }}
+                          />
+                        </span>
+                      ))}
+                    <Badge ml="2" fontSize="0.8em" colorScheme="blue">
+                      {company.reviewsCount} reviews
+                    </Badge>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
-          </SimpleGrid>
+              ))}
+            </SimpleGrid>
+          )}
         </Box>
       </Box>
     </>

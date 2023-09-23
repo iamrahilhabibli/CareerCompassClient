@@ -213,14 +213,18 @@ export function JobseekerMessages() {
     try {
       const localStream = await startMedia();
       if (!localStream) {
+        console.log("No local stream");
         return;
       }
+      console.log("Media Stream Tracks:", localStream.getTracks());
 
-      localStream
-        .getTracks()
-        .forEach((track) => peerConnection.addTrack(track, localStream));
+      localStream.getTracks().forEach((track) => {
+        console.log("Adding tracks to peer connection", track.kind);
+        peerConnection.addTrack(track, localStream);
+      });
 
       const answer = await peerConnection.createAnswer();
+      console.log("Generated answer:", answer);
       await peerConnection.setLocalDescription(answer);
 
       setupIceCandidateHandling(callerId);
@@ -313,6 +317,7 @@ export function JobseekerMessages() {
     });
     return null;
   }
+
   return (
     <>
       <Box
@@ -400,7 +405,6 @@ export function JobseekerMessages() {
           )}
         </Box>
       </Box>
-      {console.log(messages)}
       <Modal isOpen={isOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent maxW="800px">

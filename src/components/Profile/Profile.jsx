@@ -173,7 +173,11 @@ export function Profile() {
                 >
                   Email: {userDetails?.email}
                 </Text>
-                <Text>Subscription Plan: {userDetails?.subscriptionName}</Text>
+                {userRole === "Recruiter" && (
+                  <Text>
+                    Subscription Plan: {userDetails?.subscriptionName}
+                  </Text>
+                )}
                 <Button
                   size={buttonSize}
                   colorScheme="blue"

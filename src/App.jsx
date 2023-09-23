@@ -60,6 +60,7 @@ import OurMissionInfo from "./components/Admin/OurMissionInfo";
 import Hangfire from "./components/Admin/Hangfire";
 import InterviewPlanner from "./components/Employers/InterviewPlanner";
 import ResumeControl from "./components/Admin/ResumeControl";
+import Contact from "./components/ContactUs/Contact";
 export function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -169,6 +170,7 @@ export function App() {
               <Route path="/feedback/:userId" element={<UserFeedback />} />
               <Route path="/companydetailform" element={<Multistep />} />
               <Route path="/companydetails" element={<Details />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/profile/:userId" element={<Profile />} />
               <Route path="/search" element={<SearchResultCards />} />
               <Route path="/forgotpassword" element={<ForgotPass />} />
