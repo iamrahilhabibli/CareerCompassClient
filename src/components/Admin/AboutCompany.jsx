@@ -122,7 +122,7 @@ export default function AboutCompany() {
         setCompanyTeamData((team) => [
           ...team,
           {
-            id: newId,
+            memberId: newId,
             firstName: newName,
             lastName: newSurname,
             position: newPosition,
@@ -156,6 +156,25 @@ export default function AboutCompany() {
     };
     fetchMembers();
   }, []);
+  const handleDeleteMember = async (memberId) => {
+    try {
+      const response = await axios.delete(
+        `https://localhost:7013/api/Dashboards/RemoveMember?memberId=${memberId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.status === 200) {
+        setCompanyTeamData((prevLevels) =>
+          prevLevels.filter((member) => member.memberId !== memberId)
+        );
+      }
+      toastSuccess("Deleted successfully");
+    } catch (error) {
+      toastError("Something went wrong");
+    }
+  };
+  console.log(companyTeamData);
   return (
     <Box
       rounded={"lg"}
@@ -385,9 +404,7 @@ export default function AboutCompany() {
                           variant="outline"
                           size="xs"
                           borderRadius="full"
-                          //   onClick={() =>
-                          //     handleDeleteEducationlevel(level.levelId)
-                          //   }
+                          onClick={() => handleDeleteMember(member.memberId)}
                         >
                           <DeleteIcon />
                         </Button>

@@ -105,9 +105,7 @@ export default function JobTypes() {
       toastError("Something went wrong");
     }
   };
-  console.log("After Create", jobTypeData);
   const handleDeleteJobType = async (typeId) => {
-    console.log(typeId);
     try {
       const response = await axios.delete(
         `https://localhost:7013/api/Dashboards/RemoveJobType?jobTypeId=${typeId}`,

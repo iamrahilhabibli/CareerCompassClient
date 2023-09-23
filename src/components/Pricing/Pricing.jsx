@@ -186,7 +186,7 @@ export default function ThreeTierPricing() {
     lastName: "Doe",
     email: "john.doe@gmail.com",
     phoneNumber: "0501111111",
-    experience: "10+ ",
+    experience: "10+",
     education: "Code Academy Baku",
     description:
       "I am a highly skilled C# and ASP.NET developer with over 10 years of experience in building scalable web applications. My expertise includes designing robust backend systems, crafting efficient database structures, and implementing responsive front-end interfaces using technologies like ReactJS. I am passionate about delivering high-quality software solutions that meet and exceed client expectations. With a solid foundation in software engineering principles, I excel in problem-solving and collaborating with cross-functional teams to bring innovative ideas to life. I am committed to continuous learning, staying updated with the latest industry trends, and adapting to new technologies to deliver cutting-edge solutions.",
