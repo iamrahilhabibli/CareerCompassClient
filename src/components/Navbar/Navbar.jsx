@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import useUser from "../../customhooks/useUser";
 import { useNavigate } from "react-router-dom";
+import compassLogo from "../../images/compassLogo.jpeg";
 import {
   Box,
   Divider,
@@ -80,6 +81,9 @@ export function Navbar() {
   const redirectToMessages = () => {
     navigate("/jsmessages");
   };
+  const redirectToRecruiterMessages = () => {
+    navigate("/messages");
+  };
   useEffect(() => {
     if (
       !initialLoad &&
@@ -110,7 +114,7 @@ export function Navbar() {
     <Flex as="nav" align="center" justify="space-between" px={4} py={2}>
       <Flex align="center">
         <Link to="/">
-          <Image boxSize="80px" src={cclogolarge} alt="Logo" />
+          <Image boxSize="80px" src={compassLogo} alt="Logo" />
         </Link>
         <HStack spacing={4} display={{ base: "none", md: "flex" }}>
           <Link
@@ -144,9 +148,14 @@ export function Navbar() {
           <HStack spacing={4}>
             <IconButton
               icon={<ChatIcon boxSize="4" />}
-              onClick={redirectToMessages}
+              onClick={() => {
+                userRole === "Recruiter"
+                  ? redirectToRecruiterMessages()
+                  : redirectToMessages();
+              }}
               _hover={{ color: "#2557a7" }}
             />
+
             <BellIcon
               boxSize={6}
               transition="color 0.3s ease"

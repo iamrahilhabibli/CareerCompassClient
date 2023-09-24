@@ -97,6 +97,7 @@ export const useSignalRVideo = (
   const [connection, setConnection] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (token) {
       const newConnection = new HubConnectionBuilder()

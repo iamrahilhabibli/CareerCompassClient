@@ -5,7 +5,7 @@ import styles from "../../Home.module.css";
 import welcome1 from "../../images/business-people-having-discussion-dispute-disagreement-meeting-negotiations-ai-generative.jpg";
 import welcome2 from "../../images/successful-business-team-smiling-with-confidence-indoors-generated-by-ai.jpg";
 import welcome3 from "../../images/one-person-holding-jigsaw-puzzle-solution-success-generated-by-ai.jpg";
-
+import welcomeImg1 from "../../images/WelcomeImg1.jpg";
 export function WelcomePage() {
   const settings = {
     dots: true,
@@ -24,13 +24,13 @@ export function WelcomePage() {
         <Slider {...settings}>
           <Box
             p={4}
-            bgImage={`url(${welcome1})`}
+            bgImage={welcomeImg1}
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide1}
             height="100vh"
           >
-            <Heading as="h3" size="lg" color="white">
+            <Heading as="h3" size="lg" color="blue">
               Connecting Talent
               <br />
               With Opportunity
@@ -56,7 +56,7 @@ export function WelcomePage() {
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide3}
-            height="100vh"
+            height="100%"
           >
             <Heading as="h3" size="lg" color="white">
               Find Your Perfect Fit,

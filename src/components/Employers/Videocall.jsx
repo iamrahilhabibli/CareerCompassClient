@@ -27,12 +27,12 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
 
   useEffect(() => {
     if (mediaStream && localVideoRef.current) {
-      // Debug log 1: Checking if media stream has tracks
       console.log("Media stream tracks: ", mediaStream.getTracks());
 
       localVideoRef.current.srcObject = mediaStream;
     } else if (!mediaStream) {
-      handleError("No media stream available.");
+      console.log("Media stream does not exist");
+      // handleError("No media stream available.");
     }
 
     return () => {

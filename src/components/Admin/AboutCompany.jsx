@@ -177,6 +177,7 @@ export default function AboutCompany() {
       toastError("Something went wrong");
     }
   };
+
   return (
     <Box
       rounded={"lg"}

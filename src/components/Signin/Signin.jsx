@@ -5,6 +5,7 @@ import { useMutation } from "react-query";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Signin.module.css";
+import logoBgRemoved from "../../images/logoBgRemoved.png";
 import {
   Flex,
   Box,
@@ -65,13 +66,28 @@ export function Signin() {
 
   if (isLoading) {
     return (
-      <Flex justifyContent="center" alignItems="center" height="100vh">
+      <Flex
+        justifyContent="center"
+        alignItems="center"
+        width="100vw"
+        height="100vh"
+        position="fixed"
+        zIndex="9999"
+        bg="rgba(0, 0, 0, 0.5)"
+      >
         <Spinner size="xl" />
       </Flex>
     );
   }
+
   return (
-    <Flex minH={"100vh"} align={"center"} justify={"center"} bg={bgColor}>
+    <Flex
+      minH={"100%"}
+      align={"center"}
+      justify={"center"}
+      bg={bgColor}
+      // bgImage={logoBgRemoved}
+    >
       {mutation.isLoading ? (
         <Spinner
           thickness="4px"
@@ -141,7 +157,7 @@ export function Signin() {
                 </Stack>
               </Stack>
             </Box>
-            <Text align={"center"}>
+            <Text align={"center"} mt={5}>
               New to Career Compass?{" "}
               <Link to="/signup" className={styles.createAnAccount}>
                 Create an account

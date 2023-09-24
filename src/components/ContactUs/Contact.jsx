@@ -42,6 +42,7 @@ export default function Contact() {
       borderRadius={"12px"}
       p={4}
       bg={"transparent"}
+      bgGradient="linear(to-r, teal.500, green.500)"
     >
       <Box
         borderWidth={"1px"}

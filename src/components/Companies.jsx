@@ -369,7 +369,9 @@ export function Companies() {
             Popular Companies
           </Heading>
           {isLoading ? (
-            <Spinner size="xl" mt={50} />
+            <Flex justifyContent="center" alignItems="center" height="200px">
+              <Spinner size="lg" color="blue.500" mt={50} />
+            </Flex>
           ) : (
             <SimpleGrid mt={50} columns={{ base: 1, sm: 2, md: 3 }} spacing={8}>
               {companies.map((company, index) => (
