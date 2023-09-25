@@ -66,17 +66,20 @@ export function Signin() {
 
   if (isLoading) {
     return (
-      <Flex
-        justifyContent="center"
-        alignItems="center"
-        width="100vw"
-        height="100vh"
+      <Box
         position="fixed"
+        top="0"
+        left="0"
+        w="100%"
+        h="100%"
         zIndex="9999"
         bg="rgba(0, 0, 0, 0.5)"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
       >
         <Spinner size="xl" />
-      </Flex>
+      </Box>
     );
   }
 
@@ -89,13 +92,26 @@ export function Signin() {
       // bgImage={logoBgRemoved}
     >
       {mutation.isLoading ? (
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Box
+          position="fixed"
+          top="0"
+          left="0"
+          w="100%"
+          h="100%"
+          zIndex="9999"
+          bg="rgba(0, 0, 0, 0.5)"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Box>
       ) : (
         <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
           <Stack align={"center"}>

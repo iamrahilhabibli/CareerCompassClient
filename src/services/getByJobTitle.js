@@ -11,7 +11,13 @@ const useGetByJobTitle = (searchTerm) => {
       const { data } = await axios.get(
         `https://localhost:7013/api/Vacancies/GetBySearch?jobTitle=${searchTerm}`
       );
-      return data;
+      const uniqueJobTitles = Array.from(
+        new Set(data.map((item) => item.jobTitle))
+      ).map((jobTitle) => {
+        return data.find((item) => item.jobTitle === jobTitle);
+      });
+
+      return uniqueJobTitles;
     },
     {
       enabled: !!searchTerm,
