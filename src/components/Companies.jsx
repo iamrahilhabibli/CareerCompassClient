@@ -24,10 +24,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useUser from "../customhooks/useUser";
 import axios from "axios";
 import { FaStar } from "react-icons/fa";
+import { useQuery } from "react-query";
 
 export function Companies() {
   const { userId } = useUser();
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
   const [followingCompanies, setFollowingCompanies] = useState([]);
   const [followedCompanies, setFollowedCompanies] = useState([]);
   const [companyItems, setCompanyItems] = useState([]);
@@ -36,30 +37,45 @@ export function Companies() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState(null);
-  const [companies, setCompanies] = useState([]);
+  // const [companies, setCompanies] = useState([]);
+  // const [inputValue, setInputValue] = useState("");
+  const [debouncedInput, setDebouncedInput] = useState("");
+
+  const fetchHighestRatedCompanies = async () => {
+    const res = await axios.get(
+      "https://localhost:7013/api/Companies/GetHighestRated"
+    );
+    return res.data;
+  };
+
+  const {
+    data: companies,
+    isLoading,
+    isError,
+  } = useQuery("highestRatedCompanies", fetchHighestRatedCompanies);
+
+  const fetchCompanyResult = useQuery(
+    ["fetchCompanyDetails", debouncedInput],
+    () => fetchCompanyDetails(debouncedInput),
+    {
+      enabled: !!debouncedInput,
+      onSuccess: (data) => {
+        setCompanyItems(data || []);
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
 
   useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get("https://localhost:7013/api/Companies/GetHighestRated")
-      .then((response) => {
-        setCompanies(response.data);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the data", error);
-        setIsLoading(false);
-      });
-  }, []);
+    const timerId = setTimeout(() => {
+      setDebouncedInput(inputValue);
+    }, 300);
 
-  const debouncedFetchCompanyDetails = debounce(async (input) => {
-    if (input) {
-      const results = await fetchCompanyDetails(input);
-      setCompanyItems(results || []);
-    } else {
-      setCompanyItems([]);
-    }
-  }, 300);
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [inputValue]);
+
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const companyName = searchParams.get("company");
@@ -85,12 +101,10 @@ export function Companies() {
     getItemProps,
   } = useCombobox({
     items: companyItems || [],
-    onSelectedItemChange: ({ selectedItem }) => {
-      handleSearch(selectedItem);
-    },
+    onSelectedItemChange: ({ selectedItem }) => handleSearch(selectedItem),
     onInputValueChange: ({ inputValue }) => {
       setInputValue(inputValue);
-      debouncedFetchCompanyDetails(inputValue);
+      // debouncedFetchCompanyDetails(inputValue);
     },
     itemToString: (item) => (item ? item.companyName : ""),
   });
@@ -199,6 +213,7 @@ export function Companies() {
     }
   }, [userId]);
   const isFollowing = (companyId) => followingCompanies.includes(companyId);
+
   return (
     <>
       <Box
@@ -394,13 +409,12 @@ export function Companies() {
                       e.target.src = ccLogoLarge;
                     }}
                   />
-
                   <Text
-                    fontSize={"16px"}
-                    color={"#2557a7"}
-                    fontWeight={"700"}
+                    fontSize="16px"
+                    color="#2557a7"
+                    fontWeight="700"
                     _hover={{ textDecoration: "underline" }}
-                    cursor={"pointer"}
+                    cursor="pointer"
                     onClick={() =>
                       navigate(`/companies/${company.companyId}`, {
                         state: { company },
@@ -411,7 +425,6 @@ export function Companies() {
                       ? `${company.companyName.substring(0, 17)}...`
                       : company.companyName}
                   </Text>
-
                   <Box
                     style={{ display: "flex", flexDirection: "row" }}
                     mt={2}

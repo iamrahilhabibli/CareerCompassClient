@@ -92,17 +92,15 @@ export function Signin() {
       // bgImage={logoBgRemoved}
     >
       {mutation.isLoading ? (
-        <Box
-          position="fixed"
-          top="0"
-          left="0"
-          w="100%"
-          h="100%"
-          zIndex="9999"
-          bg="rgba(0, 0, 0, 0.5)"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
+        <div
+          style={{
+            width: "100vw",
+            height: "100vh",
+            // backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
           <Spinner
             thickness="4px"
@@ -111,7 +109,7 @@ export function Signin() {
             color="blue.500"
             size="xl"
           />
-        </Box>
+        </div>
       ) : (
         <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
           <Stack align={"center"}>
