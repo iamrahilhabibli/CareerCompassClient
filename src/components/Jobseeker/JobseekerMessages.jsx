@@ -19,6 +19,8 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+
+import audioFile from "./ringing-151670.mp3";
 import { useQuery } from "react-query";
 import * as signalR from "@microsoft/signalr";
 import useUser from "../../customhooks/useUser";
@@ -62,6 +64,8 @@ export function JobseekerMessages() {
   const callStatus = useSelector((state) => state.call.status);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const iceCandidates = useSelector((state) => state.iceCandidate.candidates);
+  const [callerName, setCallerName] = useState("");
+  const [isCallerNameFetched, setIsCallerNameFetched] = useState(false);
 
   const {
     mediaStream,
@@ -130,7 +134,21 @@ export function JobseekerMessages() {
   const handleReceiveCallOffer = async (callerId, offer) => {
     setIsCallDialogOpen(true);
     setCallerId(callerId);
-    console.log(offer);
+    setIsCallerNameFetched(false);
+    try {
+      const response = await axios.get(
+        `https://localhost:7013/api/Recruiters/GetRecruiterName`,
+        {
+          params: { appUserId: callerId },
+        }
+      );
+      if (response.data) {
+        setCallerName(`${response.data.name} ${response.data.surname}`);
+        setIsCallerNameFetched(true);
+      }
+    } catch (err) {
+      console.error("Error fetching caller's name:", err);
+    }
     if (!peerConnection) {
       console.error("PeerConnection is not yet initialized.");
       showToastError("PeerConnection is not yet initialized.");
@@ -490,41 +508,32 @@ export function JobseekerMessages() {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      {isCallerNameFetched && (
+        <AlertDialog
+          isOpen={isCallDialogOpen}
+          onClose={() => setIsCallDialogOpen(false)}
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Incoming Call
+              </AlertDialogHeader>
+              <AlertDialogBody>
+                {`You have an incoming call from ${callerName}. Do you want to accept?`}
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button onClick={() => setIsCallDialogOpen(false)}>
+                  Decline
+                </Button>
+                <Button colorScheme="green" onClick={handleAccept}>
+                  Accept
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+      )}
 
-      <AlertDialog
-        isOpen={isCallDialogOpen}
-        onClose={() => setIsCallDialogOpen(false)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Incoming Call
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              {`You have an incoming call from ${callerId}. Do you want to accept?`}
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button
-                onClick={() => {
-                  setIsCallDialogOpen(false);
-                  dispatch(setDeclinedCall());
-                }}
-              >
-                Decline
-              </Button>
-              <Button
-                colorScheme="green"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAccept();
-                }}
-              >
-                Accept
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
       <Modal isOpen={isVideoCallOpen} onClose={() => setIsVideoCallOpen(false)}>
         <ModalOverlay />
         <ModalContent maxWidth="80%">
