@@ -299,7 +299,7 @@ export function Searchbar() {
         </Text>
       </Box>
 
-      <Flex flexDirection="column" alignItems="center" pt="75px">
+      {/* <Flex flexDirection="column" alignItems="center" pt="75px">
         <Text
           onClick={toggleRecentSearches}
           mb={4}
@@ -325,7 +325,7 @@ export function Searchbar() {
             <RecentSearches searchHistory={searchHistory} />
           </Box>
         )}
-      </Flex>
+      </Flex> */}
     </>
   );
 }

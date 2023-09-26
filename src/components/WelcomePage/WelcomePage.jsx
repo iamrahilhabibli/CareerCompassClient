@@ -7,6 +7,7 @@ import welcome2 from "../../images/successful-business-team-smiling-with-confide
 import welcome3 from "../../images/one-person-holding-jigsaw-puzzle-solution-success-generated-by-ai.jpg";
 import welcomeImg1 from "../../images/WelcomeImg1.jpg";
 import welcomeImg2 from "../../images/Welcomepage2.jpg";
+import welcomeImg3 from "../../images/welcomeimg3.jpg";
 export function WelcomePage() {
   const settings = {
     dots: true,
@@ -31,10 +32,19 @@ export function WelcomePage() {
             className={styles.slide1}
             height="100vh"
           >
-            <Heading as="h3" size="lg" color="blue">
-              Connecting Talent
+            <Heading
+              as="h3"
+              size="lg"
+              color="#2557a7"
+              style={{
+                marginLeft: "20%",
+                textAlign: "left",
+                fontSize: "2.5em",
+              }}
+            >
+              <span> Connecting Talent</span>
               <br />
-              With Opportunity
+              <span style={{ marginLeft: "10%" }}> With Opportunity</span>
             </Heading>
           </Box>
           <Box
@@ -45,24 +55,42 @@ export function WelcomePage() {
             className={styles.slide2}
             height="100vh"
           >
-            <Heading as="h3" size="lg" color="Blue">
-              Streamlining Recruitment,
+            <Heading
+              as="h3"
+              size="lg"
+              color="#2557a7"
+              style={{
+                marginLeft: "20%",
+                textAlign: "left",
+                fontSize: "2.5em",
+              }}
+            >
+              <span>Streamlining Recruitment,</span>
               <br />
-              Empowering Growth
+              <span style={{ marginLeft: "10%" }}>Empowering Growth</span>
             </Heading>
           </Box>
           <Box
             p={4}
-            bgImage={`url(${welcome3})`}
+            bgImage={welcomeImg3}
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide3}
             height="100vh"
           >
-            <Heading as="h3" size="lg" color="Blue">
-              Find Your Perfect Fit,
+            <Heading
+              as="h3"
+              size="lg"
+              color="#2557a7"
+              style={{
+                marginLeft: "20%",
+                textAlign: "left",
+                fontSize: "2.5em",
+              }}
+            >
+              <span>Find Your Perfect Fit,</span>
               <br />
-              Faster Than Ever
+              <span style={{ marginLeft: "10%" }}>Faster Than Ever</span>
             </Heading>
           </Box>
         </Slider>

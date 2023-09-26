@@ -11,7 +11,7 @@ import {
 import { FaInstagram, FaTwitter, FaYoutube, BiMailSend } from "react-icons/fa"; // Import your icons
 import { useNavigate } from "react-router-dom";
 import useUser from "../../customhooks/useUser";
-import compassLogo from "../../images/compassLogo.jpeg";
+import compassLogo from "../../images/logoBgRemoved.png";
 export const Footer = () => {
   const bg = useColorModeValue("gray.50", "gray.900");
   const color = useColorModeValue("gray.700", "gray.200");
@@ -62,7 +62,7 @@ export const Footer = () => {
               Contact
             </Text>
           </Stack>
-          <Stack direction={"row"} spacing={6}>
+          {/* <Stack direction={"row"} spacing={6}>
             {" "}
             <IconButton
               as={"a"}
@@ -85,7 +85,7 @@ export const Footer = () => {
               icon={<FaYoutube fontSize={"20px"} />}
               variant={"ghost"}
             />
-          </Stack>
+          </Stack> */}
         </SimpleGrid>
         <Box
           borderTopWidth={1}
