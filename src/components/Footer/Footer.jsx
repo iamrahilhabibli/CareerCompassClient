@@ -4,13 +4,14 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  Image,
   IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { FaInstagram, FaTwitter, FaYoutube, BiMailSend } from "react-icons/fa"; // Import your icons
 import { useNavigate } from "react-router-dom";
 import useUser from "../../customhooks/useUser";
-
+import compassLogo from "../../images/compassLogo.jpeg";
 export const Footer = () => {
   const bg = useColorModeValue("gray.50", "gray.900");
   const color = useColorModeValue("gray.700", "gray.200");
@@ -102,6 +103,7 @@ export const Footer = () => {
             align={{ base: "center", md: "center" }}
           >
             <Text>© 2023 Career Compass. All rights reserved</Text>
+            <Image src={compassLogo} alt={"Compass Logo"} boxSize={"100px"} />
             <Stack direction={"row"} spacing={6}></Stack>
           </Container>
         </Box>

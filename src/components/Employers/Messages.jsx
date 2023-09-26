@@ -427,6 +427,25 @@ export function Messages() {
       console.error("Error in handleReceiveIceCandidate: ", err);
     }
   };
+  useEffect(() => {
+    const handleCallDeclined = (userId, recipientId) => {
+      console.log(`Call declined by ${recipientId} to ${userId}`);
+      endConnection();
+      setIsVideoCallOpen(false);
+      initializePeerConnection();
+    };
+
+    if (videoConnectionRef.current) {
+      videoConnectionRef.current.off("ReceiveCallDeclined");
+      videoConnectionRef.current.on("ReceiveCallDeclined", handleCallDeclined);
+    }
+
+    return () => {
+      if (videoConnectionRef.current) {
+        videoConnectionRef.current.off("ReceiveCallDeclined");
+      }
+    };
+  }, [userId, endCall]);
 
   useEffect(() => {
     const handleReceiveEvent = (iceCandidateJson) => {

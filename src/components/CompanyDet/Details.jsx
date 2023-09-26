@@ -18,6 +18,7 @@ import {
   Avatar,
   FormLabel,
   FormControl,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import useUser from "../../customhooks/useUser";
 import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
@@ -189,37 +190,28 @@ export function Details() {
         maxWidth={800}
         bg="white"
         m="10px auto"
-        height="200px"
+        height="auto"
         borderRadius="12px"
+        p={4}
       >
-        <VStack
-          spacing={4}
-          padding="20px"
-          alignItems="center"
-          bg="transparent"
-          maxWidth="100%"
-          borderRadius="md"
-          shadow="md"
-          width="100%"
-          margin="0 auto"
-        >
+        <VStack spacing={4} padding="20px" alignItems="center">
           <Heading size="md">
             {company ? company.name : <Spinner size="xs" />}
           </Heading>
-          <VStack spacing={3} align="start" w="100%">
-            <Text>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="100%">
+            <Box>
               <strong>CEO:</strong>{" "}
               {company ? company.ceoName : <Spinner size="xs" />}
-            </Text>
-            <Text>
+            </Box>
+            <Box>
               <strong>Founded:</strong>{" "}
               {company ? company.dateFounded : <Spinner size="xs" />}
-            </Text>
-            <Text>
+            </Box>
+            <Box>
               <strong>Industry:</strong>{" "}
               {company ? company.industry : <Spinner size="xs" />}
-            </Text>
-            <Text>
+            </Box>
+            <Box>
               <strong>Website:</strong>
               <a
                 href={company ? company.webLink : "#"}
@@ -228,8 +220,8 @@ export function Details() {
               >
                 {company ? company.webLink : <Spinner size="xs" />}
               </a>
-            </Text>
-          </VStack>
+            </Box>
+          </SimpleGrid>
         </VStack>
       </Box>
     </Box>

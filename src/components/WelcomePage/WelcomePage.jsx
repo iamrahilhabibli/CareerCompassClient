@@ -6,6 +6,7 @@ import welcome1 from "../../images/business-people-having-discussion-dispute-dis
 import welcome2 from "../../images/successful-business-team-smiling-with-confidence-indoors-generated-by-ai.jpg";
 import welcome3 from "../../images/one-person-holding-jigsaw-puzzle-solution-success-generated-by-ai.jpg";
 import welcomeImg1 from "../../images/WelcomeImg1.jpg";
+import welcomeImg2 from "../../images/Welcomepage2.jpg";
 export function WelcomePage() {
   const settings = {
     dots: true,
@@ -20,7 +21,7 @@ export function WelcomePage() {
 
   return (
     <>
-      <Box width="100vw" height="100vh">
+      <Box width="100%" height="100vh" overflow={"hidden"}>
         <Slider {...settings}>
           <Box
             p={4}
@@ -38,13 +39,13 @@ export function WelcomePage() {
           </Box>
           <Box
             p={4}
-            bgImage={`url(${welcome2})`}
+            bgImage={welcomeImg2}
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide2}
             height="100vh"
           >
-            <Heading as="h3" size="lg" color="white">
+            <Heading as="h3" size="lg" color="Blue">
               Streamlining Recruitment,
               <br />
               Empowering Growth
@@ -56,9 +57,9 @@ export function WelcomePage() {
             bgSize="cover"
             bgRepeat="no-repeat"
             className={styles.slide3}
-            height="100%"
+            height="100vh"
           >
-            <Heading as="h3" size="lg" color="white">
+            <Heading as="h3" size="lg" color="Blue">
               Find Your Perfect Fit,
               <br />
               Faster Than Ever

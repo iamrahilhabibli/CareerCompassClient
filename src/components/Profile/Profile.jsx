@@ -178,15 +178,6 @@ export function Profile() {
                     Subscription Plan: {userDetails?.subscriptionName}
                   </Text>
                 )}
-                <Button
-                  size={buttonSize}
-                  colorScheme="blue"
-                  onClick={() => {
-                    /* Insert logic to open email change form */
-                  }}
-                >
-                  Change Email
-                </Button>
               </Flex>
               <Flex
                 justifyContent="space-between"

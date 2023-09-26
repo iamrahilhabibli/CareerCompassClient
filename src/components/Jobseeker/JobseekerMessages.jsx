@@ -123,7 +123,6 @@ export function JobseekerMessages() {
   const handleSendMessage = useSendMessage(toast);
 
   const handleCallDeclined = () => {
-    console.log("handleCallDeclined called");
     endConnection();
     setIsVideoCallOpen(false);
     initializePeerConnection();
@@ -276,6 +275,21 @@ export function JobseekerMessages() {
     } catch (error) {
       console.log("Error sending ICE candidate from callee:", error);
     }
+  };
+  const declineCall = async () => {
+    endConnection();
+    if (
+      connection &&
+      connection.state === signalR.HubConnectionState.Connected
+    ) {
+      try {
+        await connection.invoke("NotifyCallDeclined", userId, callerId);
+      } catch (error) {
+        console.error("Failed to decline the call: ", error.toString());
+      }
+    }
+    setIsVideoCallOpen(false);
+    initializePeerConnection();
   };
 
   const closeModal = async () => {
@@ -529,7 +543,7 @@ export function JobseekerMessages() {
             <Button
               colorScheme="red"
               variant="solid"
-              // onClick={endCall}
+              onClick={declineCall}
               leftIcon={<FaPhoneSlash color="white" />}
             ></Button>
           </ModalFooter>
