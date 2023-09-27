@@ -7,12 +7,14 @@ import {
   Button,
   useToast,
   Spinner,
+  Select,
 } from "@chakra-ui/react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import plannerImg from "../../images/plannerImg.png";
 import useUser from "../../customhooks/useUser";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
 import axios from "axios";
 const localizer = momentLocalizer(moment);
 
@@ -21,7 +23,13 @@ export default function InterviewPlanner() {
   const [showForm, setShowForm] = useState(false);
   const [isPlannerAvailable, setIsPlannerAvailable] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [newEvent, setNewEvent] = useState({ title: "", start: "", end: "" });
+  const DragAndDropCalendar = withDragAndDrop(Calendar);
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    start: "",
+    end: "",
+    importance: "Medium",
+  });
   const [events, setEvents] = useState([]);
   const toast = useToast();
   const toastSuccess = (message) => {
@@ -43,6 +51,43 @@ export default function InterviewPlanner() {
       position: "top-right",
     });
   };
+  const getEventColor = (importance) => {
+    switch (importance) {
+      case "High":
+        return "#FF6347";
+      case "Medium":
+        return "#FFA500";
+      case "Low":
+        return "#008000";
+      default:
+        return "#A9A9A9";
+    }
+  };
+  const handleEventDrop = async ({ event, start, end }) => {
+    console.log("Dropped event:", event);
+    console.log("Start time:", start);
+    console.log("End time:", end);
+    console.log(event);
+
+    const eventUpdateDto = {
+      id: event.id,
+      start: start,
+      end: end,
+    };
+
+    try {
+      const response = await axios.put(
+        "https://localhost:7013/api/Events/UpdateEvent",
+        eventUpdateDto
+      );
+      if (response.status === 200) {
+        console.log("Event updated successfully!");
+      }
+    } catch (error) {
+      console.error("Failed to update event:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -51,9 +96,11 @@ export default function InterviewPlanner() {
         );
         if (response.data) {
           const fetchedEvents = response.data.map((e) => ({
+            id: e.id,
             title: e.title,
             start: new Date(moment(e.start)),
             end: new Date(moment(e.end)),
+            importance: e.importance,
             allDay:
               moment(e.end).diff(moment(e.start), "days") > 0 ? true : false,
           }));
@@ -91,6 +138,7 @@ export default function InterviewPlanner() {
         title: newEvent.title,
         startDate: newEvent.start,
         endDate: newEvent.end,
+        importance: newEvent.importance,
       };
 
       const response = await axios.post(
@@ -107,6 +155,7 @@ export default function InterviewPlanner() {
             title: newEvent.title,
             start: new Date(moment(newEvent.start)),
             end: new Date(moment(newEvent.end)),
+            importance: newEvent.importance,
             allDay: false,
           },
         ]);
@@ -217,6 +266,19 @@ export default function InterviewPlanner() {
                 setNewEvent({ ...newEvent, end: e.target.value })
               }
             />
+
+            <Select
+              placeholder="Select Importance"
+              mb={4}
+              value={newEvent.importance}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, importance: e.target.value })
+              }
+            >
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </Select>
             <Button colorScheme="teal" onClick={handleAddEvent}>
               Submit
             </Button>
@@ -230,11 +292,17 @@ export default function InterviewPlanner() {
         bg="white"
         shadow="1px 1px 3px rgba(0,0,0,0.3)"
       >
-        <Calendar
+        <DragAndDropCalendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
+          onEventDrop={handleEventDrop}
+          eventPropGetter={(event) => ({
+            style: {
+              backgroundColor: getEventColor(event.importance),
+            },
+          })}
         />
       </Box>
     </Box>
