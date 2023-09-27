@@ -52,7 +52,7 @@ export function Menu() {
       });
   };
   return (
-    <ChakraMenu>
+    <ChakraMenu style={{ zIndex: 9999 }}>
       <MenuButton bg={"transparent"} as={Button}>
         <HamburgerIcon boxSize={6} cursor={"pointer"} />
       </MenuButton>

@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-
+import placeholder from "../../images/placeholder.jpg";
 import audioFile from "./ringing-151670.mp3";
 import { useQuery } from "react-query";
 import * as signalR from "@microsoft/signalr";
@@ -405,16 +405,14 @@ export function JobseekerMessages() {
                 onClick={() => openChatWithContact(contact)}
               >
                 <Flex alignItems="center">
-                  <Avatar
-                    src={contact.avatar || "https://via.placeholder.com/40"}
-                    size="sm"
-                  />
+                  <Avatar src={placeholder} size="sm" />
+
                   <Box ml={4}>
                     <Text fontWeight="bold">{`${contact.firstName} ${contact.lastName}`}</Text>
                     <Text fontSize="sm">Click to chat</Text>
                   </Box>
                 </Flex>
-                <Button
+                {/* <Button
                   colorScheme="red"
                   size="sm"
                   onClick={(e) => {
@@ -422,7 +420,7 @@ export function JobseekerMessages() {
                   }}
                 >
                   Delete
-                </Button>
+                </Button> */}
               </Flex>
             ))
           ) : (
