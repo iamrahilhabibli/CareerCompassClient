@@ -1,17 +1,27 @@
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import jobPosts from "../../images/jobposts.png";
+import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 import useUser from "../../customhooks/useUser";
 import { IoTrashOutline, IoPencilOutline } from "react-icons/io5";
 import {
   Box,
+  Button,
   Flex,
   Heading,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
   Table,
   TableCaption,
+  Text,
   TableContainer,
   Tbody,
   Td,
@@ -19,12 +29,18 @@ import {
   Thead,
   Tr,
   useToast,
+  Input,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 
 export function PostedJobs() {
   const { userId, token, isAuthenticated } = useUser();
   const [vacanciesList, setVacanciesList] = useState([]);
   const toast = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [vacancyDetails, setVacancyDetails] = useState(null);
+
   const fetchVacancies = async (id, token) => {
     const url = `https://localhost:7013/api/Vacancies/GetVacanciesById?id=${id}`;
 
@@ -93,6 +109,48 @@ export function PostedJobs() {
     }
   };
 
+  const handleEdit = (vacancyId) => {
+    const selectedVacancy = vacanciesList.find(
+      (vacancy) => vacancy.id === vacancyId
+    );
+    if (selectedVacancy) {
+      setVacancyDetails(selectedVacancy);
+      setIsModalOpen(true);
+    }
+  };
+  const saveChanges = async () => {
+    try {
+      const response = await axios.put(
+        `https://localhost:7013/api/Vacancies/UpdateExistingVacancy`,
+        vacancyDetails,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setIsModalOpen(false);
+        toast({
+          title: "Vacancy Updated.",
+          description: "Your changes have been successfully saved.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update vacancy", error);
+      toast({
+        title: "Update Failed.",
+        description: "Something went wrong while updating the vacancy.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <Box
@@ -116,6 +174,7 @@ export function PostedJobs() {
       </Box>
     );
   }
+
   return (
     <Box
       rounded={"lg"}
@@ -193,7 +252,7 @@ export function PostedJobs() {
                         <IoPencilOutline
                           size={24}
                           style={{ cursor: "pointer", marginRight: "15px" }}
-                          // onClick={() => handleEdit(vacancy.id)}
+                          onClick={() => handleEdit(vacancy.id)}
                         />
                         <IoTrashOutline
                           size={24}
@@ -209,6 +268,80 @@ export function PostedJobs() {
           </Table>
         </TableContainer>
       </Box>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Edit Vacancy</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {vacancyDetails ? (
+                <>
+                  <FormControl mb={4}>
+                    <FormLabel fontWeight="bold">Job Title:</FormLabel>
+                    <Input
+                      value={vacancyDetails.jobTitle}
+                      onChange={(e) =>
+                        setVacancyDetails({
+                          ...vacancyDetails,
+                          jobTitle: e.target.value,
+                        })
+                      }
+                    />
+                  </FormControl>
+
+                  <FormControl mb={4}>
+                    <FormLabel fontWeight="bold">Salary:</FormLabel>
+                    <Input
+                      value={vacancyDetails.salary}
+                      onChange={(e) =>
+                        setVacancyDetails({
+                          ...vacancyDetails,
+                          salary: e.target.value,
+                        })
+                      }
+                    />
+                  </FormControl>
+
+                  <FormControl id="description" mb={4}>
+                    <FormLabel fontWeight="bold">Description:</FormLabel>
+                    <Editor
+                      apiKey="your-api-key"
+                      value={vacancyDetails.description}
+                      id="description"
+                      init={{
+                        height: 300,
+                        menubar: false,
+                        plugins:
+                          "advlist autolink lists link image charmap print preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste code help wordcount",
+                        toolbar:
+                          "undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+                      }}
+                      onEditorChange={(content) =>
+                        setVacancyDetails({
+                          ...vacancyDetails,
+                          description: content,
+                        })
+                      }
+                    />
+                  </FormControl>
+                </>
+              ) : (
+                <Spinner />
+              )}
+            </ModalBody>
+
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={saveChanges}>
+                Save Changes
+              </Button>
+              <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </Box>
   );
 }
