@@ -40,6 +40,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
     { name: "Messages", icon: FiMessageSquare, path: `/messages` },
     { name: "Planner", icon: FiBookmark, path: "/planner" },
     { name: "Applicants", icon: FiStar, path: "/applicants" },
+    { name: "Details", icon: FiSettings, path: "/companydetails" },
   ];
 
   return (

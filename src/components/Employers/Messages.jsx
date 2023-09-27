@@ -493,7 +493,8 @@ export function Messages() {
         display="flex"
         justifyContent="center"
         alignItems="center"
-        height="100vh"
+        height="100%"
+        width="100%"
       >
         <Spinner size="xl" />
       </Box>

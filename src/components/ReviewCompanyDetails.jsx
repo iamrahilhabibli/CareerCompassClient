@@ -295,9 +295,9 @@ export function ReviewCompanyDetails() {
 
             <Box
               display="flex"
-              justifyContent="flex-end" // Changed from 'right'
-              alignItems="flex-end" // Changed from 'right'
-              alignContent="flex-end" // Changed from 'right'
+              justifyContent="flex-end"
+              alignItems="flex-end"
+              alignContent="flex-end"
               mt="50px"
             >
               <Box

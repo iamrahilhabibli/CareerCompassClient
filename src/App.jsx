@@ -73,6 +73,7 @@ export function App() {
     "/applicants",
     "/messages",
     "/planner",
+    "/companydetails",
   ];
   const pathsForAdminLayout = [
     "/dashboard",
@@ -112,6 +113,7 @@ export function App() {
                 <Route path="/applicants" element={<Applicants />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/planner" element={<InterviewPlanner />} />
+                <Route path="/companydetails" element={<Details />} />
               </Routes>
             </ProtectedRoute>
           </SidebarWithHeader>
@@ -169,7 +171,7 @@ export function App() {
               <Route path="/aboutus" element={<Aboutus />} />
               <Route path="/feedback/:userId" element={<UserFeedback />} />
               <Route path="/companydetailform" element={<Multistep />} />
-              <Route path="/companydetails" element={<Details />} />
+
               <Route path="/contact" element={<Contact />} />
               <Route path="/profile/:userId" element={<Profile />} />
               <Route path="/search" element={<SearchResultCards />} />

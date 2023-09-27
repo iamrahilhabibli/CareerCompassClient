@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Button,
@@ -6,6 +6,7 @@ import {
   MenuButton,
   MenuDivider,
   MenuGroup,
+  Text,
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
@@ -17,6 +18,7 @@ import { fetchRecruiterDetails } from "../../services/fetchRecruiterDetails";
 export function Menu() {
   const navigate = useNavigate();
   const { isAuthenticated, userId, userRole } = useUser();
+  const { userDetails, userDetailsLoading, token } = useUser(userId);
   const [companyId, setCompanyId] = useState(null);
 
   useEffect(() => {
@@ -55,10 +57,30 @@ export function Menu() {
         <HamburgerIcon boxSize={6} cursor={"pointer"} />
       </MenuButton>
       <MenuList>
-        <MenuGroup title="Profile">
-          <MenuItem onClick={() => navigate(`/profile/${userId}`)}>
-            My Account
+        <MenuGroup
+          title={
+            <Text
+              fontWeight={600}
+              color="#2557a7"
+              textAlign={{ base: "center", md: "center" }}
+            >
+              Welcome, {userDetails?.firstName} {userDetails?.lastName}
+            </Text>
+          }
+        >
+          <MenuItem onClick={() => navigate(`/passwordreset/${userId}`)}>
+            Change Password
           </MenuItem>
+          {userRole == "JobSeeker" && (
+            <MenuItem>
+              <Link
+                to={`/resumebuild/${userId}`}
+                _hover={{ color: "#2557a7", textDecoration: "underline" }}
+              >
+                Build your Resume
+              </Link>
+            </MenuItem>
+          )}
 
           {userRole === "Recruiter" && (
             <MenuItem
