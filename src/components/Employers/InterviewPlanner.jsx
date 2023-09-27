@@ -64,11 +64,6 @@ export default function InterviewPlanner() {
     }
   };
   const handleEventDrop = async ({ event, start, end }) => {
-    console.log("Dropped event:", event);
-    console.log("Start time:", start);
-    console.log("End time:", end);
-    console.log(event);
-
     const eventUpdateDto = {
       id: event.id,
       start: start,
@@ -82,6 +77,13 @@ export default function InterviewPlanner() {
       );
       if (response.status === 200) {
         console.log("Event updated successfully!");
+        const updatedEvents = events.map((e) => {
+          if (e.id === event.id) {
+            return { ...e, start: start, end: end };
+          }
+          return e;
+        });
+        setEvents(updatedEvents);
       }
     } catch (error) {
       console.error("Failed to update event:", error);
