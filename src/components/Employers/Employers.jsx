@@ -87,7 +87,6 @@ export function Employers() {
                     </Text>
                   </AccordionPanel>
                 </AccordionItem>
-                {/* Add more steps here */}
               </Accordion>
             </Box>
           </>

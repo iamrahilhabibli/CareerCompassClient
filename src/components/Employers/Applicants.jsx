@@ -91,7 +91,7 @@ export function Applicants() {
       enabled: isUserIdFetched,
     }
   );
-
+  console.log(applicants);
   return (
     <Box
       rounded={"lg"}

@@ -8,6 +8,8 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
   const [error, setError] = useState(null);
   const [focusedVideo, setFocusedVideo] = useState("remote");
   const toast = useToast();
+  const [isLocalVideoLoaded, setLocalVideoLoaded] = useState(false);
+  const [isRemoteVideoLoaded, setRemoteVideoLoaded] = useState(false);
 
   const handleError = (message) => {
     setError(message);
@@ -24,6 +26,29 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
       });
     }
   }, [error]);
+  useEffect(() => {
+    if (localVideoRef.current) {
+      localVideoRef.current.addEventListener("loadedmetadata", () => {
+        setLocalVideoLoaded(true);
+      });
+    }
+
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.addEventListener("loadedmetadata", () => {
+        setRemoteVideoLoaded(true);
+      });
+    }
+
+    return () => {
+      if (localVideoRef.current) {
+        localVideoRef.current.removeEventListener("loadedmetadata", () => {});
+      }
+
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.removeEventListener("loadedmetadata", () => {});
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (mediaStream && localVideoRef.current) {
@@ -32,7 +57,6 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
       localVideoRef.current.srcObject = mediaStream;
     } else if (!mediaStream) {
       console.log("Media stream does not exist");
-      // handleError("No media stream available.");
     }
 
     return () => {
@@ -90,7 +114,6 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         peerConnection.onconnectionstatechange = null;
       };
     } else {
-      // handleError("No peer connection available.");
     }
   }, [peerConnection]);
 
@@ -122,13 +145,13 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         ref={localVideoRef}
         autoPlay
         muted
-        maxWidth="48%"
         maxHeight="100%"
-        flex={focusedVideo === "local" ? 2 : 1}
         borderRadius="10px"
         boxShadow="md"
         m={4}
         objectFit="cover"
+        display={isLocalVideoLoaded ? "block" : "none"}
+        flex={isRemoteVideoLoaded ? (focusedVideo === "local" ? 2 : 1) : 1}
         onClick={() =>
           setFocusedVideo(focusedVideo === "local" ? "remote" : "local")
         }
@@ -137,13 +160,13 @@ export function VideoCall({ setIsVideoCallOpen, peerConnection, mediaStream }) {
         as="video"
         ref={remoteVideoRef}
         autoPlay
-        maxWidth="48%"
         maxHeight="100%"
-        flex={focusedVideo === "remote" ? 2 : 1}
         borderRadius="10px"
         boxShadow="md"
         m={4}
         objectFit="cover"
+        display={isRemoteVideoLoaded ? "block" : "none"}
+        flex={isLocalVideoLoaded ? (focusedVideo === "remote" ? 2 : 1) : 1}
         onClick={() =>
           setFocusedVideo(focusedVideo === "remote" ? "local" : "remote")
         }

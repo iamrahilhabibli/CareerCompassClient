@@ -154,6 +154,7 @@ export function SearchResultCards({ searchResults }) {
       dispatch(updateApplicationCount(selectedVacancy.currentApplicationCount));
     }
   }, [selectedVacancy]);
+  console.log(userId);
   const handleApplication = async () => {
     if (!isAuthenticated) {
       toast({
