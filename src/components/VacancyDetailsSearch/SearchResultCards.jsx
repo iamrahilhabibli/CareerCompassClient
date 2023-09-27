@@ -167,6 +167,7 @@ export function SearchResultCards({ searchResults }) {
       });
       return;
     }
+
     if (cvFile) {
       setIsUploading(true);
       const formData = new FormData();
@@ -186,20 +187,37 @@ export function SearchResultCards({ searchResults }) {
         );
 
         if (response.status === 200) {
-          await axios.post(`https://localhost:7013/api/JobApplications/Post`, {
-            vacancyId: selectedVacancy.id,
-            jobSeekerId: jobSeekerId,
-          });
-          toast({
-            title: "Success.",
-            description: "You have successfully applied for this position!",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "top-right",
-          });
-          setIsUploading(false);
-          onModalClose();
+          try {
+            await axios.post(
+              `https://localhost:7013/api/JobApplications/Post`,
+              {
+                vacancyId: selectedVacancy.id,
+                jobSeekerId: jobSeekerId,
+              }
+            );
+            toast({
+              title: "Success.",
+              description: "You have successfully applied for this position!",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+          } catch (error) {
+            if (error.response && error.response.status === 400) {
+              toast({
+                title: "Warning.",
+                description: "You've already applied for this position.",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "top-right",
+              });
+            } else {
+              // Handle other errors here
+              throw error;
+            }
+          }
         } else {
           toast({
             title: "Error.",
@@ -209,19 +227,20 @@ export function SearchResultCards({ searchResults }) {
             isClosable: true,
             position: "top-right",
           });
-          setIsUploading(false);
         }
       } catch (error) {
         console.error("Something went wrong:", error);
         toast({
           title: "Oops something went wrong.",
-          description: `Something went wrong please try again later`,
+          description: "Something went wrong. Please try again later.",
           status: "error",
           duration: 5000,
           isClosable: true,
           position: "top-right",
         });
+      } finally {
         setIsUploading(false);
+        onModalClose();
       }
     } else {
       toast({
@@ -258,7 +277,7 @@ export function SearchResultCards({ searchResults }) {
   if (isError) {
     navigate("/somethingwentwrong");
   }
-  console.log(vacancies);
+
   return (
     <>
       <Box
@@ -492,6 +511,20 @@ export function SearchResultCards({ searchResults }) {
                 </Badge>
               ))}
               <Divider my={3} />
+              {selectedVacancy?.shiftAndScheduleIds?.map((shift, index) => (
+                <Badge
+                  fontWeight={600}
+                  key={index}
+                  mr={1}
+                  mb={3}
+                  borderRadius={"8px"}
+                  colorScheme="blue"
+                  p={2}
+                >
+                  {shift}
+                </Badge>
+              ))}
+              <Divider my={3} />
               <div
                 style={{
                   maxHeight: "200px",
@@ -557,7 +590,13 @@ export function SearchResultCards({ searchResults }) {
             </FormControl>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleApplication}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleApplication}
+              isLoading={isUploading}
+              loadingText="Applying..."
+            >
               Confirm Application
             </Button>
             <Button variant="outline" onClick={onModalClose}>
