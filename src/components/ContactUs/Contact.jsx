@@ -7,13 +7,35 @@ import {
   Heading,
   Input,
   Textarea,
+  useToast,
 } from "@chakra-ui/react";
 import React from "react";
 import contactImg from "../../images/contactusimg.png";
 import { contactValidationScheme } from "../../schemas/contactValidationScheme";
 import { useFormik } from "formik";
 import axios from "axios";
+
 export default function Contact() {
+  const toast = useToast();
+  const toastSuccess = (message) => {
+    toast({
+      title: message,
+      status: "success",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
+
+  const toastError = (message) => {
+    toast({
+      title: message,
+      status: "error",
+      duration: 1000,
+      isClosable: true,
+      position: "top-right",
+    });
+  };
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -22,15 +44,16 @@ export default function Contact() {
       message: "",
     },
     validationSchema: contactValidationScheme,
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       console.log(values);
       axios
         .post("https://localhost:7013/api/Contacts/CreateContact", values)
         .then((response) => {
-          console.log("Email sent successfully", response);
+          toastSuccess("Email successfully sent!");
+          resetForm();
         })
         .catch((error) => {
-          console.log("Error occured", error);
+          toastError("Something went wrong");
         });
     },
   });

@@ -16,6 +16,7 @@ import {
   ModalBody,
   ModalFooter,
   Input,
+  IconButton,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -48,11 +49,11 @@ import {
 import useUserMedia from "../../customhooks/useUserMedia";
 import { FaPhoneSlash } from "react-icons/fa";
 import { clearIceCandidates } from "../../reducers/iceCandidateSlice";
+import { CloseIcon, PhoneIcon } from "@chakra-ui/icons";
 
 export function JobseekerMessages() {
   const toast = useToast();
   const { userId, token } = useUser();
-
   const [isOpen, setIsOpen] = useState(false);
   const [currentContact, setCurrentContact] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
@@ -66,6 +67,14 @@ export function JobseekerMessages() {
   const iceCandidates = useSelector((state) => state.iceCandidate.candidates);
   const [callerName, setCallerName] = useState("");
   const [isCallerNameFetched, setIsCallerNameFetched] = useState(false);
+  const audio = new Audio(audioFile);
+  useEffect(() => {
+    if (isCallDialogOpen) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }, [isCallDialogOpen]);
 
   const {
     mediaStream,
@@ -132,43 +141,31 @@ export function JobseekerMessages() {
     initializePeerConnection();
   };
   const handleReceiveCallOffer = async (callerId, offer) => {
-    setIsCallDialogOpen(true);
-    setCallerId(callerId);
-    setIsCallerNameFetched(false);
     try {
-      const response = await axios.get(
-        `https://localhost:7013/api/Recruiters/GetRecruiterName`,
-        {
-          params: { appUserId: callerId },
-        }
-      );
-      if (response.data) {
-        setCallerName(`${response.data.name} ${response.data.surname}`);
-        setIsCallerNameFetched(true);
-      }
-    } catch (err) {
-      console.error("Error fetching caller's name:", err);
-    }
-    if (!peerConnection) {
-      console.error("PeerConnection is not yet initialized.");
-      showToastError("PeerConnection is not yet initialized.");
-      return;
-    }
-    if (peerConnection.signalingState === "closed") {
-      console.error("PeerConnection signalingState is closed.");
-      showToastError("PeerConnection signalingState is closed.");
-      return;
-    }
+      setIsCallDialogOpen(true);
+      setCallerId(callerId);
 
-    try {
-      if (peerConnection.signalingState !== "stable") {
-        console.warn(
-          `PeerConnection is in an unsuitable state: ${peerConnection.signalingState}`
-        );
-        return;
-      }
+      if (!peerConnection)
+        throw new Error("PeerConnection is not yet initialized.");
+      if (peerConnection.signalingState === "closed")
+        throw new Error("PeerConnection signalingState is closed.");
       const remoteOffer = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteOffer);
+
+      try {
+        const response = await axios.get(
+          `https://localhost:7013/api/Recruiters/GetRecruiterName`,
+          {
+            params: { appUserId: callerId },
+          }
+        );
+        if (response.data) {
+          setCallerName(`${response.data.name} ${response.data.surname}`);
+          setIsCallerNameFetched(true);
+        }
+      } catch (err) {
+        console.error("Error fetching caller's name:", err);
+      }
       iceCandidates.forEach(async (candidate) => {
         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
       });
@@ -522,12 +519,24 @@ export function JobseekerMessages() {
                 {`You have an incoming call from ${callerName}. Do you want to accept?`}
               </AlertDialogBody>
               <AlertDialogFooter>
-                <Button onClick={() => setIsCallDialogOpen(false)}>
-                  Decline
-                </Button>
-                <Button colorScheme="green" onClick={handleAccept}>
-                  Accept
-                </Button>
+                <IconButton
+                  aria-label="Decline call"
+                  icon={<CloseIcon />}
+                  width="40px"
+                  colorScheme="red"
+                  onClick={async () => {
+                    await declineCall();
+                    setIsCallDialogOpen(false);
+                  }}
+                  mr={4}
+                />
+                <IconButton
+                  aria-label="Accept call"
+                  icon={<PhoneIcon />}
+                  width="40px"
+                  colorScheme="green"
+                  onClick={handleAccept}
+                />
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialogOverlay>
