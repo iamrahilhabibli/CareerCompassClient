@@ -38,6 +38,7 @@ export function Searchbar() {
   const navigate = useNavigate();
   const toast = useToast();
   const { userId, isAuthenticated, userRole } = useUser();
+
   const linkTo =
     isAuthenticated && userRole === "JobSeeker"
       ? `/resumebuild/${userId}`

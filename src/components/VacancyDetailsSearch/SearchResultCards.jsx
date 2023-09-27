@@ -52,6 +52,7 @@ import axios from "axios";
 import { fetchJobSeekerDetails } from "../../services/fetchJobSeekerDetails";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { result } from "lodash";
 export function SearchResultCards({ searchResults }) {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
@@ -257,6 +258,7 @@ export function SearchResultCards({ searchResults }) {
   if (isError) {
     navigate("/somethingwentwrong");
   }
+  console.log(vacancies);
   return (
     <>
       <Box
@@ -332,10 +334,16 @@ export function SearchResultCards({ searchResults }) {
                     >
                       {result.jobTitle}
                     </Text>
-                    <Text fontSize="16px" color="gray.500" fontWeight={300}>
+                    <Text
+                      mt={"8px"}
+                      fontSize="18px"
+                      color="gray.500"
+                      fontWeight={700}
+                    >
                       {result.companyName}
                     </Text>
                     <Text
+                      mt={"8px"}
                       fontSize="16px"
                       color="gray.500"
                       fontWeight={300}
@@ -347,7 +355,8 @@ export function SearchResultCards({ searchResults }) {
                       fontWeight={600}
                       mr={1}
                       mb={3}
-                      colorScheme="gray"
+                      colorScheme="teal"
+                      borderRadius={"8px"}
                       p={2}
                     >
                       ${result.salary}
@@ -360,9 +369,23 @@ export function SearchResultCards({ searchResults }) {
                         mr={1}
                         mb={3}
                         colorScheme="gray"
+                        borderRadius={"8px"}
                         p={2}
                       >
                         {jobType}
+                      </Badge>
+                    ))}
+                    {result.shiftAndScheduleIds.map((shift, index) => (
+                      <Badge
+                        fontWeight={600}
+                        key={index}
+                        mr={1}
+                        mb={3}
+                        borderRadius={"8px"}
+                        colorScheme="blue"
+                        p={2}
+                      >
+                        {shift}
                       </Badge>
                     ))}
                     <div
@@ -379,7 +402,10 @@ export function SearchResultCards({ searchResults }) {
                     </ChakraLink>
                     <Flex justifyContent="space-between">
                       <Text fontSize="xs" color="gray.500">
-                        {moment(result.dateCreated).local().fromNow()}
+                        {moment(result.dateCreated)
+                          .add(4, "hours")
+                          .local()
+                          .fromNow()}
                       </Text>
                     </Flex>
                   </Box>
