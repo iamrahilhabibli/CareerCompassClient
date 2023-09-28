@@ -329,7 +329,7 @@ export default function ResumeControl() {
                         gap={"8px"}
                         alignItems={"center"}
                       >
-                        <Button
+                        {/* <Button
                           colorScheme="yellow"
                           variant="outline"
                           size="xs"
@@ -340,7 +340,7 @@ export default function ResumeControl() {
                           //   }}
                         >
                           <EditIcon />
-                        </Button>
+                        </Button> */}
 
                         <Button
                           colorScheme="red"

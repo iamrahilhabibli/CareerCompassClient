@@ -23,7 +23,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import useUser from "../../customhooks/useUser";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckIcon, DeleteIcon } from "@chakra-ui/icons";
+import { CheckIcon, DeleteIcon, NotAllowedIcon } from "@chakra-ui/icons";
 
 export default function TestimonialFeedbacks() {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -126,16 +126,29 @@ export default function TestimonialFeedbacks() {
       );
 
       if (response.status === 200) {
-        toastSuccess("Successfully activated");
+        toast({
+          title: "Success",
+          description: "Successfully toggled the active state",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+
         const updatedFeedbacks = feedbackData.map((feedback) =>
           feedback.feedbackId === feedbackId
-            ? { ...feedback, isActive: true }
+            ? { ...feedback, isActive: !feedback.isActive }
             : feedback
         );
-        setFeedbackData(updatedFeedbacks);
+        setFeedbackData([...updatedFeedbacks]);
       }
     } catch (error) {
-      toastError("Something went wrong");
+      toast({
+        title: "Error",
+        description: "Something went wrong while toggling",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -239,7 +252,19 @@ export default function TestimonialFeedbacks() {
                         gap={"8px"}
                         alignItems={"center"}
                       >
-                        {!feedback.isActive && (
+                        {feedback.isActive ? (
+                          <Button
+                            colorScheme="red"
+                            variant="outline"
+                            size="xs"
+                            borderRadius="full"
+                            onClick={() =>
+                              handleSetIsActive(feedback.feedbackId)
+                            }
+                          >
+                            <NotAllowedIcon />
+                          </Button>
+                        ) : (
                           <Button
                             colorScheme="green"
                             variant="outline"
@@ -252,6 +277,7 @@ export default function TestimonialFeedbacks() {
                             <CheckIcon />
                           </Button>
                         )}
+
                         <Button
                           colorScheme="red"
                           variant="outline"

@@ -8,6 +8,7 @@ import {
   FormLabel,
   Input,
   Avatar,
+  useToast,
 } from "@chakra-ui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -65,7 +66,7 @@ const UserFeedback = () => {
       return "";
     }
   };
-
+  const toast = useToast();
   const handleAvatarChange = (e, setFieldValue) => {
     const file = e.target.files[0];
     console.log("Selected file: ", file);
@@ -93,8 +94,18 @@ const UserFeedback = () => {
           "avatar",
           "Could not upload the image. Please try again."
         );
+
+        toast({
+          title: "Image Upload Failed",
+          description: "Could not upload the image. Please try again.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+
         return;
       }
+
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
@@ -102,11 +113,30 @@ const UserFeedback = () => {
         imageUrl: uploadedImageURL,
         jobTitle: values.jobTitle,
       };
+
       console.log("Payload before sending:", payload);
+
       await axios.post("https://localhost:7013/api/Feedbacks/Post", payload);
+
       console.log("Feedback sent successfully");
+
+      toast({
+        title: "Feedback Sent",
+        description: "Your feedback has been successfully sent!",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.log("Error sending feedback:", error);
+
+      toast({
+        title: "An Error Occurred",
+        description: `Error sending feedback: ${error.message}`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setSubmitting(false);
     }
