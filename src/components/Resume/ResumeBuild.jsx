@@ -325,13 +325,20 @@ export function ResumeBuild() {
           </Heading>
         </Flex>
       </Box>
-      <VStack spacing={4} align="center" w="100%">
-        <Flex direction="column" w={["90%", "80%", "70%", "60%"]}>
+      <VStack spacing={8} align="center" w="100%">
+        <Flex
+          direction="column"
+          w={["90%", "80%", "70%", "60%"]}
+          p={8}
+          borderWidth={1}
+          borderRadius="md"
+          boxShadow="md"
+        >
           <form onSubmit={formik.handleSubmit}>
-            <FormControl mb={"20px"}>
+            <FormControl mb={6}>
               <FormLabel
                 htmlFor="firstName"
-                fontWeight="md"
+                fontWeight="bold"
                 color="gray.700"
                 _dark={{ color: "gray.50" }}
               >
@@ -344,6 +351,9 @@ export function ResumeBuild() {
                 value={formik.values.firstName}
                 isReadOnly
                 bg="gray.100"
+                border="2px"
+                borderColor="gray.200"
+                borderRadius="md"
               />
             </FormControl>
 
@@ -363,6 +373,9 @@ export function ResumeBuild() {
                 value={formik.values.lastName}
                 isReadOnly
                 bg="gray.100"
+                border="2px"
+                borderColor="gray.200"
+                borderRadius="md"
               />
             </FormControl>
 
@@ -382,6 +395,9 @@ export function ResumeBuild() {
                 value={formik.values.email}
                 isReadOnly
                 bg="gray.100"
+                border="2px"
+                borderColor="gray.200"
+                borderRadius="md"
               />
             </FormControl>
 
@@ -399,12 +415,15 @@ export function ResumeBuild() {
                 name="phoneNumber"
                 onChange={formik.handleChange}
                 value={formik.values.phoneNumber}
-                // isReadOnly
+                isReadOnly
                 bg="gray.100"
+                border="2px"
+                borderColor="gray.200"
+                borderRadius="md"
               />
             </FormControl>
 
-            <FormControl isRequired mb={"20px"}>
+            <FormControl isRequired mb={"20px"} borderColor="teal.500">
               <FormLabel
                 htmlFor="experience"
                 fontWeight="md"
@@ -413,13 +432,14 @@ export function ResumeBuild() {
               >
                 Years of Experience
               </FormLabel>
-
               <Select
                 name="experience"
                 id="experience"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.experience}
+                focusBorderColor="teal.500"
+                borderColor="gray.300"
               >
                 <option value="" disabled>
                   Select option
@@ -432,7 +452,7 @@ export function ResumeBuild() {
               </Select>
             </FormControl>
 
-            <FormControl isRequired mb={"20px"}>
+            <FormControl isRequired mb={"20px"} borderColor="teal.500">
               <FormLabel
                 htmlFor="education"
                 fontWeight="md"
@@ -447,6 +467,8 @@ export function ResumeBuild() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.education}
+                focusBorderColor="teal.500"
+                borderColor="gray.300"
               >
                 <option value="" disabled>
                   Select option
@@ -458,6 +480,7 @@ export function ResumeBuild() {
                 ))}
               </Select>
             </FormControl>
+
             <Editor
               apiKey="ampk5o36dpm7qqhr2h54evb0g8b4fqptomyoa5ntgpubk2h4"
               value={formik.values.description || defaultTemplate}
@@ -493,6 +516,11 @@ export function ResumeBuild() {
                   sessionStorage.setItem("selectedPlanId", plan.id);
                   initiatePaymentProcess(plan);
                 }}
+                colorScheme="teal"
+                variant="solid"
+                size="md"
+                mt={4}
+                boxShadow="md"
               >
                 Pay and Download {plan.name} for {plan.price}
               </Button>
